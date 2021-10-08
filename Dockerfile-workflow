@@ -1,0 +1,10 @@
+FROM toposoid/toposoid-core:0.1.0
+
+WORKDIR /app
+
+ENV DEPLOYMENT=local
+ENV _JAVA_OPTIONS="-Xms2g -Xmx4g"
+
+RUN git clone https://github.com/toposoid/toposoid-component-dispatcher-web.git
+
+
