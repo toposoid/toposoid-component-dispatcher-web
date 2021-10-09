@@ -4,6 +4,9 @@ Toposoid is a knowledge base construction platform.(see [Toposoid　Root Project
 This microservice integrates two major microservices. 
 One is a microservice that analyzes the predicate argument structure of japanese sentences, 
 and the other is a microservice that makes logical inferences.
+
+[![Unit Test And Build Image Action](https://github.com/toposoid/toposoid-component-dispatcher-web/actions/workflows/action.yml/badge.svg?branch=main)](https://github.com/toposoid/toposoid-component-dispatcher-web/actions/workflows/action.yml)
+
 <img width="1199" alt="2021-10-04 21 56 08" src="https://user-images.githubusercontent.com/82787843/135855266-3c674c67-3c90-4b9a-9ea4-1b9e8f4c0acf.png">
 
 ## Requirements
