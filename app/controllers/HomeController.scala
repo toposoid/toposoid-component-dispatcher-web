@@ -24,6 +24,7 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequ
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import com.ideal.linked.common.DeploymentConverter.conf
+import com.ideal.linked.toposoid.common.ToposoidUtils
 import com.ideal.linked.toposoid.protocol.model.parser.InputSentence
 import com.typesafe.scalalogging.LazyLogging
 
@@ -53,8 +54,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       val component: InputSentence = Json.parse(json.toString).as[InputSentence]
       logger.info(component.premise.toString())
       logger.info(component.claim.toString())
-      val parseResult:String = callComponent(json.toString(),conf.getString("SENTENCE_PARSER_WEB_HOST"), "9001", "analyze")
-      val deductionResult:String = callComponent(parseResult, conf.getString("DEDUCTION_ADMIN_WEB_HOST"), "9003", "executeDeduction")
+      val parseResult:String = ToposoidUtils.callComponent(json.toString(),conf.getString("SENTENCE_PARSER_WEB_HOST"), "9001", "analyze")
+      val deductionResult:String = ToposoidUtils.callComponent(parseResult, conf.getString("DEDUCTION_ADMIN_WEB_HOST"), "9003", "executeDeduction")
       Ok(deductionResult).as(JSON)
     }catch{
       case e: Exception => {
@@ -62,43 +63,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
         BadRequest(Json.obj("status" ->"Error", "message" -> e.toString()))
       }
     }
-  }
-
-  /**
-   * This function calls multiple microservices.
-   * @param json
-   * @param host
-   * @param port
-   * @param serviceName
-   * @return
-   */
-  private def callComponent(json:String, host:String, port:String, serviceName:String): String = {
-    implicit val system = ActorSystem()
-    implicit val materializer = ActorMaterializer()
-    implicit val executionContext = system.dispatcher
-    implicit val jsonStreamingSupport: JsonEntityStreamingSupport = EntityStreamingSupport.json()
-
-    val entity = HttpEntity(ContentTypes.`application/json`, json)
-    val request = HttpRequest(uri = "http://" + host + ":" + port + "/" + serviceName, method = HttpMethods.POST, entity = entity)
-    val result = Http().singleRequest(request)
-      .flatMap { res =>
-        Unmarshal(res).to[String].map { data =>
-          Json.parse(data.getBytes("UTF-8"))
-        }
-      }
-    var queryResultJson:String = """"{"records":[]}""""
-    result.onComplete {
-      case Success(js) =>
-        println(s"Success: $js")
-        queryResultJson = s"$js"
-      case Failure(e) =>
-        println(s"Failure: $e")
-    }
-
-    while(!result.isCompleted){
-      Thread.sleep(20)
-    }
-    queryResultJson
   }
 
 }
