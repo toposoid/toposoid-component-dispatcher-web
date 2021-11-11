@@ -8,6 +8,7 @@ on:
 env:
   PJ_ACTOR: toposoid
   PJ_REPO: toposoid-component-dispatcher-web
+  PJ_BRANCH: refactor-call-component
   PJ_VERSION: 0.1.1
 jobs:
   unit-test_toposoid-component-dispatcher-web:
@@ -19,7 +20,7 @@ jobs:
             repository: ${{ env.PJ_ACTOR }}/${{ env.PJ_REPO }}
       - name: Execute tests
         run: |
-            docker build --build-arg PERSONAL_ACCESS_TOKEN=${{ env.GITHUB_PAT }} --tag ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} -f Dockerfile-workflow .
+            docker build --build-arg TARGET_BRANCH=${{ env.PJ_BRANCH }} --tag ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} -f Dockerfile-workflow .
             docker-compose -f docker-compose-workflow.yml up -d
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt headerCheck"
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt test:headerCheck"
