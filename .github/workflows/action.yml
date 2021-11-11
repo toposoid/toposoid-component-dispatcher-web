@@ -44,3 +44,5 @@ jobs:
           context: .
           push: true
           tags: toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
+          build-args: |
+            TARGET_BRANCH=${{ env.PJ_BRANCH }}
