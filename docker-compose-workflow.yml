@@ -9,7 +9,7 @@ networks:
 
 services:
   toposoid-component-dispatcher-web:
-    image: toposoid-component-dispatcher-web:0.1.0
+    image: toposoid-component-dispatcher-web:0.1.1
     tty: true
     environment:
       - GRAPHDB_HOST=172.30.0.2

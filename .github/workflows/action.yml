@@ -1,13 +1,14 @@
-name: Unit Test And Build Image Action
+name: Test And Build
 on:
   push:
     branches:
       - main
+      - feature
   workflow_dispatch:
 env:
   PJ_ACTOR: toposoid
   PJ_REPO: toposoid-component-dispatcher-web
-  PJ_VERSION: 0.1.0
+  PJ_VERSION: 0.1.1
 jobs:
   unit-test_toposoid-component-dispatcher-web:
     runs-on: ubuntu-20.04
