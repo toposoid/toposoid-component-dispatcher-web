@@ -9,7 +9,7 @@ networks:
 
 services:
   toposoid-component-dispatcher-web:
-    image: toposoid-component-dispatcher-web:0.1.1
+    image: toposoid-component-dispatcher-web:0.1-SNAPSHOT
     tty: true
     environment:
       - GRAPHDB_HOST=172.30.0.2
@@ -17,6 +17,7 @@ services:
       - PLAY_HTTP_PORT=9004
       - SENTENCE_PARSER_WEB_HOST=172.30.0.7
       - DEDUCTION_ADMIN_WEB_HOST=172.30.0.6
+      - COMMON_NLP_WEB_HOST=172.30.0.9
     networks:
       app_net:
         ipv4_address: 172.30.0.8
@@ -24,9 +25,9 @@ services:
       - 9004:9004
     depends_on:
       - toposoid-deduction-admin-web
-      - toposoid-sentence-parser-web
-  toposoid-sentence-parser-web:
-    image: toposoid/toposoid-sentence-parser-web:0.1.0
+      - toposoid-sentence-parser-japanese-web
+  toposoid-sentence-parser-japanese-web:
+    image: toposoid/toposoid-sentence-parser-japanese-web:0.1-SNAPSHOT
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.7
@@ -37,7 +38,7 @@ services:
     ports:
       - 9001:9001
   toposoid-deduction-admin-web:
-    image: toposoid/toposoid-deduction-admin-web:0.1.0
+    image: toposoid/toposoid-deduction-admin-web:0.1-SNAPSHOT
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.6
@@ -53,7 +54,7 @@ services:
       - toposoid-deduction-unit-exact-match-web
       - toposoid-deduction-unit-synonym-match-web
   toposoid-deduction-unit-exact-match-web:
-    image: toposoid/toposoid-deduction-unit-exact-match-web:0.1.0
+    image: toposoid/toposoid-deduction-unit-exact-match-web:0.1-SNAPSHOT
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.5
       - SCALA_DATA_ACCESSOR_NEO4J_WEB_HOST=172.30.0.3
@@ -66,7 +67,7 @@ services:
     depends_on:
       - scala-data-accessor-neo4j-web
   toposoid-deduction-unit-synonym-match-web:
-    image: toposoid/toposoid-deduction-unit-synonym-match-web:0.1.0
+    image: toposoid/toposoid-deduction-unit-synonym-match-web:0.1-SNAPSHOT
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.4
       - SCALA_DATA_ACCESSOR_NEO4J_WEB_HOST=172.30.0.3
@@ -101,3 +102,14 @@ services:
     networks:
       app_net:
         ipv4_address: 172.30.0.2
+  scala-common-nlp-japanese-web:
+    image: toposoid/scala-common-nlp-japanese-web:0.1-SNAPSHOT
+    tty: true
+    environment:
+      - PRIVATE_IP_ADDRESS=172.30.0.9
+      - PLAY_HTTP_PORT=9006
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.9
+    ports:
+      - 9006:9006

@@ -9,7 +9,7 @@ networks:
 
 services:
   toposoid-component-dispatcher-web:
-    image: toposoid/toposoid-component-dispatcher-web:0.1.0
+    image: toposoid/toposoid-component-dispatcher-web:0.1-SNAPSHOT
     tty: true
     environment:
       - GRAPHDB_HOST=172.30.0.2
@@ -24,9 +24,9 @@ services:
       - 9004:9004
     depends_on:
       - toposoid-deduction-admin-web
-      - toposoid-sentence-parser-web
-  toposoid-sentence-parser-web:
-    image: toposoid/toposoid-sentence-parser-web:0.1.0
+      - toposoid-sentence-parser-japanese-web
+  toposoid-sentence-parser-japanese-web:
+    image: toposoid/toposoid-sentence-parser-japanese-web:0.1-SNAPSHOT
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.7
@@ -37,7 +37,7 @@ services:
     ports:
       - 9001:9001
   toposoid-deduction-admin-web:
-    image: toposoid/toposoid-deduction-admin-web:0.1.0
+    image: toposoid/toposoid-deduction-admin-web:0.1-SNAPSHOT
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.6
@@ -53,7 +53,7 @@ services:
       - toposoid-deduction-unit-exact-match-web
       - toposoid-deduction-unit-synonym-match-web
   toposoid-deduction-unit-exact-match-web:
-    image: toposoid/toposoid-deduction-unit-exact-match-web:0.1.0
+    image: toposoid/toposoid-deduction-unit-exact-match-web:0.1-SNAPSHOT
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=localhost
@@ -67,7 +67,7 @@ services:
     depends_on:
       - scala-data-accessor-neo4j-web
   toposoid-deduction-unit-synonym-match-web:
-    image: toposoid/toposoid-deduction-unit-synonym-match-web:0.1.0
+    image: toposoid/toposoid-deduction-unit-synonym-match-web:0.1-SNAPSHOT
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=localhost
