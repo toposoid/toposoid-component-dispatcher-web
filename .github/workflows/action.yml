@@ -46,3 +46,12 @@ jobs:
           tags: toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
           build-args: |
             TARGET_BRANCH=${{ env.PJ_BRANCH }}
+      - name: Build And Push Docker Image For Test
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile-smallspec
+          push: true
+          tags: toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}-workflow
+          build-args: |
+            TARGET_BRANCH=${{ env.PJ_BRANCH }}

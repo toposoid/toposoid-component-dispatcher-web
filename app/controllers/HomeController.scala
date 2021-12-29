@@ -17,14 +17,10 @@
 package controllers
 
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.common.{EntityStreamingSupport, JsonEntityStreamingSupport}
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest}
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.ActorMaterializer
 import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.toposoid.common.ToposoidUtils
+import com.ideal.linked.toposoid.knowledgebase.regist.model.Knowledge
+import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects}
 import com.ideal.linked.toposoid.protocol.model.parser.InputSentence
 import com.typesafe.scalalogging.LazyLogging
 
@@ -44,18 +40,31 @@ import scala.util.{Failure, Success}
 class HomeController @Inject()(val controllerComponents: ControllerComponents) extends BaseController  with LazyLogging{
 
   /**
-   * This function receives Japanese sentences as JSON. Sentences can be set in JSON separately for assumptions and claims.
+   * This function receives sentences as JSON. Sentences can be set in JSON separately for assumptions and claims.
    * Matches with the knowledge database and returns the result of the logical solution in JSON.
    * @return
    */
   def analyze() = Action(parse.json) { request =>
     try {
       val json = request.body
-      val component: InputSentence = Json.parse(json.toString).as[InputSentence]
-      logger.info(component.premise.toString())
-      logger.info(component.claim.toString())
-      val parseResult:String = ToposoidUtils.callComponent(json.toString(),conf.getString("SENTENCE_PARSER_WEB_HOST"), "9001", "analyze")
-      val deductionResult:String = ToposoidUtils.callComponent(parseResult, conf.getString("DEDUCTION_ADMIN_WEB_HOST"), "9003", "executeDeduction")
+      val inputSentence: InputSentence = Json.parse(json.toString).as[InputSentence]
+      logger.info(inputSentence.premise.toString())
+      logger.info(inputSentence.claim.toString())
+
+      val premiseJapanese:List[Knowledge] = inputSentence.premise.filter(_.lang == "ja_JP")
+      val claimJapanese:List[Knowledge] = inputSentence.claim.filter(_.lang == "ja_JP")
+      val premiseEnglish:List[Knowledge] = inputSentence.premise.filter(_.lang.startsWith("en_"))
+      val claimEnglish:List[Knowledge] = inputSentence.claim.filter(_.lang.startsWith("en_"))
+      val japaneseInputSentences:String = Json.toJson(InputSentence(premiseJapanese, claimJapanese)).toString()
+      val englishInputSentences:String = Json.toJson(InputSentence(premiseEnglish, claimEnglish)).toString()
+
+      val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("SENTENCE_PARSER_JP_WEB_HOST"), "9001", "analyze")
+      val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("SENTENCE_PARSER_EN_WEB_HOST"), "9007", "analyze")
+
+      val parseResult:List[AnalyzedSentenceObject] = Json.parse(parseResultJapanese).as[AnalyzedSentenceObjects].analyzedSentenceObjects ::: Json.parse(parseResultEnglish).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+      val parseResultJson:String = Json.toJson(AnalyzedSentenceObjects(parseResult)).toString()
+
+      val deductionResult:String = ToposoidUtils.callComponent(parseResultJson, conf.getString("DEDUCTION_ADMIN_WEB_HOST"), "9003", "executeDeduction")
       Ok(deductionResult).as(JSON)
     }catch{
       case e: Exception => {
