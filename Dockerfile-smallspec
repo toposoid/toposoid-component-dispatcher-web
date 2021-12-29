@@ -4,7 +4,7 @@ WORKDIR /app
 ARG TARGET_BRANCH
 
 ENV DEPLOYMENT=local
-ENV _JAVA_OPTIONS="-Xms512m -Xmx4g"
+ENV _JAVA_OPTIONS="-Xms256 -Xmx1g"
 
 RUN git clone https://github.com/toposoid/toposoid-component-dispatcher-web.git \
 && cd toposoid-component-dispatcher-web \
