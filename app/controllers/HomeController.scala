@@ -58,10 +58,26 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       val japaneseInputSentences:String = Json.toJson(InputSentence(premiseJapanese, claimJapanese)).toString()
       val englishInputSentences:String = Json.toJson(InputSentence(premiseEnglish, claimEnglish)).toString()
 
-      val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("SENTENCE_PARSER_JP_WEB_HOST"), "9001", "analyze")
-      val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("SENTENCE_PARSER_EN_WEB_HOST"), "9007", "analyze")
+      val numOfKnowledgeJapanese = premiseJapanese.size + claimJapanese.size
+      val numOfKnowledgeEnglish = premiseEnglish.size + claimEnglish.size
 
-      val parseResult:List[AnalyzedSentenceObject] = Json.parse(parseResultJapanese).as[AnalyzedSentenceObjects].analyzedSentenceObjects ::: Json.parse(parseResultEnglish).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+      val deductionJapaneseList:List[AnalyzedSentenceObject] = numOfKnowledgeJapanese match{
+        case 0 =>
+          List.empty[AnalyzedSentenceObject]
+        case _ =>
+          val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("SENTENCE_PARSER_JP_WEB_HOST"), "9001", "analyze")
+          Json.parse(parseResultJapanese).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+      }
+
+      val deductionEnglishList:List[AnalyzedSentenceObject] = numOfKnowledgeEnglish match{
+        case 0 =>
+          List.empty[AnalyzedSentenceObject]
+        case _ =>
+          val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("SENTENCE_PARSER_EN_WEB_HOST"), "9007", "analyze")
+          Json.parse(parseResultEnglish).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+      }
+
+      val parseResult:List[AnalyzedSentenceObject] = deductionJapaneseList ::: deductionEnglishList
       val parseResultJson:String = Json.toJson(AnalyzedSentenceObjects(parseResult)).toString()
 
       val deductionResult:String = ToposoidUtils.callComponent(parseResultJson, conf.getString("DEDUCTION_ADMIN_WEB_HOST"), "9003", "executeDeduction")
