@@ -25,13 +25,8 @@ services:
         ipv4_address: 172.30.0.12
     ports:
       - 9004:9004
-    depends_on:
-      - toposoid-deduction-admin-web
-      - toposoid-sentence-parser-japanese-web
-      - toposoid-sentence-parser-english-web
   toposoid-deduction-admin-web:
     image: toposoid/toposoid-deduction-admin-web:0.1-SNAPSHOT-workflow
-    tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.9
       - PLAY_HTTP_PORT=9003
@@ -42,12 +37,8 @@ services:
         ipv4_address: 172.30.0.9
     ports:
       - 9003:9003
-    depends_on:
-      - toposoid-deduction-unit-exact-match-web
-      - toposoid-deduction-unit-synonym-match-web
   toposoid-deduction-unit-exact-match-web:
     image: toposoid/toposoid-deduction-unit-exact-match-web:0.1-SNAPSHOT-workflow
-    tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.10
       - SCALA_DATA_ACCESSOR_NEO4J_WEB_HOST=172.30.0.3
@@ -57,8 +48,6 @@ services:
         ipv4_address: 172.30.0.10
     ports:
       - 9101:9101
-    depends_on:
-      - scala-data-accessor-neo4j-web
   toposoid-deduction-unit-synonym-match-web:
     image: toposoid/toposoid-deduction-unit-synonym-match-web:0.1-SNAPSHOT-workflow
     environment:
@@ -70,8 +59,6 @@ services:
         ipv4_address: 172.30.0.11
     ports:
       - 9102:9102
-    depends_on:
-      - scala-data-accessor-neo4j-web
   scala-data-accessor-neo4j-web:
     image: toposoid/scala-data-accessor-neo4j-web:0.1-SNAPSHOT-workflow
     environment:
@@ -83,11 +70,8 @@ services:
         ipv4_address: 172.30.0.3
     ports:
       - 9005:9005
-    depends_on:
-      - neo4j
   toposoid-sentence-parser-japanese-web:
     image: toposoid/toposoid-sentence-parser-japanese-web:0.1-SNAPSHOT-workflow
-    tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.4
       - PLAY_HTTP_PORT=9001
@@ -96,11 +80,14 @@ services:
         ipv4_address: 172.30.0.4
     ports:
       - 9001:9001
-  scala-common-nlp-japanese-web:
-    image: toposoid/scala-common-nlp-japanese-web:0.1-SNAPSHOT-workflow
-    tty: true
+  toposoid-common-nlp-japanese-web:
+    image: toposoid/toposoid-common-nlp-japanese-web:0.2-workflow
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.5
+      - SYNONYM_NOUN_SIMILARITY_THRESHHOLD_JP=0.52
+      - SYNONYM_VERB_SIMILARITY_THRESHHOLD_JP=0.52
+      - WORD2VEC_SIMILARITY_THRESHHOLD_JP=0.68
+      - CHIVE_MODEL_VERSION=chive-1.2-mc90.kv
       - PLAY_HTTP_PORT=9006
     networks:
       app_net:
@@ -119,13 +106,14 @@ services:
         ipv4_address: 172.30.0.6
     ports:
       - 9007:9007
-  scala-common-nlp-english-web:
-    image: toposoid/scala-common-nlp-english-web:0.1-SNAPSHOT
+  toposoid-common-nlp-english-web:
+    image: toposoid/toposoid-common-nlp-english-web:0.1-SNAPSHOT
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.7
-      - SYNONYM_NOUN_SIMILARITY_THRESHHOLD=0.52
-      - SYNONYM_VERB_SIMILARITY_THRESHHOLD=0.52
+      - SYNONYM_NOUN_SIMILARITY_THRESHHOLD_EN=0.52
+      - SYNONYM_VERB_SIMILARITY_THRESHHOLD_EN=0.52
+      - WORD2VEC_SIMILARITY_THRESHHOLD_EN=0.78
       - PLAY_HTTP_PORT=9008
     networks:
       app_net:

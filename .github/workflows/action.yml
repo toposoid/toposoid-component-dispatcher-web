@@ -21,11 +21,25 @@ jobs:
       - name: Execute tests
         run: |
             docker build --build-arg TARGET_BRANCH=${{ env.PJ_BRANCH }} --tag ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} -f Dockerfile-workflow .
-            docker-compose -f docker-compose-workflow.yml up -d
+            docker build --build-arg TARGET_BRANCH=${{ env.PJ_BRANCH }} --tag ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} -f Dockerfile-workflow .
+            docker-compose -f docker-compose-workflow.yml up -d toposoid-component-dispatcher-web
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt headerCheck"
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt test:headerCheck"
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt compile"
-            docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt test"
+            docker-compose -f docker-compose-workflow.yml up -d neo4j
+            docker-compose -f docker-compose-workflow.yml up -d scala-data-accessor-neo4j-web
+            docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-exact-match-web
+            docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-synonym-match-web
+            docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-admin-web
+            docker-compose -f docker-compose-workflow.yml up -d toposoid-common-nlp-japanese-web
+            docker-compose -f docker-compose-workflow.yml up -d toposoid-sentence-parser-japanese-web
+            docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*Japanese'"
+            docker-compose -f docker-compose-workflow.yml rm -fsv toposoid-common-nlp-japanese-web
+            docker-compose -f docker-compose-workflow.yml rm -fsv toposoid-sentence-parser-japanese-web
+            docker-compose -f docker-compose-workflow.yml up -d corenlp
+            docker-compose -f docker-compose-workflow.yml up -d toposoid-common-nlp-english-web
+            docker-compose -f docker-compose-workflow.yml up -d toposoid-sentence-parser-english-web
+            docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*English'"
             docker-compose -f docker-compose-workflow.yml down
             docker rmi --force ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
       - name: Docker meta
