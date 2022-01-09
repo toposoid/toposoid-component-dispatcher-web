@@ -7,7 +7,7 @@ and the other is a microservice that makes logical inferences.
 
 [![Unit Test And Build Image Action](https://github.com/toposoid/toposoid-component-dispatcher-web/actions/workflows/action.yml/badge.svg?branch=main)](https://github.com/toposoid/toposoid-component-dispatcher-web/actions/workflows/action.yml)
 
-<img width="1199" alt="2021-10-04 21 56 08" src="https://user-images.githubusercontent.com/82787843/135855266-3c674c67-3c90-4b9a-9ea4-1b9e8f4c0acf.png">
+<img width="1090" src="https://user-images.githubusercontent.com/82787843/148678962-ac4842eb-2da2-45e2-953d-39dd392d9b30.png">
 
 ## Requirements
 * Docker version 20.10.x, or later
@@ -24,9 +24,15 @@ docker-compose up -d
 It takes more than 20 minutes to pull the Docker image for the first time.
 ## Usage
 ```bash
+#Japanese
 curl -X POST -H "Content-Type: application/json" -d '{
     "premise":[],
-    "claim":["案ずるより産むが易し。"]
+    "claim":[{"sentence":"案ずるより産むが易し。","lang": "ja_JP", "extentInfoJson":"{}"}]
+}' http://localhost:9004/analyze
+#English
+curl -X POST -H "Content-Type: application/json" -d '{
+    "premise":[],
+    "claim":[{"sentence":"Our life is our art.", "lang": "en_US", "extentInfoJson":"{}"}]
 }' http://localhost:9004/analyze
 ```
 
