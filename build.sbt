@@ -1,7 +1,7 @@
 name := """toposoid-component-dispatcher-web"""
 organization := "com.ideal.linked"
 
-version := "0.1.0"
+version := "0.2"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala).enablePlugins(AutomateHeaderPlugin)
 
@@ -14,13 +14,13 @@ scalaVersion := "2.12.12"
 
 libraryDependencies += guice
 libraryDependencies += "com.google.code.gson" % "gson" % "2.8.6"
-libraryDependencies += "com.ideal.linked" %% "scala-common" % "0.1.0"
-libraryDependencies += "com.ideal.linked" %% "toposoid-common" % "0.1.0"
-libraryDependencies += "com.ideal.linked" %% "toposoid-knowledgebase-model" % "0.1.0"
-libraryDependencies += "com.ideal.linked" %% "toposoid-deduction-protocol-model" % "0.1.0"
+libraryDependencies += "com.ideal.linked" %% "scala-common" % "0.2"
+libraryDependencies += "com.ideal.linked" %% "toposoid-common" % "0.2"
+libraryDependencies += "com.ideal.linked" %% "toposoid-knowledgebase-model" % "0.2"
+libraryDependencies += "com.ideal.linked" %% "toposoid-deduction-protocol-model" % "0.2"
 libraryDependencies += "javax.mail" % "mail" % "1.4.7"
 libraryDependencies += "commons-io" % "commons-io" % "2.6"
 libraryDependencies += "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.14"
 libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.5.31"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
-libraryDependencies += "com.ideal.linked" %% "toposoid-sentence-transformer-neo4j" % "0.1.0" % Test
+libraryDependencies += "com.ideal.linked" %% "toposoid-sentence-transformer-neo4j" % "0.2" % Test

@@ -29,15 +29,15 @@ import play.api.libs.json.Json
 import play.api.test.Helpers.{POST, contentAsString, contentType, defaultAwaitTimeout, status, _}
 import play.api.test.{FakeRequest, _}
 
-class HomeControllerSpec extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite  with Injecting{
+class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite  with Injecting{
 
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
-    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("案ずるより産むが易し。", "{}")))
+    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("案ずるより産むが易し。", "ja_JP", "{}")))
   }
 
   override def afterAll(): Unit = {
-    //Neo4JAccessor.delete()
+    Neo4JAccessor.delete()
   }
 
   val controller: HomeController = inject[HomeController]
@@ -46,7 +46,7 @@ class HomeControllerSpec extends PlaySpec with BeforeAndAfter with BeforeAndAfte
 
       val json = """{
                    |    "premise":[],
-                   |    "claim":["案ずるより産むが易し。"]
+                   |    "claim":[{"sentence":"案ずるより産むが易し。","lang": "ja_JP", "extentInfoJson":"{}"}]
                    |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyze")
@@ -58,6 +58,7 @@ class HomeControllerSpec extends PlaySpec with BeforeAndAfter with BeforeAndAfte
       contentType(result) mustBe Some("application/json")
       val jsonResult = contentAsJson(result).toString()
       val analyzedSentenceObjects: AnalyzedSentenceObjects = Json.parse(jsonResult).as[AnalyzedSentenceObjects]
+      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("0").get.status).size == 0)
       assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("1").get.status).size == 1)
 
     }

@@ -9,5 +9,13 @@ ENV _JAVA_OPTIONS="-Xms256m -Xmx1g"
 RUN git clone https://github.com/toposoid/toposoid-component-dispatcher-web.git \
 && cd toposoid-component-dispatcher-web \
 && git fetch origin ${TARGET_BRANCH} \
-&& git checkout ${TARGET_BRANCH}
+&& git checkout ${TARGET_BRANCH} \
+&& sbt playUpdateSecret 1> /dev/null \
+&& sbt dist  \
+&& cd /app/toposoid-component-dispatcher-web/target/universal  \
+&& unzip -o toposoid-component-dispatcher-web-0.2.zip
+
+
+COPY ./docker-entrypoint.sh /app/
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
