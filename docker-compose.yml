@@ -9,7 +9,7 @@ networks:
 
 services:
   toposoid-component-dispatcher-web:
-    image: toposoid-component-dispatcher-web:0.2
+    image: toposoid-component-dispatcher-web:0.3-SNAPSHOT
     tty: true
     environment:
       - GRAPHDB_HOST=172.30.0.2
@@ -28,7 +28,7 @@ services:
       - toposoid-sentence-parser-japanese-web
       - toposoid-sentence-parser-english-web
   toposoid-deduction-admin-web:
-    image: toposoid/toposoid-deduction-admin-web:0.2
+    image: toposoid/toposoid-deduction-admin-web:0.3-SNAPSHOT
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.9
@@ -44,7 +44,7 @@ services:
       - toposoid-deduction-unit-exact-match-web
       - toposoid-deduction-unit-synonym-match-web
   toposoid-deduction-unit-exact-match-web:
-    image: toposoid/toposoid-deduction-unit-exact-match-web:0.2
+    image: toposoid/toposoid-deduction-unit-exact-match-web:0.3-SNAPSHOT
     tty: true
     environment:
       - GRAPHDB_HOST=172.30.0.2
@@ -59,7 +59,7 @@ services:
     depends_on:
       - scala-data-accessor-neo4j-web
   toposoid-deduction-unit-synonym-match-web:
-    image: toposoid/toposoid-deduction-unit-synonym-match-web:0.2
+    image: toposoid/toposoid-deduction-unit-synonym-match-web:0.3-SNAPSHOT
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.11
       - SCALA_DATA_ACCESSOR_NEO4J_WEB_HOST=172.30.0.3
@@ -72,7 +72,7 @@ services:
     depends_on:
       - scala-data-accessor-neo4j-web
   scala-data-accessor-neo4j-web:
-    image: toposoid/scala-data-accessor-neo4j-web:0.2
+    image: toposoid/scala-data-accessor-neo4j-web:0.3-SNAPSHOT
     environment:
       - GRAPHDB_HOST=172.30.0.2
       - PRIVATE_IP_ADDRESS=172.30.0.3
@@ -85,7 +85,7 @@ services:
     depends_on:
       - neo4j
   toposoid-sentence-parser-japanese-web:
-    image: toposoid/toposoid-sentence-parser-japanese-web:0.2
+    image: toposoid/toposoid-sentence-parser-japanese-web:0.3-SNAPSHOT
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.4
@@ -96,7 +96,7 @@ services:
     ports:
       - 9001:9001
   toposoid-sentence-parser-english-web:
-    image: toposoid/toposoid-sentence-parser-english-web:0.2
+    image: toposoid/toposoid-sentence-parser-english-web:0.3-SNAPSHOT
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.6
