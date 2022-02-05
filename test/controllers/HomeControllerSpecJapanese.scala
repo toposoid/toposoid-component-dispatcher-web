@@ -63,5 +63,152 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
     }
   }
+
+  "The specification2" should {
+    "returns an appropriate response" in {
+
+      val json = """{
+                   |  "operator": "OR",
+                   |  "knowledgeLeft": {
+                   |    "operator": "AND",
+                   |    "knowledgeLeft": {
+                   |      "leaf": {
+                   |        "premiseList": [
+                   |          {
+                   |            "sentence": "これはテストの前提1です。",
+                   |            "lang": "ja_JP",
+                   |            "extentInfoJson": "{}"
+                   |          },
+                   |          {
+                   |            "sentence": "これはテストの前提2です。",
+                   |            "lang": "ja_JP",
+                   |            "extentInfoJson": "{}"
+                   |          }
+                   |        ],
+                   |        "premiseLogicRelation": [
+                   |          {
+                   |            "operator": "AND",
+                   |            "sourceIndex": 0,
+                   |            "destinationIndex": 1
+                   |          }
+                   |        ],
+                   |        "claimList": [
+                   |          {
+                   |            "sentence": "これはテストの主張1です。",
+                   |            "lang": "ja_JP",
+                   |            "extentInfoJson": "{}"
+                   |          },
+                   |          {
+                   |            "sentence": "これはテストの主張2です。",
+                   |            "lang": "ja_JP",
+                   |            "extentInfoJson": "{}"
+                   |          }
+                   |        ],
+                   |        "claimLogicRelation": [
+                   |          {
+                   |            "operator": "OR",
+                   |            "sourceIndex": 0,
+                   |            "destinationIndex": 1
+                   |          }
+                   |        ]
+                   |      }
+                   |    },
+                   |    "knowledgeRight": {
+                   |      "leaf": {
+                   |        "premiseList": [
+                   |          {
+                   |            "sentence": "これはテストの前提3です。",
+                   |            "lang": "ja_JP",
+                   |            "extentInfoJson": "{}"
+                   |          },
+                   |          {
+                   |            "sentence": "これはテストの前提4です。",
+                   |            "lang": "ja_JP",
+                   |            "extentInfoJson": "{}"
+                   |          }
+                   |        ],
+                   |        "premiseLogicRelation": [
+                   |          {
+                   |            "operator": "AND",
+                   |            "sourceIndex": 0,
+                   |            "destinationIndex": 1
+                   |          }
+                   |        ],
+                   |        "claimList": [
+                   |          {
+                   |            "sentence": "これはテストの主張3です。",
+                   |            "lang": "ja_JP",
+                   |            "extentInfoJson": "{}"
+                   |          },
+                   |          {
+                   |            "sentence": "これはテストの主張4です。",
+                   |            "lang": "ja_JP",
+                   |            "extentInfoJson": "{}"
+                   |          }
+                   |        ],
+                   |        "claimLogicRelation": [
+                   |          {
+                   |            "operator": "OR",
+                   |            "sourceIndex": 0,
+                   |            "destinationIndex": 1
+                   |          }
+                   |        ]
+                   |      }
+                   |    }
+                   |  },
+                   |  "knowledgeRight": {
+                   |    "leaf": {
+                   |      "premiseList": [
+                   |        {
+                   |          "sentence": "これはテストの前提5です。",
+                   |          "lang": "ja_JP",
+                   |          "extentInfoJson": "{}"
+                   |        },
+                   |        {
+                   |          "sentence": "これはテストの前提6です。",
+                   |          "lang": "ja_JP",
+                   |          "extentInfoJson": "{}"
+                   |        }
+                   |      ],
+                   |      "premiseLogicRelation": [
+                   |        {
+                   |          "operator": "AND",
+                   |          "sourceIndex": 0,
+                   |          "destinationIndex": 1
+                   |        }
+                   |      ],
+                   |      "claimList": [
+                   |        {
+                   |          "sentence": "これはテストの主張5です。",
+                   |          "lang": "ja_JP",
+                   |          "extentInfoJson": "{}"
+                   |        },
+                   |        {
+                   |          "sentence": "これはテストの主張6です。",
+                   |          "lang": "ja_JP",
+                   |          "extentInfoJson": "{}"
+                   |        }
+                   |      ],
+                   |      "claimLogicRelation": [
+                   |        {
+                   |          "operator": "OR",
+                   |          "sourceIndex": 0,
+                   |          "destinationIndex": 1
+                   |        }
+                   |      ]
+                   |    }
+                   |  }
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+    }
+  }
+
+
 }
 

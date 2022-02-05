@@ -63,5 +63,151 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
 
     }
   }
+
+  "The specification2" should {
+    "returns an appropriate response" in {
+
+      val json = """{
+                   |  "operator": "OR",
+                   |  "knowledgeLeft": {
+                   |    "operator": "AND",
+                   |    "knowledgeLeft": {
+                   |      "leaf": {
+                   |        "premiseList": [
+                   |          {
+                   |            "sentence": "This is a premise1.",
+                   |            "lang": "en_US",
+                   |            "extentInfoJson": "{}"
+                   |          },
+                   |          {
+                   |            "sentence": "This is a premise2.",
+                   |            "lang": "en_US",
+                   |            "extentInfoJson": "{}"
+                   |          }
+                   |        ],
+                   |        "premiseLogicRelation": [
+                   |          {
+                   |            "operator": "AND",
+                   |            "sourceIndex": 0,
+                   |            "destinationIndex": 1
+                   |          }
+                   |        ],
+                   |        "claimList": [
+                   |          {
+                   |            "sentence": "This is a claim1.",
+                   |            "lang": "en_US",
+                   |            "extentInfoJson": "{}"
+                   |          },
+                   |          {
+                   |            "sentence": "This is a claim2.",
+                   |            "lang": "en_US",
+                   |            "extentInfoJson": "{}"
+                   |          }
+                   |        ],
+                   |        "claimLogicRelation": [
+                   |          {
+                   |            "operator": "OR",
+                   |            "sourceIndex": 0,
+                   |            "destinationIndex": 1
+                   |          }
+                   |        ]
+                   |      }
+                   |    },
+                   |    "knowledgeRight": {
+                   |      "leaf": {
+                   |        "premiseList": [
+                   |          {
+                   |            "sentence": "This is a premise3.",
+                   |            "lang": "en_US",
+                   |            "extentInfoJson": "{}"
+                   |          },
+                   |          {
+                   |            "sentence": "This is a premise4.",
+                   |            "lang": "en_US",
+                   |            "extentInfoJson": "{}"
+                   |          }
+                   |        ],
+                   |        "premiseLogicRelation": [
+                   |          {
+                   |            "operator": "AND",
+                   |            "sourceIndex": 0,
+                   |            "destinationIndex": 1
+                   |          }
+                   |        ],
+                   |        "claimList": [
+                   |          {
+                   |            "sentence": "This is a claim3.",
+                   |            "lang": "en_US",
+                   |            "extentInfoJson": "{}"
+                   |          },
+                   |          {
+                   |            "sentence": "This is a claim4.",
+                   |            "lang": "en_US",
+                   |            "extentInfoJson": "{}"
+                   |          }
+                   |        ],
+                   |        "claimLogicRelation": [
+                   |          {
+                   |            "operator": "OR",
+                   |            "sourceIndex": 0,
+                   |            "destinationIndex": 1
+                   |          }
+                   |        ]
+                   |      }
+                   |    }
+                   |  },
+                   |  "knowledgeRight": {
+                   |    "leaf": {
+                   |      "premiseList": [
+                   |        {
+                   |          "sentence": "This is a premise5.",
+                   |          "lang": "en_US",
+                   |          "extentInfoJson": "{}"
+                   |        },
+                   |        {
+                   |          "sentence": "This is a premise6.",
+                   |          "lang": "en_US",
+                   |          "extentInfoJson": "{}"
+                   |        }
+                   |      ],
+                   |      "premiseLogicRelation": [
+                   |        {
+                   |          "operator": "AND",
+                   |          "sourceIndex": 0,
+                   |          "destinationIndex": 1
+                   |        }
+                   |      ],
+                   |      "claimList": [
+                   |        {
+                   |          "sentence": "This is a claim5.",
+                   |          "lang": "en_US",
+                   |          "extentInfoJson": "{}"
+                   |        },
+                   |        {
+                   |          "sentence": "This is a claim6.",
+                   |          "lang": "en_US",
+                   |          "extentInfoJson": "{}"
+                   |        }
+                   |      ],
+                   |      "claimLogicRelation": [
+                   |        {
+                   |          "operator": "OR",
+                   |          "sourceIndex": 0,
+                   |          "destinationIndex": 1
+                   |        }
+                   |      ]
+                   |    }
+                   |  }
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+    }
+  }
+
 }
 
