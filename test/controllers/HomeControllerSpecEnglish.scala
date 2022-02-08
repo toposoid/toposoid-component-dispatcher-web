@@ -19,6 +19,7 @@ package controllers
 import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
 import com.ideal.linked.toposoid.knowledgebase.regist.model.Knowledge
 import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObjects
+import com.ideal.linked.toposoid.protocol.model.sat.FlattenedKnowledgeTree
 import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
@@ -102,13 +103,24 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |            "sentence": "This is a claim2.",
                    |            "lang": "en_US",
                    |            "extentInfoJson": "{}"
+                   |          },
+                   |          {
+                   |            "sentence": "This is a claim3.",
+                   |            "lang": "en_US",
+                   |            "extentInfoJson": "{}"
                    |          }
+                   |
                    |        ],
                    |        "claimLogicRelation": [
                    |          {
                    |            "operator": "OR",
                    |            "sourceIndex": 0,
                    |            "destinationIndex": 1
+                   |          },
+                   |          {
+                   |            "operator": "AND",
+                   |            "sourceIndex": 1,
+                   |            "destinationIndex": 2
                    |          }
                    |        ]
                    |      }
@@ -136,12 +148,12 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |        ],
                    |        "claimList": [
                    |          {
-                   |            "sentence": "This is a claim3.",
+                   |            "sentence": "This is a claim4.",
                    |            "lang": "en_US",
                    |            "extentInfoJson": "{}"
                    |          },
                    |          {
-                   |            "sentence": "This is a claim4.",
+                   |            "sentence": "This is a claim5.",
                    |            "lang": "en_US",
                    |            "extentInfoJson": "{}"
                    |          }
@@ -168,6 +180,11 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |          "sentence": "This is a premise6.",
                    |          "lang": "en_US",
                    |          "extentInfoJson": "{}"
+                   |        },
+                   |        {
+                   |          "sentence": "This is a premise7.",
+                   |          "lang": "en_US",
+                   |          "extentInfoJson": "{}"
                    |        }
                    |      ],
                    |      "premiseLogicRelation": [
@@ -175,16 +192,21 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |          "operator": "AND",
                    |          "sourceIndex": 0,
                    |          "destinationIndex": 1
+                   |        },
+                   |        {
+                   |          "operator": "AND",
+                   |          "sourceIndex": 0,
+                   |          "destinationIndex": 2
                    |        }
                    |      ],
                    |      "claimList": [
                    |        {
-                   |          "sentence": "This is a claim5.",
+                   |          "sentence": "This is a claim6.",
                    |          "lang": "en_US",
                    |          "extentInfoJson": "{}"
                    |        },
                    |        {
-                   |          "sentence": "This is a claim6.",
+                   |          "sentence": "This is a claim7.",
                    |          "lang": "en_US",
                    |          "extentInfoJson": "{}"
                    |        }
@@ -206,8 +228,17 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
 
       val result = call(controller.analyzeKnowledgeTree(), fr)
       status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val flattenKnowledgeTree: FlattenedKnowledgeTree = Json.parse(jsonResult).as[FlattenedKnowledgeTree]
+      assert(flattenKnowledgeTree.formula ==  "0 5 AND 9 OR")
+      assert(flattenKnowledgeTree.subFormulaMap.get("0").get == "0 1 AND 3 4 OR 4 5 AND AND AND IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("5").get == "5 6 AND 8 9 OR IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("9").get == "9 10 AND 9 11 AND AND AND 13 14 OR IMP")
+
     }
   }
+
 
 }
 
