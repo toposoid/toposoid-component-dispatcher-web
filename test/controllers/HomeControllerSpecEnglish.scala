@@ -16,6 +16,8 @@
 
 package controllers
 
+
+import akka.util.Timeout
 import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
 import com.ideal.linked.toposoid.knowledgebase.regist.model.Knowledge
 import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObjects
@@ -30,7 +32,9 @@ import play.api.libs.json.Json
 import play.api.test.Helpers.{POST, contentType, defaultAwaitTimeout, status, _}
 import play.api.test.{FakeRequest, _}
 
-class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite  with Injecting{
+import scala.concurrent.duration.DurationInt
+
+class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite with DefaultAwaitTimeout with Injecting{
 
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
@@ -41,8 +45,11 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
     Neo4JAccessor.delete()
   }
 
+  override implicit def defaultAwaitTimeout: Timeout = 60.seconds
+
   val controller: HomeController = inject[HomeController]
   "The specification1" should {
+
     "returns an appropriate response" in {
 
       val json = """{
@@ -65,8 +72,11 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
     }
   }
 
+
+
   "The specification2" should {
     "returns an appropriate response" in {
+
 
       val json = """{
                    |  "operator": "OR",
