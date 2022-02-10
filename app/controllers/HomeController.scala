@@ -174,7 +174,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
 
         val premiseFormula:String = makeFormula(premiseIds, v.premiseLogicRelation)
         val claimFormula:String = makeFormula(claimIds, v.claimLogicRelation)
-        val subFormula = "%s %s IMP".format(claimFormula, premiseFormula) //BNF Formula
+        val subFormula = "%s %s IMP".format(premiseFormula, claimFormula)
         val subFormulaMap = result.subFormulaMap ++ Map(leafId.toString -> subFormula)
 
         ParsedKnowledgeTree(leafId,  newSatIdMap, result.formula, subFormulaMap, result.deductionResults:::parseKnowledgeSentence(v))
