@@ -35,7 +35,7 @@ case class ParsedKnowledgeTree( leafId:Int,
                                 satIdMap: Map[String, String],
                                 formula:String,
                                 subFormulaMap:Map[String, String],
-                                deductionResults: List[AnalyzedSentenceObject])
+                                analyzedSentenceObjects: List[AnalyzedSentenceObject])
 /**
  * This controller creates an `Action` to integrates two major microservices.
  * One is a microservice that analyzes the predicate argument structure of sentences,
@@ -80,12 +80,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       val knowledgeTree: KnowledgeTree = Json.parse(json.toString).as[KnowledgeTree]
       val initResultObject = ParsedKnowledgeTree(-1, Map.empty[String, String], "", Map.empty[String, String], List.empty[AnalyzedSentenceObject])
       val result = this.analyzeRecursive(knowledgeTree, initResultObject)
-      val parseResult:List[AnalyzedSentenceObject] = result.deductionResults
-      val parseResultJson:String = Json.toJson(AnalyzedSentenceObjects(parseResult)).toString()
+      val analyzedSentenceObjects:List[AnalyzedSentenceObject] = result.analyzedSentenceObjects
+      val parseResultJson:String = Json.toJson(AnalyzedSentenceObjects(analyzedSentenceObjects)).toString()
       val deductionResult:String = ToposoidUtils.callComponent(parseResultJson, conf.getString("DEDUCTION_ADMIN_WEB_HOST"), "9003", "executeDeduction")
-      val analyzedSentenceObjects = Json.parse(deductionResult).as[AnalyzedSentenceObjects]
-      val deductionResults:List[Map[String, DeductionResult]] = analyzedSentenceObjects.analyzedSentenceObjects.map(_.deductionResultMap)
-      val flattenKnowledgeTree = FlattenedKnowledgeTree(result.satIdMap, result.formula.trim, result.subFormulaMap, deductionResults)
+      val analyzedSentenceObjectsAfterDeduction = Json.parse(deductionResult).as[AnalyzedSentenceObjects]
+      val subFormulaMapAfterAssignment = assignTrivialProposition(analyzedSentenceObjectsAfterDeduction, result.satIdMap, result.subFormulaMap)
+      val flattenKnowledgeTree = FlattenedKnowledgeTree(result.satIdMap, result.formula.trim, subFormulaMapAfterAssignment)
       Ok(Json.toJson(flattenKnowledgeTree)).as(JSON)
     }catch{
       case e: Exception => {
@@ -94,6 +94,68 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       }
     }
   }
+
+
+  /**
+   * This function performs the assignment of propositions whose truth is obvious from the knowledge graph
+   * @param analyzedSentenceObjects
+   * @param satIdMap
+   * @param subFormulaMap
+   * @return
+   */
+  private def assignTrivialProposition(analyzedSentenceObjects:AnalyzedSentenceObjects, satIdMap:Map[String, String], subFormulaMap:Map[String, String]): Map[String, String] ={
+
+    val reverseSatIdMap =  (satIdMap.values zip satIdMap.keys).groupBy(_._1).mapValues(_.map(_._2).head)
+    //This is a list of PropositionIds that can be found to be true or false as a result of searching GraphDB.
+    val trivialPropositionIds:Map[String,Option[Boolean]] =
+      analyzedSentenceObjects.analyzedSentenceObjects.foldLeft(Map.empty[String, Option[Boolean]]){
+        (acc, x) =>
+          acc ++ extractDeductionResult(x)
+      }
+    //This is converting the positionId to satId
+    val trivialSatIds = trivialPropositionIds.foldLeft(Map.empty[String, Option[Boolean]]){
+      (acc, x) =>
+        acc ++ Map(reverseSatIdMap.get(x._1).get -> x._2)
+    }.filter(y=> y._2.isDefined)
+
+    //This is the assignment of trivial propositional truth values to formula
+    subFormulaMap.foldLeft(Map.empty[String, String]){
+      (acc, x) =>
+        acc ++ Map(x._1 -> assignment(x._2, trivialSatIds))
+    }
+  }
+
+  /**
+   * True/False assignment
+   * @param subFormula
+   * @param trivialSatIds
+   * @return
+   */
+  private def assignment(subFormula:String, trivialSatIds:Map[String, Option[Boolean]]): String ={
+    subFormula.split(" ").map(x => trivialSatIds.isDefinedAt(x) match  {
+      case true => trivialSatIds.get(x).get.toString
+      case false => x
+    }).mkString(" ")
+  }
+
+  /**
+   * This function extracts a trivial proposition as a result of searching GraphDB.
+   * @param analyzedSentenceObject
+   * @return
+   */
+  private def extractDeductionResult(analyzedSentenceObject:AnalyzedSentenceObject): Map[String, Option[Boolean]] ={
+    //An analyzedSentenceObject always has one propositionId.
+    val propositionId = analyzedSentenceObject.nodeMap.map(_._2.propositionId).head
+
+    //An analyzedSentenceObject has GraphDB search results of either Premis or Claim depending on the sentenceType.
+    val deductionResult:DeductionResult = analyzedSentenceObject.deductionResultMap.get(analyzedSentenceObject.sentenceType.toString).get
+    val status:Option[Boolean] = deductionResult.matchedPropositionIds.size match {
+      case 0 => None
+      case _ => Some(deductionResult.status)
+    }
+    Map(propositionId -> status)
+  }
+
 
   /**
    * This function delegates the processing of a given sentence to passer for each multilingual.
@@ -150,7 +212,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
           case -1 => "%s %s %s".format(r2.formula, r2.leafId, v)
           case _ => "%s %s %s %s".format(r2.formula, r1.leafId, r2.leafId, v)
         }
-        ParsedKnowledgeTree(-1,  r2.satIdMap, newFormula, r2.subFormulaMap, r2.deductionResults)
+        ParsedKnowledgeTree(-1,  r2.satIdMap, newFormula, r2.subFormulaMap, r2.analyzedSentenceObjects)
       case KnowledgeLeaf(v) =>
         print("%s ".format(v.premiseList.map(_.sentence).mkString(",")))
         //parse v
@@ -176,10 +238,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
         val claimFormula:String = makeFormula(claimIds, v.claimLogicRelation)
         val subFormula = "%s %s IMP".format(premiseFormula, claimFormula)
         val subFormulaMap = result.subFormulaMap ++ Map(leafId.toString -> subFormula)
-
-        ParsedKnowledgeTree(leafId,  newSatIdMap, result.formula, subFormulaMap, result.deductionResults:::parseKnowledgeSentence(v))
+        ParsedKnowledgeTree(leafId,  newSatIdMap, result.formula, subFormulaMap, result.analyzedSentenceObjects:::parseKnowledgeSentence(v))
     }
-
   }
 
   /**
@@ -196,7 +256,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       case _ => (0 to relations.size - 1).toList.foldLeft(formula){ (acc, x) => acc + " AND"}
     }
   }
-
 
 }
 
