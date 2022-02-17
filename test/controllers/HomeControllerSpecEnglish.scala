@@ -19,7 +19,7 @@ package controllers
 
 import akka.util.Timeout
 import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
-import com.ideal.linked.toposoid.knowledgebase.regist.model.Knowledge
+import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObjects
 import com.ideal.linked.toposoid.protocol.model.sat.FlattenedKnowledgeTree
 import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
@@ -39,13 +39,22 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
     Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("Life is so comfortable.","en_US", "{}")))
+    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("This is a premise3.", "en_US", "{}")))
+    val knowledgeSentenceSet = KnowledgeSentenceSet(
+      List(Knowledge("This is a premise3.","en_US", "{}")),
+      List.empty[PropositionRelation],
+      List(Knowledge("This is a claim3.","en_US", "{}")),
+      List.empty[PropositionRelation])
+    Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSet)
+    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("This is a claim5.", "en_US", "{}")))
+
   }
 
   override def afterAll(): Unit = {
     Neo4JAccessor.delete()
   }
 
-  override implicit def defaultAwaitTimeout: Timeout = 60.seconds
+  override implicit def defaultAwaitTimeout: Timeout = 120.seconds
 
   val controller: HomeController = inject[HomeController]
   "The specification1" should {
@@ -242,9 +251,9 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val jsonResult = contentAsJson(result).toString()
       val flattenKnowledgeTree: FlattenedKnowledgeTree = Json.parse(jsonResult).as[FlattenedKnowledgeTree]
       assert(flattenKnowledgeTree.formula ==  "0 5 AND 9 OR")
-      assert(flattenKnowledgeTree.subFormulaMap.get("0").get == "0 1 AND 3 4 OR 4 5 AND AND AND IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("5").get == "5 6 AND 8 9 OR IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("9").get == "9 10 AND 9 11 AND AND AND 13 14 OR IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("0").get == "0 1 AND 2 3 OR 3 true AND AND AND IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("5").get == "true 6 AND 7 true OR IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("9").get == "9 10 AND 9 11 AND AND AND 12 13 OR IMP")
 
     }
   }
