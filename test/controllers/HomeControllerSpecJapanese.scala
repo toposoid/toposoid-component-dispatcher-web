@@ -18,7 +18,7 @@ package controllers
 
 import akka.util.Timeout
 import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
-import com.ideal.linked.toposoid.knowledgebase.regist.model.Knowledge
+import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObjects
 import com.ideal.linked.toposoid.protocol.model.sat.FlattenedKnowledgeTree
 import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
@@ -38,6 +38,15 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
     Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("案ずるより産むが易し。", "ja_JP", "{}")))
+    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("これはテストの前提3です。", "ja_JP", "{}")))
+    val knowledgeSentenceSet = KnowledgeSentenceSet(
+      List(Knowledge("これはテストの前提3です。","ja_JP", "{}")),
+      List.empty[PropositionRelation],
+      List(Knowledge("これはテストの主張3です。","ja_JP", "{}")),
+      List.empty[PropositionRelation])
+    Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSet)
+    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("これはテストの主張5です。", "ja_JP", "{}")))
+
   }
 
   override def afterAll(): Unit = {
@@ -237,9 +246,9 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val jsonResult = contentAsJson(result).toString()
       val flattenKnowledgeTree: FlattenedKnowledgeTree = Json.parse(jsonResult).as[FlattenedKnowledgeTree]
       assert(flattenKnowledgeTree.formula ==  "0 5 AND 9 OR")
-      assert(flattenKnowledgeTree.subFormulaMap.get("0").get == "0 1 AND 3 4 OR 4 5 AND AND AND IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("5").get == "5 6 AND 8 9 OR IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("9").get == "9 10 AND 9 11 AND AND AND 13 14 OR IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("0").get == "0 1 AND 2 3 OR 3 true AND AND AND IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("5").get == "true 6 AND 7 true OR IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("9").get == "9 10 AND 9 11 AND AND AND 12 13 OR IMP")
     }
   }
 
