@@ -273,12 +273,14 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * @return
    */
   private def makeFormula(atoms:List[String], relations:List[PropositionRelation]): String ={
-    val formula = relations.foldLeft(""){ (acc, x) => acc +  atoms(x.sourceIndex) + " " + atoms(x.destinationIndex) + " " + x.operator + " "}.trim
-    relations.size match{
-      case 0 => formula
-      case 1 => formula
-      case _ => (0 to relations.size - 1).toList.foldLeft(formula){ (acc, x) => acc + " AND"}
-    }
+
+    if(atoms.size == 1 && relations.size == 0) return atoms.head
+    val formulas:List[String] = relations.map(x => atoms(x.sourceIndex) + " " + atoms(x.destinationIndex) + " " + x.operator)
+    if(formulas.size == 1) return formulas.head
+    formulas.drop(1).foldLeft(formulas.head){
+      (acc, x) => acc + " " + x + " AND"
+    }.trim
+
   }
 
 }

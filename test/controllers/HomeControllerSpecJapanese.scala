@@ -134,6 +134,11 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |            "operator": "AND",
                    |            "sourceIndex": 1,
                    |            "destinationIndex": 2
+                   |          },
+                   |          {
+                   |            "operator": "AND",
+                   |            "sourceIndex": 0,
+                   |            "destinationIndex": 2
                    |          }
                    |        ]
                    |      }
@@ -246,9 +251,9 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val jsonResult = contentAsJson(result).toString()
       val flattenKnowledgeTree: FlattenedKnowledgeTree = Json.parse(jsonResult).as[FlattenedKnowledgeTree]
       assert(flattenKnowledgeTree.formula ==  "0 5 AND 9 OR")
-      assert(flattenKnowledgeTree.subFormulaMap.get("0").get == "0 1 AND 2 3 OR 3 true AND AND AND IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("0").get == "0 1 AND 2 3 OR 3 true AND AND 2 true AND AND IMP")
       assert(flattenKnowledgeTree.subFormulaMap.get("5").get == "true 6 AND 7 true OR IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("9").get == "9 10 AND 9 11 AND AND AND 12 13 OR IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("9").get == "9 10 AND 9 11 AND AND 12 13 OR IMP")
     }
   }
 
