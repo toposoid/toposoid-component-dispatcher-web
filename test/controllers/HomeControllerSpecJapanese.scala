@@ -53,7 +53,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
     Neo4JAccessor.delete()
   }
 
-  override implicit def defaultAwaitTimeout: Timeout = 60.seconds
+  override implicit def defaultAwaitTimeout: Timeout = 120.seconds
 
   val controller: HomeController = inject[HomeController]
   "The specification1" should {
