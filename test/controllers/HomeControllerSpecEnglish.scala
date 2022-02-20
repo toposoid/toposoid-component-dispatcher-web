@@ -81,7 +81,29 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
     }
   }
 
+  "The specification1-2" should {
 
+    "returns an appropriate response" in {
+
+      val json = """{
+                   |    "premise":[{"sentence":"This is a premise1.","lang": "en_US", "extentInfoJson":"{}"}],
+                   |    "claim":[]
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyze")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyze(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedSentenceObjects: AnalyzedSentenceObjects = Json.parse(jsonResult).as[AnalyzedSentenceObjects]
+      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("0").get.status).size == 0)
+      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("1").get.status).size == 1)
+
+    }
+  }
 
   "The specification2" should {
     "returns an appropriate response" in {
@@ -259,7 +281,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       assert(flattenKnowledgeTree.formula ==  "0 5 AND 9 OR")
       assert(flattenKnowledgeTree.subFormulaMap.get("0").get == "0 1 AND 2 3 OR 3 true AND AND 2 true AND AND IMP")
       assert(flattenKnowledgeTree.subFormulaMap.get("5").get == "true 6 AND 7 true OR IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("9").get == "9 10 AND 9 11 AND AND AND 12 13 OR IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("9").get == "9 10 AND 9 11 AND AND 12 13 OR IMP")
 
     }
   }
