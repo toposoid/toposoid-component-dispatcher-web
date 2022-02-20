@@ -238,7 +238,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
         val claimPropositionIds:List[String] = parseResult.filter(_.sentenceType == CLAIM.index).map(_.nodeMap.head._2.propositionId).distinct
 
         val leafId:Int = result.satIdMap.keys.size match {
-          case 0 => 0
+          case 0 => 1
           case _ => result.satIdMap.keys.map(_.toInt).max + 1
         }
 

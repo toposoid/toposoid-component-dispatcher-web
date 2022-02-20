@@ -278,10 +278,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       contentType(result) mustBe Some("application/json")
       val jsonResult = contentAsJson(result).toString()
       val flattenKnowledgeTree: FlattenedKnowledgeTree = Json.parse(jsonResult).as[FlattenedKnowledgeTree]
-      assert(flattenKnowledgeTree.formula ==  "0 5 AND 9 OR")
-      assert(flattenKnowledgeTree.subFormulaMap.get("0").get == "0 1 AND 2 3 OR 3 true AND AND 2 true AND AND IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("5").get == "true 6 AND 7 true OR IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("9").get == "9 10 AND 9 11 AND AND 12 13 OR IMP")
+      assert(flattenKnowledgeTree.formula ==  "1 6 AND 10 OR")
+      assert(flattenKnowledgeTree.subFormulaMap.get("1").get == "1 2 AND 3 4 OR 4 true AND AND 3 true AND AND IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("6").get == "true 7 AND 8 true OR IMP")
+      assert(flattenKnowledgeTree.subFormulaMap.get("10").get == "10 11 AND 10 12 AND AND 13 14 OR IMP")
 
     }
   }
