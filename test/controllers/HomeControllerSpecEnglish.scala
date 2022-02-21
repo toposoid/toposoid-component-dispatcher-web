@@ -86,7 +86,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
     "returns an appropriate response" in {
 
       val json = """{
-                   |    "premise":[{"sentence":"This is a premise1.","lang": "en_US", "extentInfoJson":"{}"}],
+                   |    "premise":[{"sentence":"This is a premise3.","lang": "en_US", "extentInfoJson":"{}"}],
                    |    "claim":[]
                    |}""".stripMargin
 
@@ -99,8 +99,8 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       contentType(result) mustBe Some("application/json")
       val jsonResult = contentAsJson(result).toString()
       val analyzedSentenceObjects: AnalyzedSentenceObjects = Json.parse(jsonResult).as[AnalyzedSentenceObjects]
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("0").get.status).size == 0)
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("1").get.status).size == 1)
+      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("0").get.status).size == 1)
+      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("1").get.status).size == 0)
 
     }
   }
