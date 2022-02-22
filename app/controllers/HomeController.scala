@@ -92,7 +92,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       val reverseSatIdMap =  (result.satIdMap.values zip result.satIdMap.keys).groupBy(_._1).mapValues(_.map(_._2).head)
       //result.sentenceMap.map(x => println(reverseSatIdMap.get(x._1).get, x._2))
 
-      val flattenKnowledgeTree = FlattenedKnowledgeTree(result.satIdMap, result.formula.trim, subFormulaMapAfterAssignment)
+      val flattenKnowledgeTree = FlattenedKnowledgeTree(result.formula.trim, subFormulaMapAfterAssignment)
       Ok(Json.toJson(flattenKnowledgeTree)).as(JSON)
     }catch{
       case e: Exception => {
