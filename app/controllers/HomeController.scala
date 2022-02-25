@@ -22,7 +22,7 @@ import com.ideal.linked.toposoid.knowledgebase.model.KnowledgeBaseNode
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects, DeductionResult}
 import com.ideal.linked.toposoid.protocol.model.parser.{InputSentence, KnowledgeLeaf, KnowledgeNode, KnowledgeTree}
-import com.ideal.linked.toposoid.protocol.model.sat.FlattenedKnowledgeTree
+import com.ideal.linked.toposoid.protocol.model.sat.{FlattenedKnowledgeTree, SatSolverResult}
 import com.typesafe.scalalogging.LazyLogging
 
 import javax.inject._
@@ -93,6 +93,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       //result.sentenceMap.map(x => println(reverseSatIdMap.get(x._1).get, x._2))
 
       val flattenKnowledgeTree = FlattenedKnowledgeTree(result.formula.trim, subFormulaMapAfterAssignment)
+      val flattenKnowledgeTreeJson:String = Json.toJson(flattenKnowledgeTree).toString()
+      val satSolverResultJson:String = ToposoidUtils.callComponent(flattenKnowledgeTreeJson, conf.getString("TOPOSOID_SAT_SOLVER_WEB_HOST"), "9009", "execute")
+      val SatSolverResult:SatSolverResult = Json.parse(satSolverResultJson).as[SatSolverResult]
+
       Ok(Json.toJson(flattenKnowledgeTree)).as(JSON)
     }catch{
       case e: Exception => {
