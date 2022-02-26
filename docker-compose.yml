@@ -18,6 +18,7 @@ services:
       - SENTENCE_PARSER_JP_WEB_HOST=172.30.0.4
       - SENTENCE_PARSER_EN_WEB_HOST=172.30.0.6
       - DEDUCTION_ADMIN_WEB_HOST=172.30.0.9
+      - TOPOSOID_SAT_SOLVER_WEB_HOST=172.30.0.13
     networks:
       app_net:
         ipv4_address: 172.30.0.12
