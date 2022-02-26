@@ -30,6 +30,7 @@ jobs:
             docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-exact-match-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-synonym-match-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-admin-web
+            docker-compose -f docker-compose-workflow.yml up -d toposoid-sat-solver-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-common-nlp-japanese-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-sentence-parser-japanese-web
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*Japanese'"
