@@ -21,6 +21,7 @@ import akka.util.Timeout
 import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObjects
+import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
 import com.ideal.linked.toposoid.protocol.model.sat.FlattenedKnowledgeTree
 import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
@@ -54,7 +55,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
     Neo4JAccessor.delete()
   }
 
-  override implicit def defaultAwaitTimeout: Timeout = 120.seconds
+  override implicit def defaultAwaitTimeout: Timeout = 600.seconds
 
   val controller: HomeController = inject[HomeController]
   "The specification1" should {
@@ -277,13 +278,35 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
       val jsonResult = contentAsJson(result).toString()
-      val flattenKnowledgeTree: FlattenedKnowledgeTree = Json.parse(jsonResult).as[FlattenedKnowledgeTree]
-      assert(flattenKnowledgeTree.formula ==  "1 6 AND 10 OR")
-      assert(flattenKnowledgeTree.subFormulaMap.get("1").get == "1 2 AND 3 4 OR 4 true AND AND 3 true AND AND IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("6").get == "true 7 AND 8 true OR IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("10").get == "10 11 AND 10 12 AND AND 13 14 OR IMP")
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise1 .", "OPTIMUM FOUND", "This is a claim1 .", "OPTIMUM FOUND", "IMP"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim1 .", "OPTIMUM FOUND", "This is a claim4 .", "OPTIMUM FOUND", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim1 .", "OPTIMUM FOUND", "This is a claim6 .", "OPTIMUM FOUND", "OR"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise1 .", "OPTIMUM FOUND", "This is a premise2 .", "OPTIMUM FOUND", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim1 .", "OPTIMUM FOUND", "This is a claim2 .", "OPTIMUM FOUND", "OR"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim2 .", "OPTIMUM FOUND", "This is a claim3 .", "TRIVIAL", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim1 .", "OPTIMUM FOUND", "This is a claim3 .", "TRIVIAL", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise3 .", "TRIVIAL", "This is a claim4 .", "OPTIMUM FOUND", "IMP"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise3 .", "TRIVIAL", "This is a premise4 .", "OPTIMUM FOUND", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim4 .", "OPTIMUM FOUND", "This is a claim5 .", "TRIVIAL", "OR"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise5 .", "OPTIMUM FOUND", "This is a claim6 .", "OPTIMUM FOUND", "IMP"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise5 .", "OPTIMUM FOUND", "This is a premise6 .", "OPTIMUM FOUND", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise5 .", "OPTIMUM FOUND", "This is a premise7 .", "OPTIMUM FOUND", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim6 .", "OPTIMUM FOUND", "This is a claim7 .", "OPTIMUM FOUND", "OR"))
 
     }
+  }
+
+  def checkAnalyzedEdges(actual:AnalyzedEdges, sentence1:String, status1:String, sentence2:String, status2:String, operator:String):Boolean = {
+    actual.analyzedEdges.filter(x =>
+      x.source.sentence.equals(sentence1) &&
+        x.source.status.equals(status1) &&
+        x.target.sentence.equals(sentence2) &&
+        x.target.status.equals(status2) &&
+        x.value.equals(operator)).size == 1
+    //false
   }
 
 
