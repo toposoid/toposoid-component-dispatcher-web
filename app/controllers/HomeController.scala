@@ -21,6 +21,7 @@ import com.ideal.linked.toposoid.common.{CLAIM, PREMISE, ToposoidUtils}
 import com.ideal.linked.toposoid.knowledgebase.model.KnowledgeBaseNode
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects, DeductionResult}
+import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdge, AnalyzedEdges, AnalyzedNode}
 import com.ideal.linked.toposoid.protocol.model.parser.{InputSentence, KnowledgeLeaf, KnowledgeNode, KnowledgeTree}
 import com.ideal.linked.toposoid.protocol.model.sat.{FlattenedKnowledgeTree, SatSolverResult}
 import com.typesafe.scalalogging.LazyLogging
@@ -38,7 +39,9 @@ case class ParsedKnowledgeTree( leafId:Int,
                                 formula:String,
                                 subFormulaMap:Map[String, String],
                                 analyzedSentenceObjects: List[AnalyzedSentenceObject],
-                                sentenceMap:Map[String,String])
+                                sentenceMap:Map[String,String],
+                                relations:List[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])])
+
 /**
  * This controller creates an `Action` to integrates two major microservices.
  * One is a microservice that analyzes the predicate argument structure of sentences,
@@ -81,23 +84,29 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
     try {
       val json = request.body
       val knowledgeTree: KnowledgeTree = Json.parse(json.toString).as[KnowledgeTree]
-      val initResultObject = ParsedKnowledgeTree(-1, Map.empty[String, String], "", Map.empty[String, String], List.empty[AnalyzedSentenceObject], Map.empty[String,String])
+      val initResultObject = ParsedKnowledgeTree(-1, Map.empty[String, String], "", Map.empty[String, String], List.empty[AnalyzedSentenceObject], Map.empty[String,String], List.empty[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])])
       val result = this.analyzeRecursive(knowledgeTree, initResultObject)
       val analyzedSentenceObjects:List[AnalyzedSentenceObject] = result.analyzedSentenceObjects
       val parseResultJson:String = Json.toJson(AnalyzedSentenceObjects(analyzedSentenceObjects)).toString()
       val deductionResult:String = ToposoidUtils.callComponent(parseResultJson, conf.getString("DEDUCTION_ADMIN_WEB_HOST"), "9003", "executeDeduction")
       val analyzedSentenceObjectsAfterDeduction = Json.parse(deductionResult).as[AnalyzedSentenceObjects]
-      val subFormulaMapAfterAssignment = assignTrivialProposition(analyzedSentenceObjectsAfterDeduction, result.satIdMap, result.subFormulaMap)
-
-      val reverseSatIdMap =  (result.satIdMap.values zip result.satIdMap.keys).groupBy(_._1).mapValues(_.map(_._2).head)
+      val (subFormulaMapAfterAssignment, trivialIdMap) = assignTrivialProposition(analyzedSentenceObjectsAfterDeduction, result.satIdMap, result.subFormulaMap)
+      //val reverseSatIdMap =  (result.satIdMap.values zip result.satIdMap.keys).groupBy(_._1).mapValues(_.map(_._2).head)
       //result.sentenceMap.map(x => println(reverseSatIdMap.get(x._1).get, x._2))
 
       val flattenKnowledgeTree = FlattenedKnowledgeTree(result.formula.trim, subFormulaMapAfterAssignment)
       val flattenKnowledgeTreeJson:String = Json.toJson(flattenKnowledgeTree).toString()
       val satSolverResultJson:String = ToposoidUtils.callComponent(flattenKnowledgeTreeJson, conf.getString("TOPOSOID_SAT_SOLVER_WEB_HOST"), "9009", "execute")
-      val SatSolverResult:SatSolverResult = Json.parse(satSolverResultJson).as[SatSolverResult]
+      val satSolverResult:SatSolverResult = Json.parse(satSolverResultJson).as[SatSolverResult]
 
-      Ok(Json.toJson(flattenKnowledgeTree)).as(JSON)
+      val effectiveSstSolverResult:Map[String, Boolean] = satSolverResult.satResultMap.filter(x => x._1.toInt <= result.satIdMap.keys.map(_.toInt).max.toInt)
+      //satSolverResultが空だったら、Unsatisfied、空でなかったら、Optinum Found
+      val analyzedNodes:Map[String, AnalyzedNode] = effectiveSstSolverResult.foldLeft(Map.empty[String, AnalyzedNode]){
+        (acc, x) => acc ++  Map(x._1 -> makeAnalyzedNode(x._1, x._2, trivialIdMap, result.sentenceMap, result.satIdMap))
+      }
+
+      val analyzedEdges:AnalyzedEdges = AnalyzedEdges(makeAnalyzedEdgea(result.relations, analyzedNodes))
+      Ok(Json.toJson(analyzedEdges)).as(JSON)
     }catch{
       case e: Exception => {
         logger.error(e.toString, e)
@@ -106,6 +115,81 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
     }
   }
 
+  /**
+   *
+   * @param relations
+   * @param analyzedNodeMap
+   * @return
+   */
+  def makeAnalyzedEdgea(relations:List[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])], analyzedNodeMap:Map[String, AnalyzedNode]): List[AnalyzedEdge] ={
+    relations.foldLeft(List.empty[AnalyzedEdge]){
+      (acc, x) => {
+        val premiseSatIds = x._1
+        val premiseRelations = x._2
+        val claimSatIds = x._3
+        val claimRelations = x._4
+        val otherSatIds = x._5
+        val otherRelations = x._6
+
+        val analyzedEdgesPremise:List[AnalyzedEdge] =  premiseRelations.size match{
+          case 0 => List.empty[AnalyzedEdge]
+          case _ => premiseRelations.map(p1 => AnalyzedEdge(analyzedNodeMap.get(premiseSatIds(p1.sourceIndex)).get, analyzedNodeMap.get(premiseSatIds(p1.destinationIndex)).get, p1.operator  ) )
+        }
+        val analyzedEdgesClaim:List[AnalyzedEdge] =claimRelations.size match {
+          case 0 => List.empty[AnalyzedEdge]
+          case _  =>claimRelations.map(c1 => AnalyzedEdge(analyzedNodeMap.get(claimSatIds(c1.sourceIndex)).get, analyzedNodeMap.get(claimSatIds(c1.destinationIndex)).get, c1.operator  ) )
+        }
+        val analyzedEdgesOther:List[AnalyzedEdge] =otherRelations.size match {
+          case 0 => List.empty[AnalyzedEdge]
+          case _  =>otherRelations.map(o1 => AnalyzedEdge(analyzedNodeMap.get(otherSatIds(o1.sourceIndex)).get, analyzedNodeMap.get(otherSatIds(o1.destinationIndex)).get, o1.operator  ) )
+        }
+
+        val premiseRepId = premiseSatIds.size match {
+          case 0 => "-1"
+          case _ => premiseSatIds.map(_.toInt).min.toString
+        }
+        val claimRepId = claimSatIds.size match {
+          case 0 => "-1"
+          case _ => claimSatIds.map(_.toInt).min.toString
+        }
+
+        if(!premiseRepId.equals("-1")  && !claimRepId.equals("-1")){
+          //both premises and claims
+          acc ++ List(AnalyzedEdge(analyzedNodeMap.get(premiseRepId).get, analyzedNodeMap.get(claimRepId).get, "IMP")) ++  analyzedEdgesPremise ++ analyzedEdgesClaim ++ analyzedEdgesOther
+        }else if(premiseRepId.equals("-1")  && !claimRepId.equals("-1")){
+          //only claims
+          acc ++ analyzedEdgesClaim ++ analyzedEdgesOther
+        } else{
+          acc ++ analyzedEdgesOther
+        }
+      }
+    }
+  }
+
+  /**
+   *
+   * @param satId
+   * @param satResult
+   * @param trivialPropositionIds
+   * @param sentenceMap
+   * @param satIdMap
+   * @return
+   */
+  private def makeAnalyzedNode(satId:String, satResult:Boolean, trivialPropositionIds:Map[String, Option[DeductionResult]], sentenceMap:Map[String, String], satIdMap:Map[String,String]) : AnalyzedNode ={
+
+    val propositionId = satIdMap.get(satId).get
+    val sentence:String = sentenceMap.get(propositionId).get
+    val reasons:List[String] = List.empty[String]
+    val status:String = trivialPropositionIds.keys.filter(_ == propositionId).size match {
+      case 0 => "OPTIMUM FOUND"
+      case _ => "TRIVIAL"
+    }
+    val finalResult:Boolean = status match {
+      case "TRIVIAL" =>  trivialPropositionIds.get(propositionId).get.get.status
+      case _ => satResult
+    }
+    AnalyzedNode(sentence, finalResult, reasons, status)
+  }
 
   /**
    * This function performs the assignment of propositions whose truth is obvious from the knowledge graph
@@ -114,30 +198,31 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * @param subFormulaMap
    * @return
    */
-  private def assignTrivialProposition(analyzedSentenceObjects:AnalyzedSentenceObjects, satIdMap:Map[String, String], subFormulaMap:Map[String, String]): Map[String, String] ={
+  private def assignTrivialProposition(analyzedSentenceObjects:AnalyzedSentenceObjects, satIdMap:Map[String, String], subFormulaMap:Map[String, String]): (Map[String, String], Map[String, Option[DeductionResult]])  ={
 
     //print(analyzedSentenceObjects.analyzedSentenceObjects.map(_.nodeMap.map(x => x._2.propositionId)).distinct.size)
 
     val reverseSatIdMap =  (satIdMap.values zip satIdMap.keys).groupBy(_._1).mapValues(_.map(_._2).head)
     //This is a list of PropositionIds that can be found to be true or false as a result of searching GraphDB.
-    val trivialPropositionIds:Map[String,Option[Boolean]] =
-      analyzedSentenceObjects.analyzedSentenceObjects.foldLeft(Map.empty[String, Option[Boolean]]){
+    val trivialPropositionIds:Map[String,Option[DeductionResult]] =
+      analyzedSentenceObjects.analyzedSentenceObjects.foldLeft(Map.empty[String, Option[DeductionResult]]){
         (acc, x) =>
           acc ++ extractDeductionResult(x)
       }
     //This is converting the positionId to satId
-    val trivialSatIds = trivialPropositionIds.foldLeft(Map.empty[String, Option[Boolean]]){
+    val trivialSatIds = trivialPropositionIds.foldLeft(Map.empty[String, Boolean]){
       (acc, x) => x._2 match {
-        case Some(_) => acc ++ Map(reverseSatIdMap.get(x._1).get -> x._2)
+        case Some(_) => acc ++ Map(reverseSatIdMap.get(x._1).get -> x._2.get.status)
         case _ => acc
       }
     }
 
     //This is the assignment of trivial propositional truth values to formula
-    subFormulaMap.foldLeft(Map.empty[String, String]){
+    val resultMap:Map[String, String] = subFormulaMap.foldLeft(Map.empty[String, String]){
       (acc, x) =>
         acc ++ Map(x._1 -> assignment(x._2, trivialSatIds))
     }
+    (resultMap, trivialPropositionIds.filterNot(_._2 == None))
   }
 
   /**
@@ -146,9 +231,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * @param trivialSatIds
    * @return
    */
-  private def assignment(subFormula:String, trivialSatIds:Map[String, Option[Boolean]]): String ={
+  private def assignment(subFormula:String, trivialSatIds:Map[String, Boolean]): String ={
     subFormula.split(" ").map(x => trivialSatIds.isDefinedAt(x) match  {
-      case true => trivialSatIds.get(x).get.get
+      case true => trivialSatIds.get(x).get
       case false => x
     }).mkString(" ")
   }
@@ -158,19 +243,18 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * @param analyzedSentenceObject
    * @return
    */
-  private def extractDeductionResult(analyzedSentenceObject:AnalyzedSentenceObject): Map[String, Option[Boolean]] ={
+  private def extractDeductionResult(analyzedSentenceObject:AnalyzedSentenceObject): Map[String, Option[DeductionResult]] ={
     //An analyzedSentenceObject always has one propositionId.
     val propositionId = analyzedSentenceObject.nodeMap.map(_._2.propositionId).head
 
     //An analyzedSentenceObject has GraphDB search results of either Premis or Claim depending on the sentenceType.
     val deductionResult:DeductionResult = analyzedSentenceObject.deductionResultMap.get(analyzedSentenceObject.sentenceType.toString).get
-    val status:Option[Boolean] = deductionResult.matchedPropositionIds.size match {
+    val status:Option[DeductionResult] = deductionResult.matchedPropositionIds.size match {
       case 0 => None
-      case _ => Some(deductionResult.status)
+      case _ => Some(deductionResult)
     }
     Map(propositionId -> status)
   }
-
 
   /**
    * This function delegates the processing of a given sentence to passer for each multilingual.
@@ -227,7 +311,11 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
           case -1 => "%s %s %s".format(r2.formula, r2.leafId, v)
           case _ => "%s %s %s %s".format(r2.formula, r1.leafId, r2.leafId, v)
         }
-        ParsedKnowledgeTree(-1,  r2.satIdMap, newFormula, r2.subFormulaMap, r2.analyzedSentenceObjects, r2.sentenceMap)
+        val relations = r1.leafId match {
+          case -1 => List((List.empty[String], List.empty[PropositionRelation], List.empty[String], List.empty[PropositionRelation], List("1", r2.leafId.toString), List(PropositionRelation(v, 0, 1))))
+          case _ => List((List.empty[String], List.empty[PropositionRelation], List.empty[String], List.empty[PropositionRelation], List(r1.leafId.toString, r2.leafId.toString), List(PropositionRelation(v, 0, 1)) ))
+        }
+        ParsedKnowledgeTree(-1,  r2.satIdMap, newFormula, r2.subFormulaMap, r2.analyzedSentenceObjects, r2.sentenceMap, r2.relations ++ relations)
       case KnowledgeLeaf(v) =>
         //print("%s ".format(v.premiseList.map(_.sentence).mkString(",")))
         //parse v
@@ -246,9 +334,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
           case _ => result.satIdMap.keys.map(_.toInt).max + 1
         }
 
-        val premiseIds:List[String] = (leafId to leafId + premisePropositionIds.size -1).map(_.toString).toList
-        val currentMaxId2:Int = leafId + premiseIds.size
-        val claimIds:List[String] = (currentMaxId2 to currentMaxId2 + claimPropositionIds.size -1).map(_.toString).toList
+        //This process assigns an ID smaller than the premise to claim. The reason is that some propositions do not have a premise.
+        val claimIds:List[String] = (leafId to leafId + claimPropositionIds.size -1).map(_.toString).toList
+        val currentMaxId2:Int = leafId + claimIds.size
+        val premiseIds:List[String] = (currentMaxId2 to currentMaxId2 + premisePropositionIds.size -1).map(_.toString).toList
 
         val newPremiseSATidMap:Map[String, String] =  (premiseIds zip premisePropositionIds).groupBy(_._1).mapValues(_.map(_._2).head)
         val newClaimSATidMap:Map[String, String] =  (claimIds zip claimPropositionIds).groupBy(_._1).mapValues(_.map(_._2).head)
@@ -258,7 +347,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
         val claimFormula:String = makeFormula(claimIds, v.claimLogicRelation)
         val subFormula = "%s %s IMP".format(premiseFormula, claimFormula)
         val subFormulaMap = result.subFormulaMap ++ Map(leafId.toString -> subFormula)
-        ParsedKnowledgeTree(leafId,  newSatIdMap, result.formula, subFormulaMap, result.analyzedSentenceObjects:::parseResult, result.sentenceMap ++ sentenceMap)
+
+        val relations = result.relations ++ List((premiseIds, v.premiseLogicRelation, claimIds, v.claimLogicRelation, List.empty[String], List.empty[PropositionRelation]))
+
+        ParsedKnowledgeTree(leafId,  newSatIdMap, result.formula, subFormulaMap, result.analyzedSentenceObjects:::parseResult, result.sentenceMap ++ sentenceMap, relations)
     }
   }
 

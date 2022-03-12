@@ -20,6 +20,7 @@ import akka.util.Timeout
 import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObjects
+import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdges, AnalyzedNode}
 import com.ideal.linked.toposoid.protocol.model.sat.FlattenedKnowledgeTree
 import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
@@ -53,7 +54,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
     Neo4JAccessor.delete()
   }
 
-  override implicit def defaultAwaitTimeout: Timeout = 120.seconds
+  //override implicit def defaultAwaitTimeout: Timeout = 120.seconds
+  override implicit def defaultAwaitTimeout: Timeout = 600.seconds
 
   val controller: HomeController = inject[HomeController]
   "The specification1" should {
@@ -78,6 +80,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
     }
   }
+
+  //TODO:premiseない場合
 
   "The specification2" should {
     "returns an appropriate response" in {
@@ -249,14 +253,36 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
       val jsonResult = contentAsJson(result).toString()
-      val flattenKnowledgeTree: FlattenedKnowledgeTree = Json.parse(jsonResult).as[FlattenedKnowledgeTree]
-      assert(flattenKnowledgeTree.formula ==  "1 6 AND 10 OR")
-      assert(flattenKnowledgeTree.subFormulaMap.get("1").get == "1 2 AND 3 4 OR 4 true AND AND 3 true AND AND IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("6").get == "true 7 AND 8 true OR IMP")
-      assert(flattenKnowledgeTree.subFormulaMap.get("10").get == "10 11 AND 10 12 AND AND 13 14 OR IMP")
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提１です。", "OPTIMUM FOUND", "これはテストの主張１です。", "OPTIMUM FOUND", "IMP"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張１です。", "OPTIMUM FOUND", "これはテストの主張４です。", "OPTIMUM FOUND", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張１です。", "OPTIMUM FOUND", "これはテストの主張６です。", "OPTIMUM FOUND", "OR"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提１です。", "OPTIMUM FOUND", "これはテストの前提２です。", "OPTIMUM FOUND", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張１です。", "OPTIMUM FOUND", "これはテストの主張２です。", "OPTIMUM FOUND", "OR"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張２です。", "OPTIMUM FOUND", "これはテストの主張３です。", "TRIVIAL", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張１です。", "OPTIMUM FOUND", "これはテストの主張３です。", "TRIVIAL", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提３です。", "TRIVIAL", "これはテストの主張４です。", "OPTIMUM FOUND", "IMP"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提３です。", "TRIVIAL", "これはテストの前提４です。", "OPTIMUM FOUND", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張４です。", "OPTIMUM FOUND", "これはテストの主張５です。", "TRIVIAL", "OR"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提５です。", "OPTIMUM FOUND", "これはテストの主張６です。", "OPTIMUM FOUND", "IMP"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提５です。", "OPTIMUM FOUND", "これはテストの前提６です。", "OPTIMUM FOUND", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提５です。", "OPTIMUM FOUND", "これはテストの前提７です。", "OPTIMUM FOUND", "AND"))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張６です。", "OPTIMUM FOUND", "これはテストの主張７です。", "OPTIMUM FOUND", "OR"))
+
     }
   }
 
+  def checkAnalyzedEdges(actual:AnalyzedEdges, sentence1:String, status1:String, sentence2:String, status2:String, operator:String):Boolean = {
+    actual.analyzedEdges.filter(x =>
+        x.source.sentence.equals(sentence1) &&
+        x.source.status.equals(status1) &&
+        x.target.sentence.equals(sentence2) &&
+        x.target.status.equals(status2) &&
+        x.value.equals(operator)).size == 1
+    //false
+  }
 
 }
 
