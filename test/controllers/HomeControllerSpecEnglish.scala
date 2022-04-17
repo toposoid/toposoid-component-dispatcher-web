@@ -39,15 +39,15 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
 
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
-    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("Life is so comfortable.","en_US", "{}")))
-    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("This is a premise3.", "en_US", "{}")))
+    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("Life is so comfortable.","en_US", "{}", false)))
+    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("This is a premise3.", "en_US", "{}", false)))
     val knowledgeSentenceSet = KnowledgeSentenceSet(
-      List(Knowledge("This is a premise3.","en_US", "{}")),
+      List(Knowledge("This is a premise3.","en_US", "{}", false)),
       List.empty[PropositionRelation],
-      List(Knowledge("This is a claim3.","en_US", "{}")),
+      List(Knowledge("This is a claim3.","en_US", "{}", false)),
       List.empty[PropositionRelation])
     Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSet)
-    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("This is a claim5.", "en_US", "{}")))
+    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("This is a claim5.", "en_US", "{}", false)))
 
   }
 
@@ -64,7 +64,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
 
       val json = """{
                    |    "premise":[],
-                   |    "claim":[{"sentence":"Life is so comfortable.","lang": "en_US", "extentInfoJson":"{}"}]
+                   |    "claim":[{"sentence":"Life is so comfortable.","lang": "en_US", "extentInfoJson":"{}", "isNegativeSentence":false}]
                    |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyze")
@@ -87,7 +87,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
     "returns an appropriate response" in {
 
       val json = """{
-                   |    "premise":[{"sentence":"This is a premise3.","lang": "en_US", "extentInfoJson":"{}"}],
+                   |    "premise":[{"sentence":"This is a premise3.","lang": "en_US", "extentInfoJson":"{}", "isNegativeSentence":false}],
                    |    "claim":[]
                    |}""".stripMargin
 
@@ -120,12 +120,14 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |          {
                    |            "sentence": "This is a premise1.",
                    |            "lang": "en_US",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          },
                    |          {
                    |            "sentence": "This is a premise2.",
                    |            "lang": "en_US",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          }
                    |        ],
                    |        "premiseLogicRelation": [
@@ -139,17 +141,20 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |          {
                    |            "sentence": "This is a claim1.",
                    |            "lang": "en_US",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          },
                    |          {
                    |            "sentence": "This is a claim2.",
                    |            "lang": "en_US",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          },
                    |          {
                    |            "sentence": "This is a claim3.",
                    |            "lang": "en_US",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          }
                    |
                    |        ],
@@ -179,12 +184,14 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |          {
                    |            "sentence": "This is a premise3.",
                    |            "lang": "en_US",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          },
                    |          {
                    |            "sentence": "This is a premise4.",
                    |            "lang": "en_US",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          }
                    |        ],
                    |        "premiseLogicRelation": [
@@ -198,12 +205,14 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |          {
                    |            "sentence": "This is a claim4.",
                    |            "lang": "en_US",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          },
                    |          {
                    |            "sentence": "This is a claim5.",
                    |            "lang": "en_US",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          }
                    |        ],
                    |        "claimLogicRelation": [
@@ -222,17 +231,20 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |        {
                    |          "sentence": "This is a premise5.",
                    |          "lang": "en_US",
-                   |          "extentInfoJson": "{}"
+                   |          "extentInfoJson": "{}",
+                   |          "isNegativeSentence":false
                    |        },
                    |        {
                    |          "sentence": "This is a premise6.",
                    |          "lang": "en_US",
-                   |          "extentInfoJson": "{}"
+                   |          "extentInfoJson": "{}",
+                   |          "isNegativeSentence":false
                    |        },
                    |        {
                    |          "sentence": "This is a premise7.",
                    |          "lang": "en_US",
-                   |          "extentInfoJson": "{}"
+                   |          "extentInfoJson": "{}",
+                   |          "isNegativeSentence":false
                    |        }
                    |      ],
                    |      "premiseLogicRelation": [
@@ -251,12 +263,14 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |        {
                    |          "sentence": "This is a claim6.",
                    |          "lang": "en_US",
-                   |          "extentInfoJson": "{}"
+                   |          "extentInfoJson": "{}",
+                   |          "isNegativeSentence":false
                    |        },
                    |        {
                    |          "sentence": "This is a claim7.",
                    |          "lang": "en_US",
-                   |          "extentInfoJson": "{}"
+                   |          "extentInfoJson": "{}",
+                   |          "isNegativeSentence":false
                    |        }
                    |      ],
                    |      "claimLogicRelation": [
@@ -296,6 +310,48 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       assert(checkAnalyzedEdges(analyzedEdges, "This is a premise5 .", "OPTIMUM FOUND", "This is a premise7 .", "OPTIMUM FOUND", "AND"))
       assert(checkAnalyzedEdges(analyzedEdges, "This is a claim6 .", "OPTIMUM FOUND", "This is a claim7 .", "OPTIMUM FOUND", "OR"))
 
+    }
+  }
+
+  "The specification3" should {
+    "returns an appropriate response" in {
+
+      val json = """{
+                   |    "operator": "",
+                   |    "knowledgeLeft": {
+                   |        "leaf": {
+                   |            "premiseList": [],
+                   |            "premiseLogicRelation": [],
+                   |            "claimList": [{
+                   |            "sentence": "This is a claim1.",
+                   |            "lang": "en_US",
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false}],
+                   |            "claimLogicRelation": []
+                   |        }
+                   |    },
+                   |    "knowledgeRight": {
+                   |        "leaf": {
+                   |            "premiseList": [],
+                   |            "premiseLogicRelation": [],
+                   |            "claimList": [],
+                   |            "claimLogicRelation": []
+                   |        }
+                   |    }
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
+      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim1 .", "UNREASONABLE", "", "", ""))
     }
   }
 
