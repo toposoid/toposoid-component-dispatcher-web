@@ -38,15 +38,15 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
-    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("案ずるより産むが易し。", "ja_JP", "{}")))
-    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("これはテストの前提3です。", "ja_JP", "{}")))
+    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("案ずるより産むが易し。", "ja_JP", "{}", false)))
+    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("これはテストの前提3です。", "ja_JP", "{}", false)))
     val knowledgeSentenceSet = KnowledgeSentenceSet(
-      List(Knowledge("これはテストの前提3です。","ja_JP", "{}")),
+      List(Knowledge("これはテストの前提3です。","ja_JP", "{}", false)),
       List.empty[PropositionRelation],
-      List(Knowledge("これはテストの主張3です。","ja_JP", "{}")),
+      List(Knowledge("これはテストの主張3です。","ja_JP", "{}", false)),
       List.empty[PropositionRelation])
     Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSet)
-    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("これはテストの主張5です。", "ja_JP", "{}")))
+    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("これはテストの主張5です。", "ja_JP", "{}", false)))
 
   }
 
@@ -63,7 +63,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
       val json = """{
                    |    "premise":[],
-                   |    "claim":[{"sentence":"案ずるより産むが易し。","lang": "ja_JP", "extentInfoJson":"{}"}]
+                   |    "claim":[{"sentence":"案ずるより産むが易し。","lang": "ja_JP", "extentInfoJson":"{}", "isNegativeSentence":false}]
                    |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyze")
@@ -96,12 +96,14 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |          {
                    |            "sentence": "これはテストの前提1です。",
                    |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          },
                    |          {
                    |            "sentence": "これはテストの前提2です。",
                    |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          }
                    |        ],
                    |        "premiseLogicRelation": [
@@ -115,17 +117,20 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |          {
                    |            "sentence": "これはテストの主張1です。",
                    |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          },
                    |          {
                    |            "sentence": "これはテストの主張2です。",
                    |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          },
                    |          {
                    |            "sentence": "これはテストの主張3です。",
                    |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          }
                    |        ],
                    |        "claimLogicRelation": [
@@ -153,12 +158,14 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |          {
                    |            "sentence": "これはテストの前提3です。",
                    |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          },
                    |          {
                    |            "sentence": "これはテストの前提4です。",
                    |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          }
                    |        ],
                    |        "premiseLogicRelation": [
@@ -172,12 +179,14 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |          {
                    |            "sentence": "これはテストの主張4です。",
                    |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          },
                    |          {
                    |            "sentence": "これはテストの主張5です。",
                    |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}"
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false
                    |          }
                    |        ],
                    |        "claimLogicRelation": [
@@ -196,17 +205,20 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |        {
                    |          "sentence": "これはテストの前提5です。",
                    |          "lang": "ja_JP",
-                   |          "extentInfoJson": "{}"
+                   |          "extentInfoJson": "{}",
+                   |          "isNegativeSentence":false
                    |        },
                    |        {
                    |          "sentence": "これはテストの前提6です。",
                    |          "lang": "ja_JP",
-                   |          "extentInfoJson": "{}"
+                   |          "extentInfoJson": "{}",
+                   |          "isNegativeSentence":false
                    |        },
                    |        {
                    |          "sentence": "これはテストの前提7です。",
                    |          "lang": "ja_JP",
-                   |          "extentInfoJson": "{}"
+                   |          "extentInfoJson": "{}",
+                   |          "isNegativeSentence":false
                    |        }
                    |
                    |      ],
@@ -226,12 +238,14 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |        {
                    |          "sentence": "これはテストの主張6です。",
                    |          "lang": "ja_JP",
-                   |          "extentInfoJson": "{}"
+                   |          "extentInfoJson": "{}",
+                   |          "isNegativeSentence":false
                    |        },
                    |        {
                    |          "sentence": "これはテストの主張7です。",
                    |          "lang": "ja_JP",
-                   |          "extentInfoJson": "{}"
+                   |          "extentInfoJson": "{}",
+                   |          "isNegativeSentence":false
                    |        }
                    |      ],
                    |      "claimLogicRelation": [
@@ -273,6 +287,174 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
     }
   }
+
+  "The specification3" should {
+    "returns an appropriate response" in {
+
+      val json = """{
+                   |    "operator": "",
+                   |    "knowledgeLeft": {
+                   |        "leaf": {
+                   |            "premiseList": [],
+                   |            "premiseLogicRelation": [],
+                   |            "claimList": [{
+                   |            "sentence": "これはテストの主張1です。",
+                   |            "lang": "ja_JP",
+                   |            "extentInfoJson": "{}",
+                   |            "isNegativeSentence":false}],
+                   |            "claimLogicRelation": []
+                   |        }
+                   |    },
+                   |    "knowledgeRight": {
+                   |        "leaf": {
+                   |            "premiseList": [],
+                   |            "premiseLogicRelation": [],
+                   |            "claimList": [],
+                   |            "claimLogicRelation": []
+                   |        }
+                   |    }
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
+      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張１です。", "UNREASONABLE", "", "", ""))
+    }
+  }
+  /*
+  "The specification4" should {
+    "returns an appropriate response" in {
+
+      val json = """{
+                   |    "operator": "",
+                   |    "knowledgeLeft": {
+                   |        "leaf": {
+                   |            "premiseList": [],
+                   |            "premiseLogicRelation": [],
+                   |            "claimList": [
+                   |                {
+                   |                    "sentence": "Aは正直者である。",
+                   |                    "lang": "ja_JP",
+                   |                    "extentInfoJson": "{}",
+                   |                    "isNegativeSentence":false
+                   |                },
+                   |                {
+                   |                    "sentence": "Bは正直者である。",
+                   |                    "lang": "ja_JP",
+                   |                    "extentInfoJson": "{}",
+                   |                    "isNegativeSentence":false
+                   |                },
+                   |                {
+                   |                    "sentence": "Cは正直者である。",
+                   |                    "lang": "ja_JP",
+                   |                    "extentInfoJson": "{}",
+                   |                    "isNegativeSentence":false
+                   |                },
+                   |                {
+                   |                    "sentence": "Aは正直者である。",
+                   |                    "lang": "ja_JP",
+                   |                    "extentInfoJson": "{}",
+                   |                    "isNegativeSentence":true
+                   |                },
+                   |                {
+                   |                    "sentence": "Bは正直者である。",
+                   |                    "lang": "ja_JP",
+                   |                    "extentInfoJson": "{}",
+                   |                    "isNegativeSentence":true
+                   |                },
+                   |                {
+                   |                    "sentence": "Cは正直者である。",
+                   |                    "lang": "ja_JP",
+                   |                    "extentInfoJson": "{}",
+                   |                    "isNegativeSentence":true
+                   |                }
+                   |
+                   |            ],
+                   |            "claimLogicRelation": [
+                   |                {
+                   |                    "operator": "AND",
+                   |                    "sourceIndex": 0,
+                   |                    "destinationIndex": 1
+                   |                },
+                   |                {
+                   |                    "operator": "AND",
+                   |                    "sourceIndex": 1,
+                   |                    "destinationIndex": 5
+                   |                },
+                   |                {
+                   |                    "operator": "AND",
+                   |                    "sourceIndex": 3,
+                   |                    "destinationIndex": 1
+                   |                },
+                   |                {
+                   |                    "operator": "AND",
+                   |                    "sourceIndex": 1,
+                   |                    "destinationIndex": 2
+                   |                },
+                   |                {
+                   |                    "operator": "AND",
+                   |                    "sourceIndex": 0,
+                   |                    "destinationIndex": 4
+                   |                },
+                   |                {
+                   |                    "operator": "AND",
+                   |                    "sourceIndex": 4,
+                   |                    "destinationIndex": 2
+                   |                },
+                   |                {
+                   |                    "operator": "AND",
+                   |                    "sourceIndex": 0,
+                   |                    "destinationIndex": 5
+                   |                },
+                   |                {
+                   |                    "operator": "AND",
+                   |                    "sourceIndex": 1,
+                   |                    "destinationIndex": 0
+                   |                },
+                   |                {
+                   |                    "operator": "AND",
+                   |                    "sourceIndex": 2,
+                   |                    "destinationIndex": 4
+                   |                }
+                   |            ]
+                   |        }
+                   |    },
+                   |    "knowledgeRight": {
+                   |        "leaf": {
+                   |            "premiseList": [],
+                   |            "premiseLogicRelation": [],
+                   |            "claimList": [],
+                   |            "claimLogicRelation": []
+                   |        }
+                   |    }
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
+
+    }
+  }
+  */
+
+
+
 
   def checkAnalyzedEdges(actual:AnalyzedEdges, sentence1:String, status1:String, sentence2:String, status2:String, operator:String):Boolean = {
     actual.analyzedEdges.filter(x =>
