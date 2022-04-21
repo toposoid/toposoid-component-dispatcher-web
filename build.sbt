@@ -22,5 +22,6 @@ libraryDependencies += "javax.mail" % "mail" % "1.4.7"
 libraryDependencies += "commons-io" % "commons-io" % "2.6"
 libraryDependencies += "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.14"
 libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.5.31"
+libraryDependencies += "io.jvm.uuid" %% "scala-uuid" % "0.3.1"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
 libraryDependencies += "com.ideal.linked" %% "toposoid-sentence-transformer-neo4j" % "0.3-SNAPSHOT" % Test

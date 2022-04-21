@@ -39,6 +39,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
     Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("案ずるより産むが易し。", "ja_JP", "{}", false)))
+    /*
     Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("これはテストの前提3です。", "ja_JP", "{}", false)))
     val knowledgeSentenceSet = KnowledgeSentenceSet(
       List(Knowledge("これはテストの前提3です。","ja_JP", "{}", false)),
@@ -47,7 +48,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       List.empty[PropositionRelation])
     Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSet)
     Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("これはテストの主張5です。", "ja_JP", "{}", false)))
-
+    */
   }
 
   override def afterAll(): Unit = {
@@ -81,358 +82,128 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
     }
   }
 
-  //TODO:premiseない場合
-
-  "The specification2" should {
-    "returns an appropriate response" in {
-
-      val json = """{
-                   |  "operator": "OR",
-                   |  "knowledgeLeft": {
-                   |    "operator": "AND",
-                   |    "knowledgeLeft": {
-                   |      "leaf": {
-                   |        "premiseList": [
-                   |          {
-                   |            "sentence": "これはテストの前提1です。",
-                   |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          },
-                   |          {
-                   |            "sentence": "これはテストの前提2です。",
-                   |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          }
-                   |        ],
-                   |        "premiseLogicRelation": [
-                   |          {
-                   |            "operator": "AND",
-                   |            "sourceIndex": 0,
-                   |            "destinationIndex": 1
-                   |          }
-                   |        ],
-                   |        "claimList": [
-                   |          {
-                   |            "sentence": "これはテストの主張1です。",
-                   |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          },
-                   |          {
-                   |            "sentence": "これはテストの主張2です。",
-                   |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          },
-                   |          {
-                   |            "sentence": "これはテストの主張3です。",
-                   |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          }
-                   |        ],
-                   |        "claimLogicRelation": [
-                   |          {
-                   |            "operator": "OR",
-                   |            "sourceIndex": 0,
-                   |            "destinationIndex": 1
-                   |          },
-                   |          {
-                   |            "operator": "AND",
-                   |            "sourceIndex": 1,
-                   |            "destinationIndex": 2
-                   |          },
-                   |          {
-                   |            "operator": "AND",
-                   |            "sourceIndex": 0,
-                   |            "destinationIndex": 2
-                   |          }
-                   |        ]
-                   |      }
-                   |    },
-                   |    "knowledgeRight": {
-                   |      "leaf": {
-                   |        "premiseList": [
-                   |          {
-                   |            "sentence": "これはテストの前提3です。",
-                   |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          },
-                   |          {
-                   |            "sentence": "これはテストの前提4です。",
-                   |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          }
-                   |        ],
-                   |        "premiseLogicRelation": [
-                   |          {
-                   |            "operator": "AND",
-                   |            "sourceIndex": 0,
-                   |            "destinationIndex": 1
-                   |          }
-                   |        ],
-                   |        "claimList": [
-                   |          {
-                   |            "sentence": "これはテストの主張4です。",
-                   |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          },
-                   |          {
-                   |            "sentence": "これはテストの主張5です。",
-                   |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          }
-                   |        ],
-                   |        "claimLogicRelation": [
-                   |          {
-                   |            "operator": "OR",
-                   |            "sourceIndex": 0,
-                   |            "destinationIndex": 1
-                   |          }
-                   |        ]
-                   |      }
-                   |    }
-                   |  },
-                   |  "knowledgeRight": {
-                   |    "leaf": {
-                   |      "premiseList": [
-                   |        {
-                   |          "sentence": "これはテストの前提5です。",
-                   |          "lang": "ja_JP",
-                   |          "extentInfoJson": "{}",
-                   |          "isNegativeSentence":false
-                   |        },
-                   |        {
-                   |          "sentence": "これはテストの前提6です。",
-                   |          "lang": "ja_JP",
-                   |          "extentInfoJson": "{}",
-                   |          "isNegativeSentence":false
-                   |        },
-                   |        {
-                   |          "sentence": "これはテストの前提7です。",
-                   |          "lang": "ja_JP",
-                   |          "extentInfoJson": "{}",
-                   |          "isNegativeSentence":false
-                   |        }
-                   |
-                   |      ],
-                   |      "premiseLogicRelation": [
-                   |        {
-                   |          "operator": "AND",
-                   |          "sourceIndex": 0,
-                   |          "destinationIndex": 1
-                   |        },
-                   |         {
-                   |          "operator": "AND",
-                   |          "sourceIndex": 0,
-                   |          "destinationIndex": 2
-                   |        }
-                   |      ],
-                   |      "claimList": [
-                   |        {
-                   |          "sentence": "これはテストの主張6です。",
-                   |          "lang": "ja_JP",
-                   |          "extentInfoJson": "{}",
-                   |          "isNegativeSentence":false
-                   |        },
-                   |        {
-                   |          "sentence": "これはテストの主張7です。",
-                   |          "lang": "ja_JP",
-                   |          "extentInfoJson": "{}",
-                   |          "isNegativeSentence":false
-                   |        }
-                   |      ],
-                   |      "claimLogicRelation": [
-                   |        {
-                   |          "operator": "OR",
-                   |          "sourceIndex": 0,
-                   |          "destinationIndex": 1
-                   |        }
-                   |      ]
-                   |    }
-                   |  }
-                   |}""".stripMargin
-
-      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
-        .withHeaders("Content-type" -> "application/json")
-        .withJsonBody(Json.parse(json))
-
-      val result = call(controller.analyzeKnowledgeTree(), fr)
-      status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
-      val jsonResult = contentAsJson(result).toString()
-      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
-
-      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提１です。", "OPTIMUM FOUND", "これはテストの主張１です。", "OPTIMUM FOUND", "IMP"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張１です。", "OPTIMUM FOUND", "これはテストの主張４です。", "OPTIMUM FOUND", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張１です。", "OPTIMUM FOUND", "これはテストの主張６です。", "OPTIMUM FOUND", "OR"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提１です。", "OPTIMUM FOUND", "これはテストの前提２です。", "OPTIMUM FOUND", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張１です。", "OPTIMUM FOUND", "これはテストの主張２です。", "OPTIMUM FOUND", "OR"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張２です。", "OPTIMUM FOUND", "これはテストの主張３です。", "TRIVIAL", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張１です。", "OPTIMUM FOUND", "これはテストの主張３です。", "TRIVIAL", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提３です。", "TRIVIAL", "これはテストの主張４です。", "OPTIMUM FOUND", "IMP"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提３です。", "TRIVIAL", "これはテストの前提４です。", "OPTIMUM FOUND", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張４です。", "OPTIMUM FOUND", "これはテストの主張５です。", "TRIVIAL", "OR"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提５です。", "OPTIMUM FOUND", "これはテストの主張６です。", "OPTIMUM FOUND", "IMP"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提５です。", "OPTIMUM FOUND", "これはテストの前提６です。", "OPTIMUM FOUND", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの前提５です。", "OPTIMUM FOUND", "これはテストの前提７です。", "OPTIMUM FOUND", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張６です。", "OPTIMUM FOUND", "これはテストの主張７です。", "OPTIMUM FOUND", "OR"))
-
-    }
-  }
-
-  "The specification3" should {
-    "returns an appropriate response" in {
-
-      val json = """{
-                   |    "operator": "",
-                   |    "knowledgeLeft": {
-                   |        "leaf": {
-                   |            "premiseList": [],
-                   |            "premiseLogicRelation": [],
-                   |            "claimList": [{
-                   |            "sentence": "これはテストの主張1です。",
-                   |            "lang": "ja_JP",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false}],
-                   |            "claimLogicRelation": []
-                   |        }
-                   |    },
-                   |    "knowledgeRight": {
-                   |        "leaf": {
-                   |            "premiseList": [],
-                   |            "premiseLogicRelation": [],
-                   |            "claimList": [],
-                   |            "claimLogicRelation": []
-                   |        }
-                   |    }
-                   |}""".stripMargin
-
-      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
-        .withHeaders("Content-type" -> "application/json")
-        .withJsonBody(Json.parse(json))
-
-      val result = call(controller.analyzeKnowledgeTree(), fr)
-      status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
-      val jsonResult = contentAsJson(result).toString()
-      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
-
-      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
-      assert(checkAnalyzedEdges(analyzedEdges, "これはテストの主張１です。", "UNREASONABLE", "", "", ""))
-    }
-  }
   /*
   "The specification4" should {
     "returns an appropriate response" in {
 
       val json = """{
-                   |    "operator": "",
-                   |    "knowledgeLeft": {
-                   |        "leaf": {
-                   |            "premiseList": [],
-                   |            "premiseLogicRelation": [],
-                   |            "claimList": [
-                   |                {
-                   |                    "sentence": "Aは正直者である。",
-                   |                    "lang": "ja_JP",
-                   |                    "extentInfoJson": "{}",
-                   |                    "isNegativeSentence":false
-                   |                },
-                   |                {
-                   |                    "sentence": "Bは正直者である。",
-                   |                    "lang": "ja_JP",
-                   |                    "extentInfoJson": "{}",
-                   |                    "isNegativeSentence":false
-                   |                },
-                   |                {
-                   |                    "sentence": "Cは正直者である。",
-                   |                    "lang": "ja_JP",
-                   |                    "extentInfoJson": "{}",
-                   |                    "isNegativeSentence":false
-                   |                },
-                   |                {
-                   |                    "sentence": "Aは正直者である。",
-                   |                    "lang": "ja_JP",
-                   |                    "extentInfoJson": "{}",
-                   |                    "isNegativeSentence":true
-                   |                },
-                   |                {
-                   |                    "sentence": "Bは正直者である。",
-                   |                    "lang": "ja_JP",
-                   |                    "extentInfoJson": "{}",
-                   |                    "isNegativeSentence":true
-                   |                },
-                   |                {
-                   |                    "sentence": "Cは正直者である。",
-                   |                    "lang": "ja_JP",
-                   |                    "extentInfoJson": "{}",
-                   |                    "isNegativeSentence":true
-                   |                }
-                   |
-                   |            ],
-                   |            "claimLogicRelation": [
-                   |                {
-                   |                    "operator": "AND",
-                   |                    "sourceIndex": 0,
-                   |                    "destinationIndex": 1
-                   |                },
-                   |                {
-                   |                    "operator": "AND",
-                   |                    "sourceIndex": 1,
-                   |                    "destinationIndex": 5
-                   |                },
-                   |                {
-                   |                    "operator": "AND",
-                   |                    "sourceIndex": 3,
-                   |                    "destinationIndex": 1
-                   |                },
-                   |                {
-                   |                    "operator": "AND",
-                   |                    "sourceIndex": 1,
-                   |                    "destinationIndex": 2
-                   |                },
-                   |                {
-                   |                    "operator": "AND",
-                   |                    "sourceIndex": 0,
-                   |                    "destinationIndex": 4
-                   |                },
-                   |                {
-                   |                    "operator": "AND",
-                   |                    "sourceIndex": 4,
-                   |                    "destinationIndex": 2
-                   |                },
-                   |                {
-                   |                    "operator": "AND",
-                   |                    "sourceIndex": 0,
-                   |                    "destinationIndex": 5
-                   |                },
-                   |                {
-                   |                    "operator": "AND",
-                   |                    "sourceIndex": 1,
-                   |                    "destinationIndex": 0
-                   |                },
-                   |                {
-                   |                    "operator": "AND",
-                   |                    "sourceIndex": 2,
-                   |                    "destinationIndex": 4
-                   |                }
-                   |            ]
+                   |    "regulation": {
+                   |        "operator": "",
+                   |        "knowledgeLeft": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "Aは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Bは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Cは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Aは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Bは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Cは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": [
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 0,
+                   |                        "destinationIndex": 1
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 1,
+                   |                        "destinationIndex": 5
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 3,
+                   |                        "destinationIndex": 1
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 1,
+                   |                        "destinationIndex": 2
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 0,
+                   |                        "destinationIndex": 4
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 4,
+                   |                        "destinationIndex": 2
+                   |                    }
+                   |                ]
+                   |            }
+                   |        },
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [],
+                   |                "claimLogicRelation": []
+                   |            }
                    |        }
                    |    },
-                   |    "knowledgeRight": {
-                   |        "leaf": {
-                   |            "premiseList": [],
-                   |            "premiseLogicRelation": [],
-                   |            "claimList": [],
-                   |            "claimLogicRelation": []
+                   |    "hypothesis": {
+                   |        "operator": "",
+                   |        "knowledgeLeft": {
+                   |                "premiseList": [
+                   |			{
+                   |                        "sentence": "Aは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    	}
+                   |		],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "Cは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": []
+                   |
+                   |        },
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [],
+                   |                "claimLogicRelation": []
+                   |             }
                    |        }
                    |    }
                    |}""".stripMargin
@@ -452,8 +223,185 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
     }
   }
   */
+  "The specification3" should {
+    "returns an appropriate response" in {
 
+      val json = """{
+                   |    "regulation": {
+                   |        "operator": "",
+                   |        "knowledgeLeft": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "Aは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Bは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Cは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Aは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Bは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Cは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": [
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 0,
+                   |                        "destinationIndex": 1
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 1,
+                   |                        "destinationIndex": 5
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 3,
+                   |                        "destinationIndex": 1
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 1,
+                   |                        "destinationIndex": 2
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 0,
+                   |                        "destinationIndex": 4
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 4,
+                   |                        "destinationIndex": 2
+                   |                    }
+                   |                ]
+                   |            }
+                   |        },
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [],
+                   |                "claimLogicRelation": []
+                   |            }
+                   |        }
+                   |    },
+                   |    "hypothesis": {
+                   |        "operator": "AND",
+                   |        "knowledgeLeft": {
+                   |            "operator": "AND",
+                   |            "knowledgeLeft": {
+                   |                "leaf": {
+                   |                    "premiseList": [
+                   |                        {
+                   |                            "sentence": "Aは正直者である。",
+                   |                            "lang": "ja_JP",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        }
+                   |                    ],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "Cは正直者である。",
+                   |                            "lang": "ja_JP",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": []
+                   |                }
+                   |            },
+                   |            "knowledgeRight": {
+                   |                "leaf": {
+                   |                    "premiseList": [
+                   |                        {
+                   |                            "sentence": "Bは正直者である。",
+                   |                            "lang": "ja_JP",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        }
+                   |                    ],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "Aは正直者である。",
+                   |                            "lang": "ja_JP",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": []
+                   |                }
+                   |            }
+                   |        },
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [
+                   |                    {
+                   |                        "sentence": "Cは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    }
+                   |                ],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "Bは正直者である。",
+                   |                        "lang": "ja_JP",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": []
+                   |            }
+                   |        }
+                   |    }
+                   |}""".stripMargin
 
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
+
+    }
+  }
 
 
   def checkAnalyzedEdges(actual:AnalyzedEdges, sentence1:String, status1:String, sentence2:String, status2:String, operator:String):Boolean = {
