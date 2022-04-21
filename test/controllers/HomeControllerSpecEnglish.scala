@@ -111,8 +111,87 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
 
       val json = """{
                    |    "regulation": {
-                   |        "operator": "",
+                   |        "operator": "OR",
                    |        "knowledgeLeft": {
+                   |            "operator": "OR",
+                   |            "knowledgeLeft": {
+                   |                "leaf": {
+                   |                    "premiseList": [],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "A is honest.",
+                   |                            "lang": "en_US",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        },
+                   |                        {
+                   |                            "sentence": "B is honest.",
+                   |                            "lang": "en_US",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        },
+                   |                        {
+                   |                            "sentence": "C is honest.",
+                   |                            "lang": "en_US",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": [
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 0,
+                   |                            "destinationIndex": 1
+                   |                        },
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 1,
+                   |                            "destinationIndex": 2
+                   |                        }
+                   |                    ]
+                   |                }
+                   |            },
+                   |            "knowledgeRight": {
+                   |                "leaf": {
+                   |                    "premiseList": [],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "A is honest.",
+                   |                            "lang": "en_US",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        },
+                   |                        {
+                   |                            "sentence": "B is honest.",
+                   |                            "lang": "en_US",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true
+                   |                        },
+                   |                        {
+                   |                            "sentence": "C is honest.",
+                   |                            "lang": "en_US",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": [
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 0,
+                   |                            "destinationIndex": 1
+                   |                        },
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 1,
+                   |                            "destinationIndex": 2
+                   |                        }
+                   |                    ]
+                   |                }
+                   |            }
+                   |        },
+                   |        "knowledgeRight": {
                    |            "leaf": {
                    |                "premiseList": [],
                    |                "premiseLogicRelation": [],
@@ -121,7 +200,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                        "sentence": "A is honest.",
                    |                        "lang": "en_US",
                    |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": false
+                   |                        "isNegativeSentence": true
                    |                    },
                    |                    {
                    |                        "sentence": "B is honest.",
@@ -134,24 +213,6 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                        "lang": "en_US",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false
-                   |                    },
-                   |                    {
-                   |                        "sentence": "A is honest.",
-                   |                        "lang": "en_US",
-                   |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": true
-                   |                    },
-                   |                    {
-                   |                        "sentence": "B is honest.",
-                   |                        "lang": "en_US",
-                   |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": true
-                   |                    },
-                   |                    {
-                   |                        "sentence": "C is honest.",
-                   |                        "lang": "en_US",
-                   |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": true
                    |                    }
                    |                ],
                    |                "claimLogicRelation": [
@@ -163,37 +224,9 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                    {
                    |                        "operator": "AND",
                    |                        "sourceIndex": 1,
-                   |                        "destinationIndex": 5
-                   |                    },
-                   |                    {
-                   |                        "operator": "AND",
-                   |                        "sourceIndex": 3,
-                   |                        "destinationIndex": 1
-                   |                    },
-                   |                    {
-                   |                        "operator": "AND",
-                   |                        "sourceIndex": 1,
-                   |                        "destinationIndex": 2
-                   |                    },
-                   |                    {
-                   |                        "operator": "AND",
-                   |                        "sourceIndex": 0,
-                   |                        "destinationIndex": 4
-                   |                    },
-                   |                    {
-                   |                        "operator": "AND",
-                   |                        "sourceIndex": 4,
                    |                        "destinationIndex": 2
                    |                    }
                    |                ]
-                   |            }
-                   |        },
-                   |        "knowledgeRight": {
-                   |            "leaf": {
-                   |                "premiseList": [],
-                   |                "premiseLogicRelation": [],
-                   |                "claimList": [],
-                   |                "claimLogicRelation": []
                    |            }
                    |        }
                    |    },

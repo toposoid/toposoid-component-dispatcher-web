@@ -96,28 +96,24 @@ class ResultAnalyzer {
         val otherRelations = x._6
 
         val analyzedEdgesPremise:List[AnalyzedEdge] =  premiseRelations.size match{
-          case 0 => {
-            premiseSatIds.size match{
+          case 0 => premiseSatIds.size match{
               //If there is only one premise, care is taken because relation is zero
               case 1 => List(AnalyzedEdge(analyzedNodeMap.get(premiseSatIds.head).get, AnalyzedNode("", false, List.empty[String], ""), ""))
               case _ => List.empty[AnalyzedEdge]
             }
-          }
           case _ => premiseRelations.map(p1 => AnalyzedEdge(analyzedNodeMap.get(premiseSatIds(p1.sourceIndex)).get, analyzedNodeMap.get(premiseSatIds(p1.destinationIndex)).get, p1.operator  ) )
         }
         val analyzedEdgesClaim:List[AnalyzedEdge] =claimRelations.size match {
-          case 0 => {
-            claimSatIds.size match{
+          case 0 => claimSatIds.size match{
               //If there is only one claim, care is taken because relation is zero
               case 1 => List(AnalyzedEdge(analyzedNodeMap.get(claimSatIds.head).get, AnalyzedNode("", false, List.empty[String], ""), ""))
               case _ => List.empty[AnalyzedEdge]
             }
-          }
-          case _  =>claimRelations.map(c1 => AnalyzedEdge(analyzedNodeMap.get(claimSatIds(c1.sourceIndex)).get, analyzedNodeMap.get(claimSatIds(c1.destinationIndex)).get, c1.operator  ) )
+          case _  => claimRelations.map(c1 => AnalyzedEdge(analyzedNodeMap.get(claimSatIds(c1.sourceIndex)).get, analyzedNodeMap.get(claimSatIds(c1.destinationIndex)).get, c1.operator  ) )
         }
         val analyzedEdgesOther:List[AnalyzedEdge] =otherRelations.size match {
           case 0 => List.empty[AnalyzedEdge]
-          case _  =>otherRelations.map(o1 => AnalyzedEdge(analyzedNodeMap.get(otherSatIds(o1.sourceIndex)).get, analyzedNodeMap.get(otherSatIds(o1.destinationIndex)).get, o1.operator  ) )
+          case _ => otherRelations.map(o1 => AnalyzedEdge(analyzedNodeMap.get(otherSatIds(o1.sourceIndex)).get, analyzedNodeMap.get(otherSatIds(o1.destinationIndex)).get, o1.operator  ) )
         }
 
         val premiseRepId = premiseSatIds.size match {
