@@ -106,236 +106,167 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
     }
   }
 
-  "The specification2" should {
-    "returns an appropriate response" in {
-
-
-      val json = """{
-                   |  "operator": "OR",
-                   |  "knowledgeLeft": {
-                   |    "operator": "AND",
-                   |    "knowledgeLeft": {
-                   |      "leaf": {
-                   |        "premiseList": [
-                   |          {
-                   |            "sentence": "This is a premise1.",
-                   |            "lang": "en_US",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          },
-                   |          {
-                   |            "sentence": "This is a premise2.",
-                   |            "lang": "en_US",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          }
-                   |        ],
-                   |        "premiseLogicRelation": [
-                   |          {
-                   |            "operator": "AND",
-                   |            "sourceIndex": 0,
-                   |            "destinationIndex": 1
-                   |          }
-                   |        ],
-                   |        "claimList": [
-                   |          {
-                   |            "sentence": "This is a claim1.",
-                   |            "lang": "en_US",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          },
-                   |          {
-                   |            "sentence": "This is a claim2.",
-                   |            "lang": "en_US",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          },
-                   |          {
-                   |            "sentence": "This is a claim3.",
-                   |            "lang": "en_US",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          }
-                   |
-                   |        ],
-                   |        "claimLogicRelation": [
-                   |          {
-                   |            "operator": "OR",
-                   |            "sourceIndex": 0,
-                   |            "destinationIndex": 1
-                   |          },
-                   |          {
-                   |            "operator": "AND",
-                   |            "sourceIndex": 1,
-                   |            "destinationIndex": 2
-                   |          },
-                   |          {
-                   |            "operator": "AND",
-                   |            "sourceIndex": 0,
-                   |            "destinationIndex": 2
-                   |          }
-                   |
-                   |        ]
-                   |      }
-                   |    },
-                   |    "knowledgeRight": {
-                   |      "leaf": {
-                   |        "premiseList": [
-                   |          {
-                   |            "sentence": "This is a premise3.",
-                   |            "lang": "en_US",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          },
-                   |          {
-                   |            "sentence": "This is a premise4.",
-                   |            "lang": "en_US",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          }
-                   |        ],
-                   |        "premiseLogicRelation": [
-                   |          {
-                   |            "operator": "AND",
-                   |            "sourceIndex": 0,
-                   |            "destinationIndex": 1
-                   |          }
-                   |        ],
-                   |        "claimList": [
-                   |          {
-                   |            "sentence": "This is a claim4.",
-                   |            "lang": "en_US",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          },
-                   |          {
-                   |            "sentence": "This is a claim5.",
-                   |            "lang": "en_US",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false
-                   |          }
-                   |        ],
-                   |        "claimLogicRelation": [
-                   |          {
-                   |            "operator": "OR",
-                   |            "sourceIndex": 0,
-                   |            "destinationIndex": 1
-                   |          }
-                   |        ]
-                   |      }
-                   |    }
-                   |  },
-                   |  "knowledgeRight": {
-                   |    "leaf": {
-                   |      "premiseList": [
-                   |        {
-                   |          "sentence": "This is a premise5.",
-                   |          "lang": "en_US",
-                   |          "extentInfoJson": "{}",
-                   |          "isNegativeSentence":false
-                   |        },
-                   |        {
-                   |          "sentence": "This is a premise6.",
-                   |          "lang": "en_US",
-                   |          "extentInfoJson": "{}",
-                   |          "isNegativeSentence":false
-                   |        },
-                   |        {
-                   |          "sentence": "This is a premise7.",
-                   |          "lang": "en_US",
-                   |          "extentInfoJson": "{}",
-                   |          "isNegativeSentence":false
-                   |        }
-                   |      ],
-                   |      "premiseLogicRelation": [
-                   |        {
-                   |          "operator": "AND",
-                   |          "sourceIndex": 0,
-                   |          "destinationIndex": 1
-                   |        },
-                   |        {
-                   |          "operator": "AND",
-                   |          "sourceIndex": 0,
-                   |          "destinationIndex": 2
-                   |        }
-                   |      ],
-                   |      "claimList": [
-                   |        {
-                   |          "sentence": "This is a claim6.",
-                   |          "lang": "en_US",
-                   |          "extentInfoJson": "{}",
-                   |          "isNegativeSentence":false
-                   |        },
-                   |        {
-                   |          "sentence": "This is a claim7.",
-                   |          "lang": "en_US",
-                   |          "extentInfoJson": "{}",
-                   |          "isNegativeSentence":false
-                   |        }
-                   |      ],
-                   |      "claimLogicRelation": [
-                   |        {
-                   |          "operator": "OR",
-                   |          "sourceIndex": 0,
-                   |          "destinationIndex": 1
-                   |        }
-                   |      ]
-                   |    }
-                   |  }
-                   |}""".stripMargin
-
-      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
-        .withHeaders("Content-type" -> "application/json")
-        .withJsonBody(Json.parse(json))
-
-      val result = call(controller.analyzeKnowledgeTree(), fr)
-      status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
-      val jsonResult = contentAsJson(result).toString()
-      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
-
-      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise1 .", "OPTIMUM FOUND", "This is a claim1 .", "OPTIMUM FOUND", "IMP"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim1 .", "OPTIMUM FOUND", "This is a claim4 .", "OPTIMUM FOUND", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim1 .", "OPTIMUM FOUND", "This is a claim6 .", "OPTIMUM FOUND", "OR"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise1 .", "OPTIMUM FOUND", "This is a premise2 .", "OPTIMUM FOUND", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim1 .", "OPTIMUM FOUND", "This is a claim2 .", "OPTIMUM FOUND", "OR"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim2 .", "OPTIMUM FOUND", "This is a claim3 .", "TRIVIAL", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim1 .", "OPTIMUM FOUND", "This is a claim3 .", "TRIVIAL", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise3 .", "TRIVIAL", "This is a claim4 .", "OPTIMUM FOUND", "IMP"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise3 .", "TRIVIAL", "This is a premise4 .", "OPTIMUM FOUND", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim4 .", "OPTIMUM FOUND", "This is a claim5 .", "TRIVIAL", "OR"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise5 .", "OPTIMUM FOUND", "This is a claim6 .", "OPTIMUM FOUND", "IMP"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise5 .", "OPTIMUM FOUND", "This is a premise6 .", "OPTIMUM FOUND", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a premise5 .", "OPTIMUM FOUND", "This is a premise7 .", "OPTIMUM FOUND", "AND"))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim6 .", "OPTIMUM FOUND", "This is a claim7 .", "OPTIMUM FOUND", "OR"))
-
-    }
-  }
-
   "The specification3" should {
     "returns an appropriate response" in {
 
       val json = """{
-                   |    "operator": "",
-                   |    "knowledgeLeft": {
-                   |        "leaf": {
-                   |            "premiseList": [],
-                   |            "premiseLogicRelation": [],
-                   |            "claimList": [{
-                   |            "sentence": "This is a claim1.",
-                   |            "lang": "en_US",
-                   |            "extentInfoJson": "{}",
-                   |            "isNegativeSentence":false}],
-                   |            "claimLogicRelation": []
+                   |    "regulation": {
+                   |        "operator": "",
+                   |        "knowledgeLeft": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "A is honest.",
+                   |                        "lang": "en_US",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    },
+                   |                    {
+                   |                        "sentence": "B is honest.",
+                   |                        "lang": "en_US",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    },
+                   |                    {
+                   |                        "sentence": "C is honest.",
+                   |                        "lang": "en_US",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    },
+                   |                    {
+                   |                        "sentence": "A is honest.",
+                   |                        "lang": "en_US",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    },
+                   |                    {
+                   |                        "sentence": "B is honest.",
+                   |                        "lang": "en_US",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    },
+                   |                    {
+                   |                        "sentence": "C is honest.",
+                   |                        "lang": "en_US",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": [
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 0,
+                   |                        "destinationIndex": 1
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 1,
+                   |                        "destinationIndex": 5
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 3,
+                   |                        "destinationIndex": 1
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 1,
+                   |                        "destinationIndex": 2
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 0,
+                   |                        "destinationIndex": 4
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 4,
+                   |                        "destinationIndex": 2
+                   |                    }
+                   |                ]
+                   |            }
+                   |        },
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [],
+                   |                "claimLogicRelation": []
+                   |            }
                    |        }
                    |    },
-                   |    "knowledgeRight": {
-                   |        "leaf": {
-                   |            "premiseList": [],
-                   |            "premiseLogicRelation": [],
-                   |            "claimList": [],
-                   |            "claimLogicRelation": []
+                   |    "hypothesis": {
+                   |        "operator": "AND",
+                   |        "knowledgeLeft": {
+                   |            "operator": "AND",
+                   |            "knowledgeLeft": {
+                   |                "leaf": {
+                   |                    "premiseList": [
+                   |                        {
+                   |                            "sentence": "A is honest.",
+                   |                            "lang": "en_US",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        }
+                   |                    ],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "C is honest.",
+                   |                            "lang": "en_US",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": []
+                   |                }
+                   |            },
+                   |            "knowledgeRight": {
+                   |                "leaf": {
+                   |                    "premiseList": [
+                   |                        {
+                   |                            "sentence": "B is honest.",
+                   |                            "lang": "en_US",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        }
+                   |                    ],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "A is honest.",
+                   |                            "lang": "en_US",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": []
+                   |                }
+                   |            }
+                   |        },
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [
+                   |                    {
+                   |                        "sentence": "C is honest.",
+                   |                        "lang": "en_US",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    }
+                   |                ],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "B is honest.",
+                   |                        "lang": "en_US",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": []
+                   |            }
                    |        }
                    |    }
                    |}""".stripMargin
@@ -351,7 +282,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
 
       analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
-      assert(checkAnalyzedEdges(analyzedEdges, "This is a claim1 .", "UNREASONABLE", "", "", ""))
+
     }
   }
 
