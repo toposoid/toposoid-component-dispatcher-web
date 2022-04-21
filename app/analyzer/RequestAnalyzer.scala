@@ -149,13 +149,25 @@ class RequestAnalyzer {
           case "-1" => "%s %s %s".format(r2.formula, r2.leafId, v)
           case _ => "%s %s %s %s".format(r2.formula, r1.leafId, r2.leafId, v)
         }
+        r1.subFormulaMap
+        /*
         val relations = r1.leafId match {
           case "-1" => List((List.empty[String], List.empty[PropositionRelation], List.empty[String], List.empty[PropositionRelation], List("1", r2.leafId.toString), List(PropositionRelation(v, 0, 1))))
           case _ => List((List.empty[String], List.empty[PropositionRelation], List.empty[String], List.empty[PropositionRelation], List(r1.leafId.toString, r2.leafId.toString), List(PropositionRelation(v, 0, 1)) ))
         }
+        */
+        val relations = List((List.empty[String], List.empty[PropositionRelation], List.empty[String], List.empty[PropositionRelation], List(getIdForRel(r1.leafId, r1.subFormulaMap), getIdForRel(r2.leafId, r2.subFormulaMap)), List(PropositionRelation(v, 0, 1)) ))
+
         ParsedKnowledgeTree("-1",  r2.satIdMap, newFormula, r2.subFormulaMap, r2.analyzedSentenceObjects, r2.sentenceMap, r2.sentenceMapForSat, r2.relations ++ relations)
       case KnowledgeLeaf(v) =>
         analyzeRecursiveSub(v, result)
+    }
+  }
+
+  def getIdForRel(leafId:String, subFormulaMap:Map[String, String]): String = {
+    leafId match {
+      case "-1" => subFormulaMap.head._2.split(' ').head
+      case _ => subFormulaMap.get(leafId).get.split(' ').head
     }
   }
 

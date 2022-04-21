@@ -228,8 +228,87 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
       val json = """{
                    |    "regulation": {
-                   |        "operator": "",
+                   |        "operator": "OR",
                    |        "knowledgeLeft": {
+                   |            "operator": "OR",
+                   |            "knowledgeLeft": {
+                   |                "leaf": {
+                   |                    "premiseList": [],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "Aは正直者である。",
+                   |                            "lang": "ja_JP",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Bは正直者である。",
+                   |                            "lang": "ja_JP",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Cは正直者である。",
+                   |                            "lang": "ja_JP",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": [
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 0,
+                   |                            "destinationIndex": 1
+                   |                        },
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 1,
+                   |                            "destinationIndex": 2
+                   |                        }
+                   |                    ]
+                   |                }
+                   |            },
+                   |            "knowledgeRight": {
+                   |                "leaf": {
+                   |                    "premiseList": [],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "Aは正直者である。",
+                   |                            "lang": "ja_JP",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Bは正直者である。",
+                   |                            "lang": "ja_JP",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Cは正直者である。",
+                   |                            "lang": "ja_JP",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": [
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 0,
+                   |                            "destinationIndex": 1
+                   |                        },
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 1,
+                   |                            "destinationIndex": 2
+                   |                        }
+                   |                    ]
+                   |                }
+                   |            }
+                   |        },
+                   |        "knowledgeRight": {
                    |            "leaf": {
                    |                "premiseList": [],
                    |                "premiseLogicRelation": [],
@@ -238,7 +317,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        "sentence": "Aは正直者である。",
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": false
+                   |                        "isNegativeSentence": true
                    |                    },
                    |                    {
                    |                        "sentence": "Bは正直者である。",
@@ -251,24 +330,6 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false
-                   |                    },
-                   |                    {
-                   |                        "sentence": "Aは正直者である。",
-                   |                        "lang": "ja_JP",
-                   |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": true
-                   |                    },
-                   |                    {
-                   |                        "sentence": "Bは正直者である。",
-                   |                        "lang": "ja_JP",
-                   |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": true
-                   |                    },
-                   |                    {
-                   |                        "sentence": "Cは正直者である。",
-                   |                        "lang": "ja_JP",
-                   |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": true
                    |                    }
                    |                ],
                    |                "claimLogicRelation": [
@@ -280,37 +341,9 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                    {
                    |                        "operator": "AND",
                    |                        "sourceIndex": 1,
-                   |                        "destinationIndex": 5
-                   |                    },
-                   |                    {
-                   |                        "operator": "AND",
-                   |                        "sourceIndex": 3,
-                   |                        "destinationIndex": 1
-                   |                    },
-                   |                    {
-                   |                        "operator": "AND",
-                   |                        "sourceIndex": 1,
-                   |                        "destinationIndex": 2
-                   |                    },
-                   |                    {
-                   |                        "operator": "AND",
-                   |                        "sourceIndex": 0,
-                   |                        "destinationIndex": 4
-                   |                    },
-                   |                    {
-                   |                        "operator": "AND",
-                   |                        "sourceIndex": 4,
                    |                        "destinationIndex": 2
                    |                    }
                    |                ]
-                   |            }
-                   |        },
-                   |        "knowledgeRight": {
-                   |            "leaf": {
-                   |                "premiseList": [],
-                   |                "premiseLogicRelation": [],
-                   |                "claimList": [],
-                   |                "claimLogicRelation": []
                    |            }
                    |        }
                    |    },
