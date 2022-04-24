@@ -37,13 +37,15 @@ object TargetProblem {
 }
 
 case class ParsedKnowledgeTree( leafId:String,
-                                satIdMap: Map[String, String],
                                 formula:String,
                                 subFormulaMap:Map[String, String],
                                 analyzedSentenceObjects: List[AnalyzedSentenceObject],
-                                sentenceMap:Map[String,String],
+                                sentenceInfoMap:Map[String,SentenceInfo],
                                 sentenceMapForSat:Map[String,Int],
                                 relations:List[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])])
+
+case class SentenceInfo(sentence:String, isNegativeSentence:Boolean, satId:String)
+
 
 case class SatInput(parsedKnowledgeTree:ParsedKnowledgeTree,
                     trivialIdMap:Map[String, Option[DeductionResult]],
@@ -115,13 +117,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    */
   private def analyzeKnowledgeTreeSub(knowledgeTree:KnowledgeTree, sentenceMapForSat:Map[String, Int]): SatInput ={
     val requestAnalyzer = new RequestAnalyzer()
-    val initResultObject = ParsedKnowledgeTree("-1", Map.empty[String, String], "", Map.empty[String, String], List.empty[AnalyzedSentenceObject], Map.empty[String,String], sentenceMapForSat, List.empty[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])])
+    val initResultObject = ParsedKnowledgeTree("-1", "", Map.empty[String, String], List.empty[AnalyzedSentenceObject], Map.empty[String,SentenceInfo], sentenceMapForSat, List.empty[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])])
     val result = requestAnalyzer.analyzeRecursive(knowledgeTree, initResultObject)
     val analyzedSentenceObjects:List[AnalyzedSentenceObject] = result.analyzedSentenceObjects
     val parseResultJson:String = Json.toJson(AnalyzedSentenceObjects(analyzedSentenceObjects)).toString()
     val deductionResult:String = ToposoidUtils.callComponent(parseResultJson, conf.getString("DEDUCTION_ADMIN_WEB_HOST"), "9003", "executeDeduction")
     val analyzedSentenceObjectsAfterDeduction = Json.parse(deductionResult).as[AnalyzedSentenceObjects]
-    val (subFormulaMapAfterAssignment, trivialIdMap) = requestAnalyzer.assignTrivialProposition(analyzedSentenceObjectsAfterDeduction, result.satIdMap, result.subFormulaMap)
+    val (subFormulaMapAfterAssignment, trivialIdMap) = requestAnalyzer.assignTrivialProposition(analyzedSentenceObjectsAfterDeduction, result.sentenceInfoMap, result.subFormulaMap)
     val formulaSet = FormulaSet(result.formula.trim, subFormulaMapAfterAssignment)
     SatInput(result, trivialIdMap, formulaSet)
   }
