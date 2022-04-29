@@ -27,24 +27,6 @@ import play.api.libs.json.Json
 
 class ResultAnalyzer {
 
-
-  /**
-   * This function determines if the proposition is trivial.
-   * @param formulaSet
-   * @return
-   */
-  def isTrivialProposition(formulaSet:FormulaSet) :Boolean = {
-    val formulaElements = formulaSet.subFormulaMap.head._2.split(" ")
-    if(formulaElements.size <= 1) return true
-    val nonTrivialElements =  formulaSet.subFormulaMap.foldLeft(List.empty[String]){
-      (acc, x) => {
-        acc ++ x._2.split(" ").filterNot(y => y.equals("AND") || y.equals("OR") || y.equals("IMP") || y.equals("true") || y.equals("false")).toList
-      }
-    }
-    if(nonTrivialElements.size == 0) return true
-    false
-  }
-
   /**
    *
    * @param regulation
@@ -79,12 +61,29 @@ class ResultAnalyzer {
   }
 
   /**
+   * This function determines if the proposition is trivial.
+   * @param formulaSet
+   * @return
+   */
+  private def isTrivialProposition(formulaSet:FormulaSet) :Boolean = {
+    val formulaElements = formulaSet.subFormulaMap.head._2.split(" ")
+    if(formulaElements.size <= 1) return true
+    val nonTrivialElements =  formulaSet.subFormulaMap.foldLeft(List.empty[String]){
+      (acc, x) => {
+        acc ++ x._2.split(" ").filterNot(y => y.equals("AND") || y.equals("OR") || y.equals("IMP") || y.equals("true") || y.equals("false")).toList
+      }
+    }
+    if(nonTrivialElements.size == 0) return true
+    false
+  }
+
+  /**
    *
    * @param relations
    * @param analyzedNodeMap
    * @return
    */
-  def makeAnalyzedEdges(relations:List[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])], analyzedNodeMap:Map[String, AnalyzedNode]): List[AnalyzedEdge] ={
+  private def makeAnalyzedEdges(relations:List[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])], analyzedNodeMap:Map[String, AnalyzedNode]): List[AnalyzedEdge] ={
     relations.foldLeft(List.empty[AnalyzedEdge]){
       (acc, x) => {
         val premisePropositionIds = x._1
@@ -147,7 +146,7 @@ class ResultAnalyzer {
    * @param usedSat
    * @return
    */
-  def makeAnalyzedNode(propositionId:String, satResult:Boolean, trivialPropositionIds:Map[String, Option[DeductionResult]], sentenceInfoMap:Map[String, SentenceInfo], usedSat:Boolean = true) : AnalyzedNode ={
+  private def makeAnalyzedNode(propositionId:String, satResult:Boolean, trivialPropositionIds:Map[String, Option[DeductionResult]], sentenceInfoMap:Map[String, SentenceInfo], usedSat:Boolean = true) : AnalyzedNode ={
 
     val sentence:String = sentenceInfoMap.get(propositionId).get.sentence
     //TODO:Implementation to assign the value of reasons
