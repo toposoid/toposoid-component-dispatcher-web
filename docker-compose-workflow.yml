@@ -45,6 +45,7 @@ services:
       - PLAY_HTTP_PORT=9003
       - DEDUCTION_UNIT1_HOST=172.30.0.10
       - DEDUCTION_UNIT2_HOST=172.30.0.11
+      - SCALA_DATA_ACCESSOR_NEO4J_WEB_HOST=172.30.0.3
     networks:
       app_net:
         ipv4_address: 172.30.0.9
