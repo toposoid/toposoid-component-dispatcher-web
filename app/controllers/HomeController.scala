@@ -145,7 +145,3 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
 
 }
 
-//val analyzedSentenceObjectsMap:Map[String, List[AnalyzedSentenceObject]] = result.analyzedSentenceObjectsMap
-//val parseResultJson:String = Json.toJson(AnalyzedSentenceObjects(analyzedSentenceObjects)).toString()
-//val deductionResult:String = ToposoidUtils.callComponent(parseResultJson, conf.getString("DEDUCTION_ADMIN_WEB_HOST"), "9003", "executeDeduction")
-//val analyzedSentenceObjectsAfterDeduction = Json.parse(deductionResult).as[AnalyzedSentenceObjects]

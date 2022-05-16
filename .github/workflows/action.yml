@@ -9,7 +9,7 @@ env:
   PJ_ACTOR: toposoid
   PJ_REPO: toposoid-component-dispatcher-web
   PJ_BRANCH: feature
-  PJ_VERSION: 0.3-SNAPSHOT
+  PJ_VERSION: 0.3
 jobs:
   unit-test_toposoid-component-dispatcher-web:
     runs-on: ubuntu-20.04
