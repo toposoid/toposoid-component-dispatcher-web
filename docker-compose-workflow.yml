@@ -21,6 +21,7 @@ services:
       - COMMON_NLP_EN_WEB_HOST=172.30.0.7
       - DEDUCTION_ADMIN_WEB_HOST=172.30.0.9
       - TOPOSOID_SAT_SOLVER_WEB_HOST=172.30.0.13
+      - TOPOSOID_DEDUCTION_ADMIN_SKIP=0
     networks:
       app_net:
         ipv4_address: 172.30.0.12
@@ -32,7 +33,7 @@ services:
       - PRIVATE_IP_ADDRESS=172.30.0.13
       - PLAY_HTTP_PORT=9009
       - TOPOSOID_MAX_SAT_SOLVER=EvalMaxSAT_bin
-      - TOPOSOID_CNF_FILE_PATH=/tmp/test.cnf
+      - TOPOSOID_CNF_FILE_PATH=/tmp
     networks:
       app_net:
         ipv4_address: 172.30.0.13
