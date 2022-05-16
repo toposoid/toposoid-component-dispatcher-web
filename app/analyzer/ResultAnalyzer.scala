@@ -34,7 +34,7 @@ class ResultAnalyzer {
    * @return
    */
   def getAnalyzedEdges(regulation:SatInput, hypothesis:SatInput): AnalyzedEdges ={
-    isTrivialProposition(regulation.formulaSet) match {
+    isTrivialProposition(regulation.formulaSet, hypothesis.formulaSet) match {
       case true => {
         val analyzedNodes:Map[String, AnalyzedNode] = regulation.parsedKnowledgeTree.sentenceInfoMap.keys.foldLeft(Map.empty[String, AnalyzedNode]){
           (acc, x) => acc ++ Map(x -> makeAnalyzedNode(x, false, regulation.trivialIdMap, regulation.parsedKnowledgeTree.sentenceInfoMap, usedSat=false))
@@ -65,10 +65,24 @@ class ResultAnalyzer {
    * @param formulaSet
    * @return
    */
-  private def isTrivialProposition(formulaSet:FormulaSet) :Boolean = {
-    val formulaElements = formulaSet.subFormulaMap.head._2.split(" ")
-    if(formulaElements.size <= 1) return true
-    val nonTrivialElements =  formulaSet.subFormulaMap.foldLeft(List.empty[String]){
+  private def isTrivialProposition(regulationFormulaSet:FormulaSet, hypothesisFormulaSet:FormulaSet) :Boolean = {
+    val regulationFormulaElements = regulationFormulaSet.subFormulaMap.head._2.split(" ").toList
+    val hypothesisFormulaElements = hypothesisFormulaSet.subFormulaMap.head._2.split(" ").toList
+    if(regulationFormulaElements.size == 0) {
+      return true
+    }else if(regulationFormulaElements.size == 1) {
+      // no logic relations
+      if(regulationFormulaElements.filter(x => x.equals("true") || x.equals("false")).size == regulationFormulaElements.size){
+        return true
+      }
+    }
+    if(hypothesisFormulaElements.size > 0){
+      //The atomic propositions of all hypotheses Does not exist in the atomic propositions of the regulation
+      if(hypothesisFormulaElements.filter(x => regulationFormulaElements.filter(y => y.equals(x)).size > 0).size == 0){
+        return true
+      }
+    }
+    val nonTrivialElements =  regulationFormulaSet.subFormulaMap.foldLeft(List.empty[String]){
       (acc, x) => {
         acc ++ x._2.split(" ").filterNot(y => y.equals("AND") || y.equals("OR") || y.equals("IMP") || y.equals("true") || y.equals("false")).toList
       }
@@ -111,7 +125,11 @@ class ResultAnalyzer {
         }
         val analyzedEdgesOther:List[AnalyzedEdge] =otherRelations.size match {
           case 0 => List.empty[AnalyzedEdge]
-          case _ => otherRelations.map(o1 => AnalyzedEdge(analyzedNodeMap.get(otherPropositionIds(o1.sourceIndex)).get, analyzedNodeMap.get(otherPropositionIds(o1.destinationIndex)).get, o1.operator  ) )
+          case _ => otherPropositionIds.filter(_.equals("-1")).size match { //If relationship has a an empty node. For example, one case with one proposition
+            case 0 => otherRelations.map(o1 => AnalyzedEdge(analyzedNodeMap.get(otherPropositionIds(o1.sourceIndex)).get, analyzedNodeMap.get(otherPropositionIds(o1.destinationIndex)).get, o1.operator  ) )
+            case _ => List.empty[AnalyzedEdge]
+          }
+
         }
 
         val premiseRepId = premisePropositionIds.size match {

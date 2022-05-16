@@ -38,10 +38,10 @@ class RequestAnalyzer {
    * @param subFormulaMap
    * @return
    */
-  def assignTrivialProposition(analyzedSentenceObjects:AnalyzedSentenceObjects, sentenceMapForSat:Map[String, SentenceInfo], subFormulaMap:Map[String, String]): (Map[String, String], Map[String, Option[DeductionResult]])  ={
+  def assignTrivialProposition(analyzedSentenceObjects:List[AnalyzedSentenceObject], sentenceMapForSat:Map[String, SentenceInfo], subFormulaMap:Map[String, String]): (Map[String, String], Map[String, Option[DeductionResult]])  ={
     //This is a list of PropositionIds that can be found to be true or false as a result of searching GraphDB.
     val trivialPropositionIds:Map[String,Option[DeductionResult]] =
-      analyzedSentenceObjects.analyzedSentenceObjects.foldLeft(Map.empty[String, Option[DeductionResult]]){
+      analyzedSentenceObjects.foldLeft(Map.empty[String, Option[DeductionResult]]){
         (acc, x) =>
           acc ++ extractDeductionResult(x)
       }
@@ -140,15 +140,16 @@ class RequestAnalyzer {
   def analyzeRecursive(t : KnowledgeTree, result:ParsedKnowledgeTree):ParsedKnowledgeTree = {
     t match {
       case KnowledgeNode(v, left, right) =>
+        //Here, set the value to always be entered in left sisde.
         val r1 = analyzeRecursive(left, result)
-        if(v != "AND" && v != "OR") return ParsedKnowledgeTree("-1",  r1.leafId, r1.subFormulaMap, r1.analyzedSentenceObjects, r1.sentenceInfoMap, r1.sentenceMapForSat, r1.relations)
+        if(v != "AND" && v != "OR" && r1.formula != "") return ParsedKnowledgeTree("-1",  r1.leafId, r1.subFormulaMap, r1.analyzedSentenceObjectsMap, r1.sentenceInfoMap, r1.sentenceMapForSat, r1.relations)
         val r2 = analyzeRecursive(right, r1)
         val newFormula = r1.leafId match {
           case "-1" => "%s %s %s".format(r2.formula, r2.leafId, v)
           case _ => "%s %s %s %s".format(r2.formula, r1.leafId, r2.leafId, v)
         }
         val relations = List((List.empty[String], List.empty[PropositionRelation], List.empty[String], List.empty[PropositionRelation], List(r1.leafId, r2.leafId), List(PropositionRelation(v, 0, 1)) ))
-        ParsedKnowledgeTree(r1.leafId,  newFormula, r2.subFormulaMap, r2.analyzedSentenceObjects, r2.sentenceInfoMap, r2.sentenceMapForSat, r2.relations ++ relations)
+        ParsedKnowledgeTree(r1.leafId,  newFormula, r2.subFormulaMap, r2.analyzedSentenceObjectsMap, r2.sentenceInfoMap, r2.sentenceMapForSat, r2.relations ++ relations)
       case KnowledgeLeaf(v) =>
         analyzeRecursiveSub(v, result)
     }
@@ -160,6 +161,9 @@ class RequestAnalyzer {
    * @return
    */
   private def analyzeRecursiveSub(v:KnowledgeSentenceSet, result:ParsedKnowledgeTree): ParsedKnowledgeTree ={
+
+    if(v.claimList.size == 0 && v.premiseList.size == 0) return result
+
     val parseResult = this.parseKnowledgeSentence(v)
     val sentenceMapForSat = (v.premiseList ++ v.claimList).foldLeft(result.sentenceMapForSat) {
       (acc, x) =>{
@@ -206,7 +210,7 @@ class RequestAnalyzer {
     }
     val subFormulaMap = result.subFormulaMap ++ Map(leafId.toString -> subFormula)
     val relations = result.relations ++ List((premisePropositionIds, v.premiseLogicRelation, claimPropositionIds, v.claimLogicRelation, List.empty[String], List.empty[PropositionRelation]))
-    ParsedKnowledgeTree(leafId,  result.formula, subFormulaMap, result.analyzedSentenceObjects:::parseResult, result.sentenceInfoMap ++ sentenceInfoMap, sentenceMapForSat, relations)
+    ParsedKnowledgeTree(leafId,  result.formula, subFormulaMap, result.analyzedSentenceObjectsMap ++ Map(leafId -> AnalyzedSentenceObjects(parseResult)), result.sentenceInfoMap ++ sentenceInfoMap, sentenceMapForSat, relations)
   }
 
   /**

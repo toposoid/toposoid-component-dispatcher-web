@@ -40,15 +40,6 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
     Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("Life is so comfortable.","en_US", "{}", false)))
-    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("This is a premise3.", "en_US", "{}", false)))
-    val knowledgeSentenceSet = KnowledgeSentenceSet(
-      List(Knowledge("This is a premise3.","en_US", "{}", false)),
-      List.empty[PropositionRelation],
-      List(Knowledge("This is a claim3.","en_US", "{}", false)),
-      List.empty[PropositionRelation])
-    Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSet)
-    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("This is a claim5.", "en_US", "{}", false)))
-
   }
 
   override def afterAll(): Unit = {
@@ -82,29 +73,6 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
     }
   }
 
-  "The specification1-2" should {
-
-    "returns an appropriate response" in {
-
-      val json = """{
-                   |    "premise":[{"sentence":"This is a premise3.","lang": "en_US", "extentInfoJson":"{}", "isNegativeSentence":false}],
-                   |    "claim":[]
-                   |}""".stripMargin
-
-      val fr = FakeRequest(POST, "/analyze")
-        .withHeaders("Content-type" -> "application/json")
-        .withJsonBody(Json.parse(json))
-
-      val result = call(controller.analyze(), fr)
-      status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
-      val jsonResult = contentAsJson(result).toString()
-      val analyzedSentenceObjects: AnalyzedSentenceObjects = Json.parse(jsonResult).as[AnalyzedSentenceObjects]
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("0").get.status).size == 1)
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("1").get.status).size == 0)
-
-    }
-  }
 
   "The specification3" should {
     "returns an appropriate response" in {
@@ -296,6 +264,79 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                        "lang": "en_US",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": true
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": []
+                   |            }
+                   |        }
+                   |    }
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
+
+    }
+  }
+
+  "The specification4" should {
+    "returns an appropriate response" in {
+
+      val json = """{
+                   |    "regulation": {
+                   |        "knowledgeLeft": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [],
+                   |                "claimLogicRelation": []
+                   |            }
+                   |        },
+                   |        "operator": "",
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "This is craim1.",
+                   |                        "lang": "en_Us",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": []
+                   |            }
+                   |        }
+                   |    },
+                   |    "hypothesis": {
+                   |        "knowledgeLeft": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [],
+                   |                "claimLogicRelation": []
+                   |            }
+                   |        },
+                   |        "operator": "",
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "This is craim1.",
+                   |                        "lang": "en_US",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false
                    |                    }
                    |                ],
                    |                "claimLogicRelation": []
