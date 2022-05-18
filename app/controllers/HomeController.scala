@@ -93,6 +93,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
   def analyzeKnowledgeTree() = Action(parse.json) { request =>
     try {
       val json = request.body
+      logger.info(json.toString())
       val targetProblem:TargetProblem = Json.parse(json.toString).as[TargetProblem]
       val resultAnalyzer = new ResultAnalyzer()
       val regulationKnowledgeTree:KnowledgeTree = targetProblem.regulation
@@ -100,7 +101,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       val satInputForRegulation:SatInput = analyzeKnowledgeTreeSub(regulationKnowledgeTree, Map.empty[String, Int])
       val satInputForHypothesis:SatInput = analyzeKnowledgeTreeSub(hypothesisKnowledgeTree, satInputForRegulation.parsedKnowledgeTree.sentenceMapForSat)
       val analyzedEdges:AnalyzedEdges = resultAnalyzer.getAnalyzedEdges(satInputForRegulation, satInputForHypothesis)
-      Ok(Json.toJson(analyzedEdges)).as(JSON)
+      val analyzedResponse =Json.toJson(analyzedEdges)
+      logger.info(analyzedResponse.toString())
+      Ok(analyzedResponse).as(JSON)
     }catch{
       case e: Exception => {
         logger.error(e.toString, e)
