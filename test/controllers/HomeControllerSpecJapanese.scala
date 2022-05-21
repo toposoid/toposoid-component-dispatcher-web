@@ -42,7 +42,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
   }
 
   override def afterAll(): Unit = {
-    Neo4JAccessor.delete()
+    //Neo4JAccessor.delete()
   }
 
   //override implicit def defaultAwaitTimeout: Timeout = 120.seconds
@@ -355,6 +355,104 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
       analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
 
+    }
+
+    "The specification5" should {
+      "returns an appropriate response" in {
+
+        val json =
+          """{
+            |    "regulation": {
+            |        "knowledgeLeft": {
+            |            "leaf": {
+            |                "premiseList": [],
+            |                "premiseLogicRelation": [],
+            |                "claimList": [],
+            |                "claimLogicRelation": []
+            |            }
+            |        },
+            |        "operator": "",
+            |        "knowledgeRight": {
+            |            "leaf": {
+            |                "premiseList": [],
+            |                "premiseLogicRelation": [],
+            |                "claimList": [
+            |                    {
+            |                        "sentence": "全ての人は自分の運命を自分で決められる",
+            |                        "lang": "ja_JP",
+            |                        "extentInfoJson": "{}",
+            |                        "isNegativeSentence": false
+            |                    },
+            |                    {
+            |                        "sentence": "人生は自分でつくるもの",
+            |                        "lang": "ja_JP",
+            |                        "extentInfoJson": "{}",
+            |                        "isNegativeSentence": false
+            |                    }
+            |                ],
+            |                "claimLogicRelation": [
+            |                    {
+            |                        "operator": "AND",
+            |                        "sourceIndex": 0,
+            |                        "destinationIndex": 1
+            |                    }
+            |                ]
+            |            }
+            |        }
+            |    },
+            |    "hypothesis": {
+            |        "knowledgeLeft": {
+            |            "leaf": {
+            |                "premiseList": [],
+            |                "premiseLogicRelation": [],
+            |                "claimList": [],
+            |                "claimLogicRelation": []
+            |            }
+            |        },
+            |        "operator": "",
+            |        "knowledgeRight": {
+            |            "leaf": {
+            |                "premiseList": [],
+            |                "premiseLogicRelation": [],
+            |                "claimList": [
+            |                    {
+            |                        "sentence": "全ての人は自分の運命を自分で決められる",
+            |                        "lang": "ja_JP",
+            |                        "extentInfoJson": "{}",
+            |                        "isNegativeSentence": false
+            |                    },
+            |                    {
+            |                        "sentence": "人生は自分でつくるもの",
+            |                        "lang": "ja_JP",
+            |                        "extentInfoJson": "{}",
+            |                        "isNegativeSentence": false
+            |                    }
+            |                ],
+            |                "claimLogicRelation": [
+            |                    {
+            |                        "operator": "AND",
+            |                        "sourceIndex": 0,
+            |                        "destinationIndex": 1
+            |                    }
+            |                ]
+            |            }
+            |        }
+            |    }
+            |}""".stripMargin
+
+        val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+          .withHeaders("Content-type" -> "application/json")
+          .withJsonBody(Json.parse(json))
+
+        val result = call(controller.analyzeKnowledgeTree(), fr)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+        analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value))
+
+      }
     }
   }
 
