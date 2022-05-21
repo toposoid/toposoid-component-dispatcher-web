@@ -12,7 +12,6 @@ and the other is a microservice that makes logical inferences.
 
 <img width="1131" alt="" src="https://user-images.githubusercontent.com/82787843/169644939-05b7b625-4188-4002-a46b-e4d03c1ea669.png">
 
-
 ## Requirements
 * Docker version 20.10.x, or later
 * docker-compose version 1.22.x
@@ -28,6 +27,7 @@ docker-compose up -d
 It takes more than 20 minutes to pull the Docker image for the first time.
 ## Usage
 ```bash
+
 # This Json can also be expressed recursively as a binary tree.
 curl -X POST -H "Content-Type: application/json" -d '{
     "regulation": {
