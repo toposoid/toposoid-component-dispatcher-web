@@ -7,7 +7,11 @@ and the other is a microservice that makes logical inferences.
 
 [![Unit Test And Build Image Action](https://github.com/toposoid/toposoid-component-dispatcher-web/actions/workflows/action.yml/badge.svg?branch=main)](https://github.com/toposoid/toposoid-component-dispatcher-web/actions/workflows/action.yml)
 
-<img width="1199" alt="2021-10-04 21 56 08" src="https://user-images.githubusercontent.com/82787843/135855266-3c674c67-3c90-4b9a-9ea4-1b9e8f4c0acf.png">
+- API Image
+<img width="1127" alt="" src="https://user-images.githubusercontent.com/82787843/169644935-1386320e-e436-4dca-922f-4f2701fcd9bc.png">
+
+<img width="1131" alt="" src="https://user-images.githubusercontent.com/82787843/169644939-05b7b625-4188-4002-a46b-e4d03c1ea669.png">
+
 
 ## Requirements
 * Docker version 20.10.x, or later
@@ -24,9 +28,60 @@ docker-compose up -d
 It takes more than 20 minutes to pull the Docker image for the first time.
 ## Usage
 ```bash
+# This Json can also be expressed recursively as a binary tree.
 curl -X POST -H "Content-Type: application/json" -d '{
-    "premise":[],
-    "claim":["案ずるより産むが易し。"]
+    "regulation": {
+        "knowledgeLeft": {
+            "leaf": {
+                "premiseList": [],
+                "premiseLogicRelation": [],
+                "claimList": [],
+                "claimLogicRelation": []
+            }
+        },
+        "operator": "",
+        "knowledgeRight": {
+            "leaf": {
+                "premiseList": [],
+                "premiseLogicRelation": [],
+                "claimList": [
+                    {
+                        "sentence": "これは主張1です。",
+                        "lang": "ja_JP",
+                        "extentInfoJson": "{}",
+                        "isNegativeSentence": false
+                    }
+                ],
+                "claimLogicRelation": []
+            }
+        }
+    },
+    "hypothesis": {
+        "knowledgeLeft": {
+            "leaf": {
+                "premiseList": [],
+                "premiseLogicRelation": [],
+                "claimList": [],
+                "claimLogicRelation": []
+            }
+        },
+        "operator": "",
+        "knowledgeRight": {
+            "leaf": {
+                "premiseList": [],
+                "premiseLogicRelation": [],
+                "claimList": [
+                    {
+                        "sentence": "これは主張1です。",
+                        "lang": "ja_JP",
+                        "extentInfoJson": "{}",
+                        "isNegativeSentence": false
+                    }
+                ],
+                "claimLogicRelation": []
+            }
+        }
+    }
 }' http://localhost:9004/analyze
 ```
 
