@@ -1,4 +1,4 @@
-FROM toposoid/toposoid-core:0.2
+FROM toposoid/toposoid-core:0.3
 
 WORKDIR /app
 ARG TARGET_BRANCH
