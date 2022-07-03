@@ -1,4 +1,4 @@
-FROM toposoid/toposoid-core:0.3
+FROM toposoid/toposoid-core:0.4-SNAPSHOT
 
 WORKDIR /app
 ARG TARGET_BRANCH
@@ -13,7 +13,7 @@ RUN git clone https://github.com/toposoid/toposoid-component-dispatcher-web.git 
 && sbt playUpdateSecret 1> /dev/null \
 && sbt dist  \
 && cd /app/toposoid-component-dispatcher-web/target/universal  \
-&& unzip -o toposoid-component-dispatcher-web-0.3.zip
+&& unzip -o toposoid-component-dispatcher-web-0.4-SNAPSHOT.zip
 
 
 COPY ./docker-entrypoint.sh /app/
