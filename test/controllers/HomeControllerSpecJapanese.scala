@@ -31,14 +31,14 @@ import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.test.Helpers.{POST, contentAsString, contentType, defaultAwaitTimeout, status, _}
 import play.api.test.{FakeRequest, _}
-
+import io.jvm.uuid.UUID
 import scala.concurrent.duration.DurationInt
 
 class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite  with DefaultAwaitTimeout with Injecting{
 
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
-    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("案ずるより産むが易し。", "ja_JP", "{}", false)))
+    Sentence2Neo4jTransformer.createGraphAuto(List(UUID.random.toString), List(Knowledge("案ずるより産むが易し。", "ja_JP", "{}", false)))
   }
 
   override def afterAll(): Unit = {
