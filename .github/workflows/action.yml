@@ -12,7 +12,7 @@ env:
   PJ_VERSION: 0.4-SNAPSHOT
 jobs:
   unit-test_toposoid-component-dispatcher-web:
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     steps:
       - name: Clone ${{ env.PJ_REPO }}
         uses: actions/checkout@v2
@@ -20,7 +20,11 @@ jobs:
             repository: ${{ env.PJ_ACTOR }}/${{ env.PJ_REPO }}
       - name: Execute tests
         run: |
+            docker rmi --force ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
             docker build --build-arg TARGET_BRANCH=${{ env.PJ_BRANCH }} --tag ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} -f Dockerfile-workflow .
+            docker-compose -f docker-compose-workflow.yml down
+            docker system prune -f
+            docker volume prune -f
             docker-compose -f docker-compose-workflow.yml up -d toposoid-component-dispatcher-web
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt headerCheck"
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt test:headerCheck"
