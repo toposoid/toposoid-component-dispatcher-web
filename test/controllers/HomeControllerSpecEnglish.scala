@@ -22,6 +22,7 @@ import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObjects
 import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
+import com.ideal.linked.toposoid.protocol.model.parser.{KnowledgeForParser, KnowledgeSentenceSetForParser}
 import com.ideal.linked.toposoid.protocol.model.sat.FlattenedKnowledgeTree
 import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
@@ -33,13 +34,18 @@ import play.api.libs.json.Json
 import play.api.test.Helpers.{POST, contentType, defaultAwaitTimeout, status, _}
 import play.api.test.{FakeRequest, _}
 import io.jvm.uuid.UUID
+
 import scala.concurrent.duration.DurationInt
 
 class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite with DefaultAwaitTimeout with Injecting{
 
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
-    Sentence2Neo4jTransformer.createGraphAuto(List(UUID.random.toString), List(Knowledge("Life is so comfortable.","en_US", "{}", false)))
+    val propositionId1 = UUID.random.toString
+    val sentenceId1 = UUID.random.toString
+    val sentenceA = "Life is so comfortable."
+    val knowledge1 = Knowledge(sentenceA,"en_US", "{}", false)
+    registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
   }
 
   override def afterAll(): Unit = {
@@ -47,6 +53,15 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
   }
 
   override implicit def defaultAwaitTimeout: Timeout = 600.seconds
+
+  def registSingleClaim(knowledgeForParser:KnowledgeForParser): Unit = {
+    val knowledgeSentenceSetForParser = KnowledgeSentenceSetForParser(
+      List.empty[KnowledgeForParser],
+      List.empty[PropositionRelation],
+      List(knowledgeForParser),
+      List.empty[PropositionRelation])
+    Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSetForParser)
+  }
 
   val controller: HomeController = inject[HomeController]
   "The specification1" should {

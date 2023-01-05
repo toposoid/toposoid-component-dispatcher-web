@@ -15,7 +15,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Clone ${{ env.PJ_REPO }}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
             repository: ${{ env.PJ_ACTOR }}/${{ env.PJ_REPO }}
       - name: Execute tests
@@ -53,16 +53,16 @@ jobs:
             docker rmi --force ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
       - name: Docker meta
         id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
+        uses: crazy-max/ghaction-docker-meta@v3
         with:
           images: toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
       - name: Login to GHCR
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.GHCR_USER }}
           password: ${{ secrets.GHCR_TOKEN }}
       - name: Build And Push Docker Image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           push: true
@@ -70,7 +70,7 @@ jobs:
           build-args: |
             TARGET_BRANCH=${{ env.PJ_BRANCH }}
       - name: Build And Push Docker Image For Test
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           file: Dockerfile-smallspec
