@@ -20,19 +20,26 @@ jobs:
             repository: ${{ env.PJ_ACTOR }}/${{ env.PJ_REPO }}
       - name: Execute tests
         run: |
-            docker rmi --force ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
-            docker build --build-arg TARGET_BRANCH=${{ env.PJ_BRANCH }} --tag ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} -f Dockerfile-workflow .
-            docker-compose -f docker-compose-workflow.yml down
+            cd ${GITHUB_WORKSPACE} && cd ../
+            cd ./${{ env.PJ_REPO }}
+            rm -f vald-config/backup/.gitkeep
+            docker rm --force $(docker ps -a -q) > /dev/null 2>&1 && :
+            docker rmi --force $(docker images -q) > /dev/null 2>&1 && :
+            docker images
             docker system prune -f
             docker volume prune -f
+            docker build --build-arg TARGET_BRANCH=${{ env.PJ_BRANCH }} --tag ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} -f Dockerfile-workflow .
             docker-compose -f docker-compose-workflow.yml up -d toposoid-component-dispatcher-web
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt headerCheck"
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt test:headerCheck"
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt compile"
             docker-compose -f docker-compose-workflow.yml up -d neo4j
+            docker-compose -f docker-compose-workflow.yml up -d vald
+            docker-compose -f docker-compose-workflow.yml up -d data-accessor-vald-web
             docker-compose -f docker-compose-workflow.yml up -d scala-data-accessor-neo4j-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-exact-match-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-synonym-match-web
+            docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-sentence-vector-match-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-admin-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-sat-solver-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-common-nlp-japanese-web
@@ -42,6 +49,9 @@ jobs:
             docker-compose -f docker-compose-workflow.yml rm -fsv toposoid-sentence-parser-japanese-web
             docker rmi --force toposoid/toposoid-sentence-parser-japanese-web:0.4-SNAPSHOT-workflow
             docker rmi --force toposoid/toposoid-common-nlp-japanese-web:0.4-SNAPSHOT-workflow
+            docker-compose -f docker-compose-workflow.yml rm -fsv vald
+            rm -f vald-config/backup/*
+            docker-compose -f docker-compose-workflow.yml up -d vald
             docker system prune -f
             docker volume prune -f
             docker-compose -f docker-compose-workflow.yml up -d corenlp
