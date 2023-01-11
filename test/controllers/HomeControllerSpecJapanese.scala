@@ -24,6 +24,7 @@ import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdges, Analyze
 import com.ideal.linked.toposoid.protocol.model.parser.{KnowledgeForParser, KnowledgeSentenceSetForParser}
 import com.ideal.linked.toposoid.protocol.model.sat.FlattenedKnowledgeTree
 import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
+import com.ideal.linked.toposoid.vectorizer.FeatureVectorizer
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -45,6 +46,13 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
     val sentenceA = "案ずるより産むが易し。"
     val knowledge1 = Knowledge(sentenceA,"ja_JP", "{}", false)
     registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+
+    val propositionId2 = UUID.random.toString
+    val sentenceId2 = UUID.random.toString
+    val sentenceB = "自然界の法則がすべての慣性系で同じように成り立っている。"
+    val knowledge2 = Knowledge(sentenceB,"ja_JP", "{}", false)
+    registSingleClaim(KnowledgeForParser(propositionId2, sentenceId2, knowledge2))
+
   }
 
   override def afterAll(): Unit = {
@@ -61,6 +69,9 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       List(knowledgeForParser),
       List.empty[PropositionRelation])
     Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSetForParser)
+    FeatureVectorizer.createVector(knowledgeSentenceSetForParser)
+    Thread.sleep(5000)
+
   }
 
   val controller: HomeController = inject[HomeController]
@@ -71,6 +82,29 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val json = """{
                    |    "premise":[],
                    |    "claim":[{"sentence":"案ずるより産むが易し。","lang": "ja_JP", "extentInfoJson":"{}", "isNegativeSentence":false}]
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyze")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyze(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedSentenceObjects: AnalyzedSentenceObjects = Json.parse(jsonResult).as[AnalyzedSentenceObjects]
+      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("0").get.status).size == 0)
+      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("1").get.status).size == 1)
+
+    }
+  }
+
+  "The specification2" should {
+    "returns an appropriate response" in {
+
+      val json = """{
+                   |    "premise":[],
+                   |    "claim":[{"sentence":"自然界の物理法則は例外なくどの慣性系でも成立する。","lang": "ja_JP", "extentInfoJson":"{}", "isNegativeSentence":false}]
                    |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyze")

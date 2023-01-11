@@ -25,6 +25,7 @@ import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
 import com.ideal.linked.toposoid.protocol.model.parser.{KnowledgeForParser, KnowledgeSentenceSetForParser}
 import com.ideal.linked.toposoid.protocol.model.sat.FlattenedKnowledgeTree
 import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
+import com.ideal.linked.toposoid.vectorizer.FeatureVectorizer
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -46,6 +47,13 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
     val sentenceA = "Life is so comfortable."
     val knowledge1 = Knowledge(sentenceA,"en_US", "{}", false)
     registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+
+    val propositionId2 = UUID.random.toString
+    val sentenceId2 = UUID.random.toString
+    val sentenceB = "The culprit is among us."
+    val knowledge2 = Knowledge(sentenceB,"en_US", "{}", false)
+    registSingleClaim(KnowledgeForParser(propositionId2, sentenceId2, knowledge2))
+
   }
 
   override def afterAll(): Unit = {
@@ -61,11 +69,13 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       List(knowledgeForParser),
       List.empty[PropositionRelation])
     Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSetForParser)
+    FeatureVectorizer.createVector(knowledgeSentenceSetForParser)
+    Thread.sleep(5000)
   }
 
   val controller: HomeController = inject[HomeController]
-  "The specification1" should {
 
+  "The specification1" should {
     "returns an appropriate response" in {
 
       val json = """{
@@ -89,6 +99,28 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
   }
 
 
+  "The specification2" should {
+    "returns an appropriate response" in {
+
+      val json = """{
+                   |    "premise":[],
+                   |    "claim":[{"sentence":"We confirmed that the culprit was one of us.","lang": "en_US", "extentInfoJson":"{}", "isNegativeSentence":false}]
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyze")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyze(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedSentenceObjects: AnalyzedSentenceObjects = Json.parse(jsonResult).as[AnalyzedSentenceObjects]
+      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("0").get.status).size == 0)
+      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("1").get.status).size == 1)
+
+    }
+  }
   "The specification3" should {
     "returns an appropriate response" in {
 
