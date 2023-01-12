@@ -22,6 +22,8 @@ services:
       - DEDUCTION_ADMIN_WEB_HOST=172.30.0.9
       - TOPOSOID_SAT_SOLVER_WEB_HOST=172.30.0.15
       - TOPOSOID_DEDUCTION_ADMIN_SKIP=0
+      - TOPOSOID_VALD_ACCESSOR_HOST=172.30.0.13
+      - TOPOSOID_VALD_SEARCH_NUM_MAX=5
     networks:
       app_net:
         ipv4_address: 172.30.0.16
