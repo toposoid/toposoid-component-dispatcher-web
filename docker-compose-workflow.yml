@@ -24,7 +24,7 @@ services:
       - TOPOSOID_DEDUCTION_ADMIN_SKIP=0
     networks:
       app_net:
-        ipv4_address: 172.30.0.14
+        ipv4_address: 172.30.0.16
     ports:
       - 9004:9004
   toposoid-sat-solver-web:
@@ -36,7 +36,7 @@ services:
       - TOPOSOID_CNF_FILE_PATH=/tmp
     networks:
       app_net:
-        ipv4_address: 172.30.0.13
+        ipv4_address: 172.30.0.15
     ports:
       - 9009:9009
   toposoid-deduction-admin-web:
