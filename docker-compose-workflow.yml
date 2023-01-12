@@ -90,7 +90,7 @@ services:
         ipv4_address: 172.30.0.12
     ports:
       - 9103:9103
-    scala-data-accessor-neo4j-web:
+  scala-data-accessor-neo4j-web:
     image: toposoid/scala-data-accessor-neo4j-web:0.4-SNAPSHOT-workflow
     environment:
       - GRAPHDB_HOST=172.30.0.2
