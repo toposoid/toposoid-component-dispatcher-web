@@ -18,11 +18,10 @@ package controllers
 
 import akka.util.Timeout
 import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
-import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
+import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObjects
-import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdges, AnalyzedNode}
+import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdges}
 import com.ideal.linked.toposoid.protocol.model.parser.{KnowledgeForParser, KnowledgeSentenceSetForParser}
-import com.ideal.linked.toposoid.protocol.model.sat.FlattenedKnowledgeTree
 import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
 import com.ideal.linked.toposoid.vectorizer.FeatureVectorizer
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
@@ -31,7 +30,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Play.materializer
 import play.api.http.Status.OK
 import play.api.libs.json.Json
-import play.api.test.Helpers.{POST, contentAsString, contentType, defaultAwaitTimeout, status, _}
+import play.api.test.Helpers.{POST, contentType, status, _}
 import play.api.test.{FakeRequest, _}
 import io.jvm.uuid.UUID
 
