@@ -22,7 +22,7 @@ jobs:
         run: |
             cd ${GITHUB_WORKSPACE} && cd ../
             cd ./${{ env.PJ_REPO }}
-            rm -f vald-config/backup/.gitkeep
+            rm -f vald-config/backup/*
             docker rm --force $(docker ps -a -q) > /dev/null 2>&1 && :
             docker rmi --force $(docker images -q) > /dev/null 2>&1 && :
             docker images
