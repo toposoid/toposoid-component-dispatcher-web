@@ -20,7 +20,7 @@ import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.toposoid.common.{CLAIM, PREMISE, ToposoidUtils}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects, DeductionResult}
-import com.ideal.linked.toposoid.protocol.model.parser.{InputSentence, KnowledgeLeaf, KnowledgeNode, KnowledgeTree}
+import com.ideal.linked.toposoid.protocol.model.parser.{InputSentence, InputSentenceForParser, KnowledgeForParser, KnowledgeLeaf, KnowledgeNode, KnowledgeTree}
 import controllers.{ParsedKnowledgeTree, SentenceInfo}
 import play.api.libs.json.Json
 
@@ -98,12 +98,12 @@ class RequestAnalyzer {
    */
   def parseKnowledgeSentence(knowledgeSentenceSet: KnowledgeSentenceSet):List[AnalyzedSentenceObject] = Try{
 
-    val premiseJapanese:List[Knowledge] = knowledgeSentenceSet.premiseList.filter(_.lang == "ja_JP")
-    val claimJapanese:List[Knowledge] = knowledgeSentenceSet.claimList.filter(_.lang == "ja_JP")
-    val premiseEnglish:List[Knowledge] = knowledgeSentenceSet.premiseList.filter(_.lang.startsWith("en_"))
-    val claimEnglish:List[Knowledge] = knowledgeSentenceSet.claimList.filter(_.lang.startsWith("en_"))
-    val japaneseInputSentences:String = Json.toJson(InputSentence(premiseJapanese, claimJapanese)).toString()
-    val englishInputSentences:String = Json.toJson(InputSentence(premiseEnglish, claimEnglish)).toString()
+    val premiseJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
+    val claimJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
+    val premiseEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
+    val claimEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
+    val japaneseInputSentences:String = Json.toJson(InputSentenceForParser(premiseJapanese, claimJapanese)).toString()
+    val englishInputSentences:String = Json.toJson(InputSentenceForParser(premiseEnglish, claimEnglish)).toString()
 
     val numOfKnowledgeJapanese = premiseJapanese.size + claimJapanese.size
     val numOfKnowledgeEnglish = premiseEnglish.size + claimEnglish.size

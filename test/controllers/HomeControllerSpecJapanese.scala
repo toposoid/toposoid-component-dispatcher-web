@@ -18,19 +18,21 @@ package controllers
 
 import akka.util.Timeout
 import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
-import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
+import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObjects
-import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdges, AnalyzedNode}
-import com.ideal.linked.toposoid.protocol.model.sat.FlattenedKnowledgeTree
+import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdges}
+import com.ideal.linked.toposoid.protocol.model.parser.{KnowledgeForParser, KnowledgeSentenceSetForParser}
 import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
+import com.ideal.linked.toposoid.vectorizer.FeatureVectorizer
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Play.materializer
 import play.api.http.Status.OK
 import play.api.libs.json.Json
-import play.api.test.Helpers.{POST, contentAsString, contentType, defaultAwaitTimeout, status, _}
+import play.api.test.Helpers.{POST, contentType, status, _}
 import play.api.test.{FakeRequest, _}
+import io.jvm.uuid.UUID
 
 import scala.concurrent.duration.DurationInt
 
@@ -38,23 +40,70 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
-    Sentence2Neo4jTransformer.createGraphAuto(List(Knowledge("案ずるより産むが易し。", "ja_JP", "{}", false)))
+    val propositionId1 = UUID.random.toString
+    val sentenceId1 = UUID.random.toString
+    val sentenceA = "案ずるより産むが易し。"
+    val knowledge1 = Knowledge(sentenceA,"ja_JP", "{}", false)
+    registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+
+    val propositionId2 = UUID.random.toString
+    val sentenceId2 = UUID.random.toString
+    val sentenceB = "自然界の法則がすべての慣性系で同じように成り立っている。"
+    val knowledge2 = Knowledge(sentenceB,"ja_JP", "{}", false)
+    registSingleClaim(KnowledgeForParser(propositionId2, sentenceId2, knowledge2))
+
   }
 
   override def afterAll(): Unit = {
-    //Neo4JAccessor.delete()
+    Neo4JAccessor.delete()
   }
 
   //override implicit def defaultAwaitTimeout: Timeout = 120.seconds
   override implicit def defaultAwaitTimeout: Timeout = 600.seconds
 
+  def registSingleClaim(knowledgeForParser:KnowledgeForParser): Unit = {
+    val knowledgeSentenceSetForParser = KnowledgeSentenceSetForParser(
+      List.empty[KnowledgeForParser],
+      List.empty[PropositionRelation],
+      List(knowledgeForParser),
+      List.empty[PropositionRelation])
+    Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSetForParser)
+    FeatureVectorizer.createVector(knowledgeSentenceSetForParser)
+    Thread.sleep(5000)
+
+  }
+
   val controller: HomeController = inject[HomeController]
+
   "The specification1" should {
     "returns an appropriate response" in {
 
       val json = """{
                    |    "premise":[],
                    |    "claim":[{"sentence":"案ずるより産むが易し。","lang": "ja_JP", "extentInfoJson":"{}", "isNegativeSentence":false}]
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyze")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyze(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedSentenceObjects: AnalyzedSentenceObjects = Json.parse(jsonResult).as[AnalyzedSentenceObjects]
+      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("0").get.status).size == 0)
+      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("1").get.status).size == 1)
+
+    }
+  }
+
+  "The specification2" should {
+    "returns an appropriate response" in {
+
+      val json = """{
+                   |    "premise":[],
+                   |    "claim":[{"sentence":"自然界の物理法則は例外なくどの慣性系でも成立する。","lang": "ja_JP", "extentInfoJson":"{}", "isNegativeSentence":false}]
                    |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyze")

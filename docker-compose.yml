@@ -9,8 +9,7 @@ networks:
 
 services:
   toposoid-component-dispatcher-web:
-    image: toposoid/toposoid-component-dispatcher-web:0.3
-    tty: true
+    image: toposoid/toposoid-component-dispatcher-web:0.4
     environment:
       - GRAPHDB_HOST=172.30.0.2
       - PRIVATE_IP_ADDRESS=localhost
@@ -19,12 +18,12 @@ services:
       - SENTENCE_PARSER_EN_WEB_HOST=172.30.0.6
       - COMMON_NLP_JP_WEB_HOST=172.30.0.5
       - COMMON_NLP_EN_WEB_HOST=172.30.0.7
-      - DEDUCTION_ADMIN_WEB_HOST=172.30.0.9
-      - TOPOSOID_SAT_SOLVER_WEB_HOST=172.30.0.13
+      - TOPOSOID_DEDUCTION_ADMIN_WEB_HOST=172.30.0.9
+      - TOPOSOID_SAT_SOLVER_WEB_HOST=172.30.0.15
       - TOPOSOID_DEDUCTION_ADMIN_SKIP=0
     networks:
       app_net:
-        ipv4_address: 172.30.0.12
+        ipv4_address: 172.30.0.16
     ports:
       - 9004:9004
     depends_on:
@@ -33,25 +32,25 @@ services:
       - toposoid-sentence-parser-english-web
       - toposoid-sat-solver-web
   toposoid-sat-solver-web:
-    image: toposoid/toposoid-sat-solver-web:0.3
+    image: toposoid/toposoid-sat-solver-web:0.4
     environment:
-      - PRIVATE_IP_ADDRESS=172.30.0.13
+      - PRIVATE_IP_ADDRESS=172.30.0.15
       - PLAY_HTTP_PORT=9009
       - TOPOSOID_MAX_SAT_SOLVER=EvalMaxSAT_bin
       - TOPOSOID_CNF_FILE_PATH=/tmp
     networks:
       app_net:
-        ipv4_address: 172.30.0.13
+        ipv4_address: 172.30.0.15
     ports:
       - 9009:9009
   toposoid-deduction-admin-web:
-    image: toposoid/toposoid-deduction-admin-web:0.3
-    tty: true
+    image: toposoid/toposoid-deduction-admin-web:0.4
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.9
       - PLAY_HTTP_PORT=9003
-      - DEDUCTION_UNIT1_HOST=172.30.0.10
-      - DEDUCTION_UNIT2_HOST=172.30.0.11
+      - TOPOSOID_DEDUCTION_UNIT1_HOST=172.30.0.10
+      - TOPOSOID_DEDUCTION_UNIT2_HOST=172.30.0.11
+      - TOPOSOID_DEDUCTION_UNIT3_HOST=172.30.0.12
       - SCALA_DATA_ACCESSOR_NEO4J_WEB_HOST=172.30.0.3
     networks:
       app_net:
@@ -59,7 +58,7 @@ services:
     ports:
       - 9003:9003
   toposoid-deduction-unit-exact-match-web:
-    image: toposoid/toposoid-deduction-unit-exact-match-web:0.3
+    image: toposoid/toposoid-deduction-unit-exact-match-web:0.4
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.10
@@ -71,7 +70,7 @@ services:
     ports:
       - 9101:9101
   toposoid-deduction-unit-synonym-match-web:
-    image: toposoid/toposoid-deduction-unit-synonym-match-web:0.3
+    image: toposoid/toposoid-deduction-unit-synonym-match-web:0.4
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.11
       - SCALA_DATA_ACCESSOR_NEO4J_WEB_HOST=172.30.0.3
@@ -81,8 +80,26 @@ services:
         ipv4_address: 172.30.0.11
     ports:
       - 9102:9102
+  toposoid-deduction-unit-sentence-vector-match-web:
+    image: toposoid/toposoid-deduction-unit-sentence-vector-match-web:0.4
+    environment:
+      - PRIVATE_IP_ADDRESS=172.30.0.12
+      - SCALA_DATA_ACCESSOR_NEO4J_WEB_HOST=172.30.0.3
+      - COMMON_NLP_JP_WEB_HOST=172.30.0.5
+      - COMMON_NLP_EN_WEB_HOST=172.30.0.7
+      - TOPOSOID_VALD_ACCESSOR_HOST=172.30.0.13
+      - TOPOSOID_VALD_SEARCH_NUM_MAX=5
+      - PLAY_HTTP_PORT=9103
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.12
+    ports:
+      - 9103:9103
+    depends_on:
+      - scala-data-accessor-neo4j-web
+      - data-accessor-vald-web
   scala-data-accessor-neo4j-web:
-    image: toposoid/scala-data-accessor-neo4j-web:0.3
+    image: toposoid/scala-data-accessor-neo4j-web:0.4
     environment:
       - GRAPHDB_HOST=172.30.0.2
       - PRIVATE_IP_ADDRESS=172.30.0.3
@@ -93,7 +110,7 @@ services:
     ports:
       - 9005:9005
   toposoid-sentence-parser-japanese-web:
-    image: toposoid/toposoid-sentence-parser-japanese-web:0.3
+    image: toposoid/toposoid-sentence-parser-japanese-web:0.4
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.4
@@ -104,13 +121,14 @@ services:
     ports:
       - 9001:9001
   toposoid-common-nlp-japanese-web:
-    image: toposoid/toposoid-common-nlp-japanese-web:0.3
+    image: toposoid/toposoid-common-nlp-japanese-web:0.4
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.5
       - SYNONYM_NOUN_SIMILARITY_THRESHHOLD_JP=0.52
       - SYNONYM_VERB_SIMILARITY_THRESHHOLD_JP=0.52
       - WORD2VEC_SIMILARITY_THRESHHOLD_JP=0.68
       - CHIVE_MODEL_VERSION=chive-1.2-mc15.kv
+      - TOPOSOID_SENTENCEBERT_MODEL_JP=sentence-transformers/paraphrase-multilingual-mpnet-base-v2
       - PLAY_HTTP_PORT=9006
     networks:
       app_net:
@@ -118,7 +136,7 @@ services:
     ports:
       - 9006:9006
   toposoid-sentence-parser-english-web:
-    image: toposoid/toposoid-sentence-parser-english-web:0.3
+    image: toposoid/toposoid-sentence-parser-english-web:0.4
     tty: true
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.6
@@ -130,13 +148,13 @@ services:
     ports:
       - 9007:9007
   toposoid-common-nlp-english-web:
-    image: toposoid/toposoid-common-nlp-english-web:0.3
-    tty: true
+    image: toposoid/toposoid-common-nlp-english-web:0.4
     environment:
       - PRIVATE_IP_ADDRESS=172.30.0.7
       - SYNONYM_NOUN_SIMILARITY_THRESHHOLD_EN=0.52
       - SYNONYM_VERB_SIMILARITY_THRESHHOLD_EN=0.52
       - WORD2VEC_SIMILARITY_THRESHHOLD_EN=0.78
+      - TOPOSOID_SENTENCEBERT_MODEL_EN=sentence-transformers/paraphrase-multilingual-mpnet-base-v2
       - PLAY_HTTP_PORT=9008
     networks:
       app_net:
@@ -160,6 +178,29 @@ services:
     networks:
       app_net:
         ipv4_address: 172.30.0.2
+  data-accessor-vald-web:
+    image: toposoid/data-accessor-vald-web:0.4
+    environment:
+      - TOPOSOID_VALD_HOST=172.30.0.14
+      - TOPOSOID_VALD_PORT=8081
+      - TOPOSOID_VALD_DISTANCE_THRESHHOLD=0.25 #For Multilingual Model 0.03
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.13
+    ports:
+      - 9010:9010
+  vald:
+    image: vdaas/vald-agent-ngt:v1.6.3
+    user: 1000:1000
+    volumes:
+      - ./vald-config:/etc/server
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.14
+    ports:
+      - 8081:8081
 
 
 
