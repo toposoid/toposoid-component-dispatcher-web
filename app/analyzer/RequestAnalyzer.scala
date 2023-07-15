@@ -183,8 +183,8 @@ class RequestAnalyzer {
     val premisePropositionIds:List[String] = parseResult.filter(_.sentenceType == PREMISE.index).map(_.nodeMap.head._2.propositionId).distinct
     val claimPropositionIds:List[String] = parseResult.filter(_.sentenceType == CLAIM.index).map(_.nodeMap.head._2.propositionId).distinct
 
-    val premiseKnowledgeMap:Map[String, Knowledge] = (premisePropositionIds zip v.premiseList).groupBy(_._1).mapValues(_.map(_._2).head)
-    val claimKnowledgeMap:Map[String, Knowledge] = (claimPropositionIds zip v.claimList).groupBy(_._1).mapValues(_.map(_._2).head)
+    val premiseKnowledgeMap:Map[String, Knowledge] = (premisePropositionIds zip v.premiseList).groupBy(_._1).mapValues(_.map(_._2).head).toMap
+    val claimKnowledgeMap:Map[String, Knowledge] = (claimPropositionIds zip v.claimList).groupBy(_._1).mapValues(_.map(_._2).head).toMap
 
     val sentenceInfoMap:Map[String, SentenceInfo] = (premiseKnowledgeMap ++ claimKnowledgeMap).foldLeft(Map.empty[String, SentenceInfo]){
       (acc, x) =>acc ++ Map(x._1 -> SentenceInfo(x._2.sentence, x._2.isNegativeSentence,  sentenceMapForSat.get(x._2.sentence).get.toString))
