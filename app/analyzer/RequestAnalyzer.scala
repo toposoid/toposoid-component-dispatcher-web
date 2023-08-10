@@ -83,7 +83,7 @@ class RequestAnalyzer {
     val propositionId = analyzedSentenceObject.nodeMap.map(_._2.propositionId).head
 
     //An analyzedSentenceObject has GraphDB search results of either Premis or Claim depending on the sentenceType.
-    val deductionResult:DeductionResult = analyzedSentenceObject.deductionResultMap.get(analyzedSentenceObject.knowledgeFeatureNode.toString).get
+    val deductionResult:DeductionResult = analyzedSentenceObject.deductionResultMap.get(analyzedSentenceObject.sentenceType.toString).get
     val status:Option[DeductionResult] = deductionResult.matchedPropositionIds.size match {
       case 0 => None
       case _ => Some(deductionResult)
@@ -180,8 +180,8 @@ class RequestAnalyzer {
     }
 
     //Extract all the positionIds contained in the leaf while keeping the order.
-    val premisePropositionIds:List[String] = parseResult.filter(_.knowledgeFeatureNode.sentenceType == PREMISE.index).map(_.nodeMap.head._2.propositionId).distinct
-    val claimPropositionIds:List[String] = parseResult.filter(_.knowledgeFeatureNode.sentenceType == CLAIM.index).map(_.nodeMap.head._2.propositionId).distinct
+    val premisePropositionIds:List[String] = parseResult.filter(_.sentenceType == PREMISE.index).map(_.nodeMap.head._2.propositionId).distinct
+    val claimPropositionIds:List[String] = parseResult.filter(_.sentenceType == CLAIM.index).map(_.nodeMap.head._2.propositionId).distinct
 
     val premiseKnowledgeMap:Map[String, Knowledge] = (premisePropositionIds zip v.premiseList).groupBy(_._1).mapValues(_.map(_._2).head).toMap
     val claimKnowledgeMap:Map[String, Knowledge] = (claimPropositionIds zip v.claimList).groupBy(_._1).mapValues(_.map(_._2).head).toMap

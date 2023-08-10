@@ -2,12 +2,12 @@ name: Test And Build
 on:
   push:
     branches:
-      - add-feature-node
+      - refactor-knowledge-model
   workflow_dispatch:
 env:
   PJ_ACTOR: toposoid
   PJ_REPO: toposoid-component-dispatcher-web
-  PJ_BRANCH: add-feature-node
+  PJ_BRANCH: refactor-knowledge-model
   PJ_VERSION: 0.5-SNAPSHOT
 jobs:
   unit-test_toposoid-component-dispatcher-web:
