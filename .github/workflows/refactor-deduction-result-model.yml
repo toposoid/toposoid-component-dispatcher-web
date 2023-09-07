@@ -49,7 +49,7 @@ jobs:
             docker rmi --force toposoid/toposoid-sentence-parser-japanese-web:${{ env.PJ_VERSION }}-workflow
             docker rmi --force toposoid/toposoid-common-nlp-japanese-web:${{ env.PJ_VERSION }}-workflow
             docker-compose -f docker-compose-workflow.yml rm -fsv vald
-            rm -f vald-config/backup/*
+            rm -f vald-config/backup/* > /dev/null 2>&1 && :
             docker-compose -f docker-compose-workflow.yml up -d vald
             docker system prune -f
             docker volume prune -f
