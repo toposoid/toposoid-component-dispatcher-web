@@ -84,7 +84,7 @@ class RequestAnalyzer {
 
     //An analyzedSentenceObject has GraphDB search results of either Premis or Claim depending on the sentenceType.
     val deductionResult:DeductionResult = analyzedSentenceObject.deductionResultMap.get(analyzedSentenceObject.knowledgeFeatureNode.sentenceType.toString).get
-    val status:Option[DeductionResult] = deductionResult.matchedPropositionIds.size match {
+    val status:Option[DeductionResult] = deductionResult.matchedPropositionInfoList.size match {
       case 0 => None
       case _ => Some(deductionResult)
     }

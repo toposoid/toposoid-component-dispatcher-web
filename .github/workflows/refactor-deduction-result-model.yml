@@ -2,12 +2,12 @@ name: Test And Build
 on:
   push:
     branches:
-      - add-feature-node
+      - refactor-deduction-result-model
   workflow_dispatch:
 env:
   PJ_ACTOR: toposoid
   PJ_REPO: toposoid-component-dispatcher-web
-  PJ_BRANCH: add-feature-node
+  PJ_BRANCH: refactor-deduction-result-model
   PJ_VERSION: 0.5-SNAPSHOT
 jobs:
   unit-test_toposoid-component-dispatcher-web:
@@ -21,7 +21,7 @@ jobs:
         run: |
             cd ${GITHUB_WORKSPACE} && cd ../
             cd ./${{ env.PJ_REPO }}
-            rm -f vald-config/backup/*
+            rm -f vald-config/backup/.gitkeep
             docker rm --force $(docker ps -a -q) > /dev/null 2>&1 && :
             docker rmi --force $(docker images -q) > /dev/null 2>&1 && :
             docker images
@@ -49,7 +49,7 @@ jobs:
             docker rmi --force toposoid/toposoid-sentence-parser-japanese-web:${{ env.PJ_VERSION }}-workflow
             docker rmi --force toposoid/toposoid-common-nlp-japanese-web:${{ env.PJ_VERSION }}-workflow
             docker-compose -f docker-compose-workflow.yml rm -fsv vald
-            rm -f vald-config/backup/*
+            rm -f vald-config/backup/* > /dev/null 2>&1 && :
             docker-compose -f docker-compose-workflow.yml up -d vald
             docker system prune -f
             docker volume prune -f
