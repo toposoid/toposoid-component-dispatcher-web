@@ -187,7 +187,7 @@ services:
     environment:
       - TOPOSOID_VALD_HOST=172.30.0.14
       - TOPOSOID_VALD_PORT=8081
-      - TOPOSOID_VALD_DISTANCE_THRESHHOLD=0.25 #For Multilingual Model 0.03
+      - TOPOSOID_VALD_DISTANCE_THRESHOLD=0.25 #For Multilingual Model 0.03
     networks:
       app_net:
         ipv4_address: 172.30.0.13
