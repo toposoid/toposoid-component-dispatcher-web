@@ -33,8 +33,8 @@ jobs:
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt test:headerCheck"
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt compile"
             docker-compose -f docker-compose-workflow.yml up -d neo4j
-            docker-compose -f docker-compose-workflow.yml up -d vald
-            docker-compose -f docker-compose-workflow.yml up -d data-accessor-vald-web
+            docker-compose -f docker-compose-workflow.yml up -d weaviate
+            docker-compose -f docker-compose-workflow.yml up -d data-accessor-weaviate-web
             docker-compose -f docker-compose-workflow.yml up -d scala-data-accessor-neo4j-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-exact-match-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-synonym-match-web
@@ -49,9 +49,9 @@ jobs:
             docker-compose -f docker-compose-workflow.yml rm -fsv toposoid-sentence-parser-japanese-web
             docker rmi --force toposoid/toposoid-sentence-parser-japanese-web:${{ env.PJ_VERSION }}-workflow
             docker rmi --force toposoid/toposoid-common-nlp-japanese-web:${{ env.PJ_VERSION }}-workflow
-            docker-compose -f docker-compose-workflow.yml rm -fsv vald
+            docker-compose -f docker-compose-workflow.yml rm -fsv weaviate
             rm -Rf vald-config/backup/* > /dev/null 2>&1 && :
-            docker-compose -f docker-compose-workflow.yml up -d vald
+            docker-compose -f docker-compose-workflow.yml up -d weaviate
             docker system prune -f
             docker volume prune -f
             docker-compose -f docker-compose-workflow.yml up -d corenlp
