@@ -87,8 +87,9 @@ services:
       - SCALA_DATA_ACCESSOR_NEO4J_WEB_HOST=172.30.0.3
       - COMMON_NLP_JP_WEB_HOST=172.30.0.5
       - COMMON_NLP_EN_WEB_HOST=172.30.0.7
-      - TOPOSOID_VALD_ACCESSOR_HOST=172.30.0.13
-      - TOPOSOID_VALD_SEARCH_NUM_MAX=5
+      - TOPOSOID_VECTORDB_ACCESSOR_HOST=172.30.0.13
+      - TOPOSOID_VECTORDB_ACCESSOR_PORT=9011
+      - TOPOSOID_VECTORDB_SEARCH_NUM_MAX=5
       - PLAY_HTTP_PORT=9103
     networks:
       app_net:
@@ -97,7 +98,7 @@ services:
       - 9103:9103
     depends_on:
       - scala-data-accessor-neo4j-web
-      - data-accessor-vald-web
+      - data-accessor-weaviate-web
   scala-data-accessor-neo4j-web:
     image: toposoid/scala-data-accessor-neo4j-web:0.5-SNAPSHOT
     environment:
@@ -188,29 +189,67 @@ services:
     networks:
       app_net:
         ipv4_address: 172.30.0.2
-  data-accessor-vald-web:
-    image: toposoid/data-accessor-vald-web:0.5-SNAPSHOT
+  #data-accessor-vald-web:
+  #  image: toposoid/data-accessor-vald-web:0.5-SNAPSHOT
+  #  environment:
+  #    - TOPOSOID_VALD_HOST=172.30.0.14
+  #    - TOPOSOID_VALD_PORT=8081
+  #    - TOPOSOID_VALD_DISTANCE_THRESHOLD=0.25 #For Multilingual Model 0.03
+  #  networks:
+  #    app_net:
+  #      ipv4_address: 172.30.0.13
+  #  ports:
+  #    - 9010:9010
+  #vald:
+  #  image: vdaas/vald-agent-ngt:v1.7.6
+  #  user: 1000:1000
+  #  volumes:
+  #    - ./vald-config:/etc/server
+  #    - /etc/passwd:/etc/passwd:ro
+  #    - /etc/group:/etc/group:ro
+  #  networks:
+  #    app_net:
+  #      ipv4_address: 172.30.0.14
+  #  ports:
+  #    - 8081:8081
+  data-accessor-weaviate-web:
+    image: toposoid/data-accessor-weaviate-web:0.5-SNAPSHOT
+    tty: true
     environment:
-      - TOPOSOID_VALD_HOST=172.30.0.14
-      - TOPOSOID_VALD_PORT=8081
-      - TOPOSOID_VALD_DISTANCE_THRESHOLD=0.25 #For Multilingual Model 0.03
+      - TOPOSOID_WEAVIATE_HOST=172.30.0.14
+      - TOPOSOID_WEAVIATE_PORT=8080
+      - TOPOSOID_WEAVIATE_SIMILARITY_THRESHOLD=0.87
     networks:
       app_net:
         ipv4_address: 172.30.0.13
     ports:
-      - 9010:9010
-  vald:
-    image: vdaas/vald-agent-ngt:v1.7.6
-    user: 1000:1000
-    volumes:
-      - ./vald-config:/etc/server
-      - /etc/passwd:/etc/passwd:ro
-      - /etc/group:/etc/group:ro
+      - 9011:9011
+    depends_on:
+      - weaviate
+  weaviate:
+    command:
+      - --host
+      - 0.0.0.0
+      - --port
+      - '8080'
+      - --scheme
+      - http
+    image: semitechnologies/weaviate:1.21.2
+    ports:
+      - 8080:8080
     networks:
       app_net:
         ipv4_address: 172.30.0.14
-    ports:
-      - 8081:8081
-
+    #volumes:
+    #  - /var/weaviate:/var/lib/weaviate
+    restart: on-failure:0
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-huggingface'
+      HUGGINGFACE_APIKEY: ''
+      ENABLE_MODULES: 'text2vec-cohere,text2vec-huggingface,text2vec-palm,text2vec-openai,generative-openai,generative-cohere,generative-palm,ref2vec-centroid,reranker-cohere,qna-openai'
+      CLUSTER_HOSTNAME: 'node1'
 
 
