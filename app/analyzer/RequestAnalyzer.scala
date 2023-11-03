@@ -112,7 +112,7 @@ class RequestAnalyzer {
       case 0 =>
         List.empty[AnalyzedSentenceObject]
       case _ =>
-        val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("SENTENCE_PARSER_JP_WEB_HOST"), "9001", "analyze")
+        val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_PORT"), "analyze")
         Json.parse(parseResultJapanese).as[AnalyzedSentenceObjects].analyzedSentenceObjects
     }
 
@@ -120,7 +120,7 @@ class RequestAnalyzer {
       case 0 =>
         List.empty[AnalyzedSentenceObject]
       case _ =>
-        val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("SENTENCE_PARSER_EN_WEB_HOST"), "9007", "analyze")
+        val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_PORT"), "analyze")
         Json.parse(parseResultEnglish).as[AnalyzedSentenceObjects].analyzedSentenceObjects
     }
 
