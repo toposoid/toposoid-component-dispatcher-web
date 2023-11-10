@@ -39,6 +39,7 @@ class RequestAnalyzer {
    * @return
    */
   def assignTrivialProposition(analyzedSentenceObjects:List[AnalyzedSentenceObject], sentenceMapForSat:Map[String, SentenceInfo], subFormulaMap:Map[String, String]): (Map[String, String], Map[String, Option[DeductionResult]])  ={
+    val hasPremise = analyzedSentenceObjects.filter(x => x.knowledgeBaseSemiGlobalNode.sentenceType == PREMISE.index).size > 0
     //This is a list of PropositionIds that can be found to be true or false as a result of searching GraphDB.
     val trivialPropositionIds:Map[String,Option[DeductionResult]] =
       analyzedSentenceObjects.foldLeft(Map.empty[String, Option[DeductionResult]]){
@@ -48,7 +49,12 @@ class RequestAnalyzer {
     //This is converting the positionId to satId
     val trivialSatIds = trivialPropositionIds.foldLeft(Map.empty[String, Boolean]){
       (acc, x) => x._2 match {
-        case Some(_) => acc ++ Map(sentenceMapForSat.get(x._1).get.satId -> x._2.get.status)
+        case Some(_) => {
+          hasPremise match {
+            case true => acc ++ Map(sentenceMapForSat.get(x._1).get.satId -> (x._2.get.status && x._2.get.havePremiseInGivenProposition))
+            case _  => acc ++ Map(sentenceMapForSat.get(x._1).get.satId -> x._2.get.status)
+          }
+        }
         case _ => acc
       }
     }
@@ -83,7 +89,8 @@ class RequestAnalyzer {
     val propositionId = analyzedSentenceObject.nodeMap.map(_._2.propositionId).head
 
     //An analyzedSentenceObject has GraphDB search results of either Premis or Claim depending on the sentenceType.
-    val deductionResult:DeductionResult = analyzedSentenceObject.deductionResultMap.get(analyzedSentenceObject.knowledgeFeatureNode.sentenceType.toString).get
+    //val deductionResult:DeductionResult = analyzedSentenceObject.deductionResultMap.get(analyzedSentenceObject.knowledgeFeatureNode.sentenceType.toString).get
+    val deductionResult:DeductionResult = analyzedSentenceObject.deductionResult
     val status:Option[DeductionResult] = deductionResult.matchedPropositionInfoList.size match {
       case 0 => None
       case _ => Some(deductionResult)
@@ -180,8 +187,8 @@ class RequestAnalyzer {
     }
 
     //Extract all the positionIds contained in the leaf while keeping the order.
-    val premisePropositionIds:List[String] = parseResult.filter(_.knowledgeFeatureNode.sentenceType == PREMISE.index).map(_.nodeMap.head._2.propositionId).distinct
-    val claimPropositionIds:List[String] = parseResult.filter(_.knowledgeFeatureNode.sentenceType == CLAIM.index).map(_.nodeMap.head._2.propositionId).distinct
+    val premisePropositionIds:List[String] = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == PREMISE.index).map(_.nodeMap.head._2.propositionId).distinct
+    val claimPropositionIds:List[String] = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == CLAIM.index).map(_.nodeMap.head._2.propositionId).distinct
 
     val premiseKnowledgeMap:Map[String, Knowledge] = (premisePropositionIds zip v.premiseList).groupBy(_._1).mapValues(_.map(_._2).head).toMap
     val claimKnowledgeMap:Map[String, Knowledge] = (claimPropositionIds zip v.claimList).groupBy(_._1).mapValues(_.map(_._2).head).toMap
