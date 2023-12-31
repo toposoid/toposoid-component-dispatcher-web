@@ -4,7 +4,7 @@
 # ~~~~
 
 # An example controller showing a sample home page
-POST    /analyze             controllers.HomeController.analyze()
+#POST    /analyze             controllers.HomeController.analyze()
 POST    /analyzeKnowledgeTree             controllers.HomeController.analyzeKnowledgeTree()
 
 # Map static resources from the /public folder to the /assets URL path
