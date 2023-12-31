@@ -29,7 +29,7 @@ services:
       - TOPOSOID_DEDUCTION_ADMIN_SKIP=0
     networks:
       app_net:
-        ipv4_address: 172.30.0.23
+        ipv4_address: 172.30.0.22
     ports:
       - 9004:9004
     depends_on:
