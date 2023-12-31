@@ -41,7 +41,7 @@ services:
       - SCALA_DATA_ACCESSOR_NEO4J_WEB_HOST=172.30.0.3
     networks:
       app_net:
-        ipv4_address: 172.30.0.16
+        ipv4_address: 172.30.0.22
     ports:
       - 9004:9004
   toposoid-sat-solver-web:
