@@ -16,6 +16,7 @@
 
 package analyzer
 
+import analyzer.ImageUtils.addImageInformation
 import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.toposoid.common.{CLAIM, PREMISE, ToposoidUtils}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
@@ -24,7 +25,6 @@ import com.ideal.linked.toposoid.protocol.model.parser.{InputSentenceForParser, 
 import controllers.{ParsedKnowledgeTree, SentenceInfo}
 import play.api.libs.json.Json
 
-import scala.collection.immutable.ListMap
 import scala.util.{Failure, Success, Try}
 import io.jvm.uuid.UUID
 
@@ -89,11 +89,10 @@ class RequestAnalyzer {
     val propositionId = analyzedSentenceObject.nodeMap.map(_._2.propositionId).head
 
     //An analyzedSentenceObject has GraphDB search results of either Premis or Claim depending on the sentenceType.
-    //val deductionResult:DeductionResult = analyzedSentenceObject.deductionResultMap.get(analyzedSentenceObject.knowledgeFeatureNode.sentenceType.toString).get
     val deductionResult:DeductionResult = analyzedSentenceObject.deductionResult
-    val status:Option[DeductionResult] = deductionResult.matchedPropositionInfoList.size match {
-      case 0 => None
-      case _ => Some(deductionResult)
+    val status:Option[DeductionResult] = deductionResult.status match {
+      case true => Some(deductionResult)
+      case _ => None
     }
     Map(propositionId -> status)
   }
@@ -120,7 +119,9 @@ class RequestAnalyzer {
         List.empty[AnalyzedSentenceObject]
       case _ =>
         val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_PORT"), "analyze")
-        Json.parse(parseResultJapanese).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+        val asos = Json.parse(parseResultJapanese).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+        //Add Informations of Images
+        addImageInformation(asos, premiseJapanese:::claimJapanese)
     }
 
     val deductionEnglishList:List[AnalyzedSentenceObject] = numOfKnowledgeEnglish match{
@@ -128,7 +129,9 @@ class RequestAnalyzer {
         List.empty[AnalyzedSentenceObject]
       case _ =>
         val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_PORT"), "analyze")
-        Json.parse(parseResultEnglish).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+        val asos = Json.parse(parseResultEnglish).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+        //Add Informations of Images
+        addImageInformation(asos, premiseEnglish:::claimEnglish)
     }
 
     return deductionJapaneseList ::: deductionEnglishList
@@ -252,4 +255,5 @@ class RequestAnalyzer {
       (acc, x) => acc + " " + x + " AND"
     }.trim
   }
+
 }

@@ -64,6 +64,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * Matches with the knowledge database and returns the result of the logical solution in JSON.
    * @return
    */
+  /*
   def analyze() = Action(parse.json) { request =>
     try {
       val requestAnalyzer = new RequestAnalyzer()
@@ -83,7 +84,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       }
     }
   }
-
+  */
   /**
    * This function parses a tree-structured and logical expression including sentence.
    * Input / output is request, response and REST in json.

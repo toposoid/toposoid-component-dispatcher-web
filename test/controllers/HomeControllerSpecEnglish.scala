@@ -20,13 +20,12 @@ package controllers
 import akka.util.Timeout
 import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
-import com.ideal.linked.toposoid.common.{CLAIM, PREMISE, ToposoidUtils}
-import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, PropositionRelation}
-import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObjects
+import com.ideal.linked.toposoid.common.ToposoidUtils
+import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, Reference}
 import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
-import com.ideal.linked.toposoid.protocol.model.parser.{KnowledgeForParser, KnowledgeSentenceSetForParser}
-import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
-import com.ideal.linked.toposoid.vectorizer.FeatureVectorizer
+import com.ideal.linked.toposoid.protocol.model.parser.KnowledgeForParser
+import controllers.TestUtils.{getKnowledge, getUUID, registSingleClaim}
+import io.jvm.uuid.UUID
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -35,27 +34,20 @@ import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.test.Helpers.{POST, contentType, status, _}
 import play.api.test.{FakeRequest, _}
-import io.jvm.uuid.UUID
 
 import scala.concurrent.duration.DurationInt
 
 class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite with DefaultAwaitTimeout with Injecting{
 
+  before {
+    ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_PORT"), "createSchema")
+    ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_PORT"), "createSchema")
+    Neo4JAccessor.delete()
+    Thread.sleep(1000)
+  }
+
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
-    ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_PORT"), "createSchema")
-    val propositionId1 = UUID.random.toString
-    val sentenceId1 = UUID.random.toString
-    val sentenceA = "Life is so comfortable."
-    val knowledge1 = Knowledge(sentenceA,"en_US", "{}", false)
-    registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
-
-    val propositionId2 = UUID.random.toString
-    val sentenceId2 = UUID.random.toString
-    val sentenceB = "The culprit is among us."
-    val knowledge2 = Knowledge(sentenceB,"en_US", "{}", false)
-    registSingleClaim(KnowledgeForParser(propositionId2, sentenceId2, knowledge2))
-
   }
 
   override def afterAll(): Unit = {
@@ -64,66 +56,11 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
 
   override implicit def defaultAwaitTimeout: Timeout = 600.seconds
 
-  def registSingleClaim(knowledgeForParser:KnowledgeForParser): Unit = {
-    val knowledgeSentenceSetForParser = KnowledgeSentenceSetForParser(
-      List.empty[KnowledgeForParser],
-      List.empty[PropositionRelation],
-      List(knowledgeForParser),
-      List.empty[PropositionRelation])
-    Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSetForParser)
-    FeatureVectorizer.createVector(knowledgeSentenceSetForParser)
-    Thread.sleep(5000)
-  }
 
   val controller: HomeController = inject[HomeController]
+  val lang = "en_US"
 
-  "The specification1" should {
-    "returns an appropriate response" in {
-
-      val json = """{
-                   |    "premise":[],
-                   |    "claim":[{"sentence":"Life is so comfortable.","lang": "en_US", "extentInfoJson":"{}", "isNegativeSentence":false, "knowledgeForImages":[]}]
-                   |}""".stripMargin
-
-      val fr = FakeRequest(POST, "/analyze")
-        .withHeaders("Content-type" -> "application/json")
-        .withJsonBody(Json.parse(json))
-
-      val result = call(controller.analyze(), fr)
-      status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
-      val jsonResult = contentAsJson(result).toString()
-      val analyzedSentenceObjects: AnalyzedSentenceObjects = Json.parse(jsonResult).as[AnalyzedSentenceObjects]
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(x => x.knowledgeBaseSemiGlobalNode.sentenceType.equals(PREMISE.index) && x.deductionResult.status).size == 0)
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(x => x.knowledgeBaseSemiGlobalNode.sentenceType.equals(CLAIM.index) && x.deductionResult.status).size  == 1)
-
-    }
-  }
-
-
-  "The specification2" should {
-    "returns an appropriate response" in {
-
-      val json = """{
-                   |    "premise":[],
-                   |    "claim":[{"sentence":"We confirmed that the culprit was one of us.","lang": "en_US", "extentInfoJson":"{}", "isNegativeSentence":false, "knowledgeForImages":[]}]
-                   |}""".stripMargin
-
-      val fr = FakeRequest(POST, "/analyze")
-        .withHeaders("Content-type" -> "application/json")
-        .withJsonBody(Json.parse(json))
-
-      val result = call(controller.analyze(), fr)
-      status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
-      val jsonResult = contentAsJson(result).toString()
-      val analyzedSentenceObjects: AnalyzedSentenceObjects = Json.parse(jsonResult).as[AnalyzedSentenceObjects]
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(x => x.knowledgeBaseSemiGlobalNode.sentenceType.equals(PREMISE.index) && x.deductionResult.status).size  == 0)
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(x => x.knowledgeBaseSemiGlobalNode.sentenceType.equals(CLAIM.index) && x.deductionResult.status).size == 1)
-
-    }
-  }
-  "The specification3" should {
+  "The specification1(nontrivial)" should {
     "returns an appropriate response" in {
 
       val json = """{
@@ -346,70 +283,84 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val jsonResult = contentAsJson(result).toString()
       val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
 
-      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("OPTIMUM FOUND"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("OPTIMUM FOUND"))
+        }
+      })
 
     }
   }
 
-  "The specification4" should {
+  "The specification2(exact-synonym--match-trivial)" should {
     "returns an appropriate response" in {
 
-      val json = """{
-                   |    "regulation": {
-                   |        "knowledgeLeft": {
-                   |            "leaf": {
-                   |                "premiseList": [],
-                   |                "premiseLogicRelation": [],
-                   |                "claimList": [],
-                   |                "claimLogicRelation": []
-                   |            }
-                   |        },
-                   |        "operator": "",
-                   |        "knowledgeRight": {
-                   |            "leaf": {
-                   |                "premiseList": [],
-                   |                "premiseLogicRelation": [],
-                   |                "claimList": [
-                   |                    {
-                   |                        "sentence": "This is craim1.",
-                   |                        "lang": "en_Us",
-                   |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": false,
-                   |                        "knowledgeForImages":[]
-                   |                    }
-                   |                ],
-                   |                "claimLogicRelation": []
-                   |            }
-                   |        }
-                   |    },
-                   |    "hypothesis": {
-                   |        "knowledgeLeft": {
-                   |            "leaf": {
-                   |                "premiseList": [],
-                   |                "premiseLogicRelation": [],
-                   |                "claimList": [],
-                   |                "claimLogicRelation": []
-                   |            }
-                   |        },
-                   |        "operator": "",
-                   |        "knowledgeRight": {
-                   |            "leaf": {
-                   |                "premiseList": [],
-                   |                "premiseLogicRelation": [],
-                   |                "claimList": [
-                   |                    {
-                   |                        "sentence": "This is craim1.",
-                   |                        "lang": "en_US",
-                   |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": false,
-                   |                        "knowledgeForImages":[]
-                   |                    }
-                   |                ],
-                   |                "claimLogicRelation": []
-                   |            }
-                   |        }
-                   |    }
-                   |}""".stripMargin
+      val propositionId1 = UUID.random.toString
+      val sentenceId1 = UUID.random.toString
+      val sentenceA = "Life is so comfortable."
+      val knowledge1 = Knowledge(sentenceA, "en_US", "{}", false)
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+
+      val json =
+        """{
+          |    "regulation": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "Living is so comfortable.",
+          |                        "lang": "en_US",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages":[]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    },
+          |    "hypothesis": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "Living is so comfortable.",
+          |                        "lang": "en_US",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages":[]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    }
+          |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
         .withHeaders("Content-type" -> "application/json")
@@ -421,21 +372,359 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val jsonResult = contentAsJson(result).toString()
       val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
 
-      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("TRIVIAL"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("TRIVIAL"))
+        }
+      })
 
     }
   }
 
-  def checkAnalyzedEdges(actual:AnalyzedEdges, sentence1:String, status1:String, sentence2:String, status2:String, operator:String):Boolean = {
-    actual.analyzedEdges.filter(x =>
-      x.source.sentence.equals(sentence1) &&
-        x.source.status.equals(status1) &&
-        x.target.sentence.equals(sentence2) &&
-        x.target.status.equals(status2) &&
-        x.value.equals(operator)).size == 1
-    //false
+  "The specification3(image-vector-match-trivial)" should {
+    "returns an appropriate response" in {
+
+      val sentenceA = "There are two cats."
+      val referenceA = Reference(url = "", surface = "cats", surfaceIndex = 3, isWholeSentence = false,
+        originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
+      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, weight = 466, height = 310)
+      val propositionId1 = getUUID()
+      val sentenceId1 = getUUID()
+      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA)
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+
+      val json =
+        """{
+          |    "regulation": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "There are two pets.",
+          |                        "lang": "en_US",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [
+          |                            {
+          |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
+          |                                "imageReference": {
+          |                                    "reference": {
+          |                                        "url": "",
+          |                                        "surface": "pets",
+          |                                        "surfaceIndex": 3,
+          |                                        "isWholeSentence": false,
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                    },
+          |                                    "x": 11,
+          |                                    "y": 11,
+          |                                    "weight": 466,
+          |                                    "height": 310
+          |                                }
+          |                            }
+          |                        ]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    },
+          |    "hypothesis": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "There are two pets.",
+          |                        "lang": "en_US",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [
+          |                            {
+          |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
+          |                                "imageReference": {
+          |                                    "reference": {
+          |                                        "url": "",
+          |                                        "surface": "pets",
+          |                                        "surfaceIndex": 3,
+          |                                        "isWholeSentence": false,
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                    },
+          |                                    "x": 11,
+          |                                    "y": 11,
+          |                                    "weight": 466,
+          |                                    "height": 310
+          |                                }
+          |                            }
+          |                        ]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    }
+          |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("TRIVIAL"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("TRIVIAL"))
+        }
+      })
+
+    }
   }
 
+  "The specification4(sentence-match-trivial)" should {
+    "returns an appropriate response" in {
+
+      val propositionId1 = UUID.random.toString
+      val sentenceId1 = UUID.random.toString
+      val sentenceA = "The culprit is among us."
+      val knowledge1 = Knowledge(sentenceA, lang, "{}", false)
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+
+      val json =
+        """{
+          |    "regulation": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "We confirmed that the culprit was one of us.",
+          |                        "lang": "en_US",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages":[]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    },
+          |    "hypothesis": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "We confirmed that the culprit was one of us.",
+          |                        "lang": "en_US",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages":[]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    }
+          |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("TRIVIAL"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("TRIVIAL"))
+        }
+      })
+
+    }
+  }
+
+
+  "The specification5(whole-sentence-image-feature-match-trivial)" should {
+    "returns an appropriate response" in {
+
+      val sentenceA = "There are two cats."
+      val referenceA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
+        originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
+      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, weight = 466, height = 310)
+      val propositionId1 = getUUID()
+      val sentenceId1 = getUUID()
+      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA)
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+
+      val json =
+        """{
+          |    "regulation": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "There are two pets.",
+          |                        "lang": "en_US",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [
+          |                            {
+          |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
+          |                                "imageReference": {
+          |                                    "reference": {
+          |                                        "url": "",
+          |                                        "surface": "",
+          |                                        "surfaceIndex": -1,
+          |                                        "isWholeSentence": true,
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                    },
+          |                                    "x": 11,
+          |                                    "y": 11,
+          |                                    "weight": 466,
+          |                                    "height": 310
+          |                                }
+          |                            }
+          |                        ]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    },
+          |    "hypothesis": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "There are two pets.",
+          |                        "lang": "en_US",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [
+          |                            {
+          |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
+          |                                "imageReference": {
+          |                                    "reference": {
+          |                                        "url": "",
+          |                                        "surface": "",
+          |                                        "surfaceIndex": -1,
+          |                                        "isWholeSentence": true,
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                    },
+          |                                    "x": 11,
+          |                                    "y": 11,
+          |                                    "weight": 466,
+          |                                    "height": 310
+          |                                }
+          |                            }
+          |                        ]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    }
+          |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("TRIVIAL"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("TRIVIAL"))
+        }
+      })
+
+    }
+  }
 
 }
 
