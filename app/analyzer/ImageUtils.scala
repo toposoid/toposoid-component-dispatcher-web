@@ -163,7 +163,7 @@ object ImageUtils {
       Json.toJson(knowledgeForImage).toString(),
       conf.getString("TOPOSOID_CONTENTS_ADMIN_HOST"),
       conf.getString("TOPOSOID_CONTENTS_ADMIN_PORT"),
-      "registImage")
+      "uploadTemporaryImage")
     val registContentResult: RegistContentResult = Json.parse(registContentResultJson).as[RegistContentResult]
     registContentResult.knowledgeForImage
   }
