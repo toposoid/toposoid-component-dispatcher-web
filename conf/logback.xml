@@ -19,6 +19,7 @@
 
   <logger name="play" level="INFO" />
   <logger name="application" level="INFO" />
+  <logger name="akka" level="ERROR" />
 
   <root level="INFO">
     <appender-ref ref="ASYNCSTDOUT" />

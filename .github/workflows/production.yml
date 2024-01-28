@@ -24,7 +24,9 @@ jobs:
             cd ${GITHUB_WORKSPACE} && cd ../
             cd ./${{ env.PJ_REPO }}
             docker rm --force $(docker ps -a -q) > /dev/null 2>&1 && :
-            docker rmi --force $(docker images -q) > /dev/null 2>&1 && :
+            docker rmi --force ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}> /dev/null 2>&1 && :
+            docker rmi --force toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}> /dev/null 2>&1 && :
+            docker rmi --force toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}-lowspec > /dev/null 2>&1 && :                              
             docker images
             docker system prune -f
             docker volume prune -f
@@ -54,10 +56,6 @@ jobs:
             docker-compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*Japanese'"
             docker-compose -f docker-compose-workflow.yml rm -fsv toposoid-common-nlp-japanese-web
             docker-compose -f docker-compose-workflow.yml rm -fsv toposoid-sentence-parser-japanese-web
-            docker rmi --force toposoid/toposoid-sentence-parser-japanese-web:${{ env.PJ_VERSION }}-workflow
-            docker rmi --force toposoid/toposoid-common-nlp-japanese-web:${{ env.PJ_VERSION }}-workflow
-            docker system prune -f
-            docker volume prune -f
             docker-compose -f docker-compose-workflow.yml up -d corenlp
             docker-compose -f docker-compose-workflow.yml up -d toposoid-common-nlp-english-web
             docker-compose -f docker-compose-workflow.yml up -d toposoid-sentence-parser-english-web
@@ -87,8 +85,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: Dockerfile-smallspec
+          file: Dockerfile-lowspec
           push: true
-          tags: toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}-workflow
+          tags: toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}-lowspec
           build-args: |
             TARGET_BRANCH=${{ env.PJ_BRANCH }}
