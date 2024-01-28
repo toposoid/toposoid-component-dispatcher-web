@@ -537,7 +537,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "premiseLogicRelation": [],
           |                "claimList": [
           |                    {
-          |                        "sentence": "We confirmed that the culprit was one of us.",
+          |                        "sentence": "the culprit was one of us.",
           |                        "lang": "en_US",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
