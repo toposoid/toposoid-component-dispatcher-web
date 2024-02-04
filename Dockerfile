@@ -2,9 +2,9 @@ FROM toposoid/toposoid-scala-lib:0.5-SNAPSHOT
 
 WORKDIR /app
 ARG TARGET_BRANCH
-
+ARG JAVA_OPT_XMX
 ENV DEPLOYMENT=local
-ENV _JAVA_OPTIONS="-Xms512m -Xmx4g"
+ENV _JAVA_OPTIONS="-Xms512m -Xmx"${JAVA_OPT_XMX}
 
 RUN git clone https://github.com/toposoid/toposoid-component-dispatcher-web.git \
 && cd toposoid-component-dispatcher-web \
