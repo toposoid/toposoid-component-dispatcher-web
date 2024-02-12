@@ -7,44 +7,50 @@ and the other is a microservice that makes logical inferences.
 
 [![Unit Test And Build Image Action](https://github.com/toposoid/toposoid-component-dispatcher-web/actions/workflows/action.yml/badge.svg?branch=main)](https://github.com/toposoid/toposoid-component-dispatcher-web/actions/workflows/action.yml)
 
-- API Image
-<img width="1127" alt="" src="https://user-images.githubusercontent.com/82787843/169644935-1386320e-e436-4dca-922f-4f2701fcd9bc.png">
-
-<img width="1131" alt="" src="https://user-images.githubusercontent.com/82787843/169644939-05b7b625-4188-4002-a46b-e4d03c1ea669.png">
-
+* API Image
+    * Input
+    * <img width="1026" src="https://github.com/toposoid/toposoid-component-dispatcher-web/assets/82787843/f0e6d47a-81ab-4f17-b305-18f61f1efe6e">
+    * Output
+    * <img width="1022" src="https://github.com/toposoid/toposoid-component-dispatcher-web/assets/82787843/9fab744a-31f1-41b8-be80-68bd0c5484b5">
+    
 ## Requirements
 * Docker version 20.10.x, or later
 * docker-compose version 1.22.x
 
-## Memory requirements
-* Required: at least 20GB of RAM
+### Recommended Environment For Standalone
+* Required: at least 16GB of RAM
 * Required: 60G or higher　of HDD
+* Please understand that since we are dealing with large models such as LLM, the Dockerfile size is large and the required machine SPEC is high.
 
-## Setup 
+## Setup For Standalone 
 ```bssh
-rm -f vald-config/backup/* && docker-compose up -d
+docker-compose up
 ```
 * It takes more than 20 minutes to pull the Docker image for the first time.
-* **The docker-compose.yml configuration in this repository does not take into account vald and neo4j persistence.**
-* If vald does not start due to an error, commenting out the following part in docker-compose.yml may work.
-```yml
-  vald:
-    image: vdaas/vald-agent-ngt:v1.6.3
-    #user: 1000:1000
-    volumes:
-      - ./vald-config:/etc/server
-      #- /etc/passwd:/etc/passwd:ro
-      #- /etc/group:/etc/group:ro
-    networks:
-      app_net:
-        ipv4_address: 172.30.0.10
-    ports:
-      - 8081:8081
-```
 
 ## Usage
 ```bash
-# This Json can also be expressed recursively as a binary tree.
+# Please refer to the following for information on registering data to try deduction.
+# ref. https://github.com/toposoid/toposoid-knowledge-register-web
+#for example
+curl -X POST -H "Content-Type: application/json" -d '{
+    "premiseList": [],
+    "premiseLogicRelation": [],
+    "claimList": [
+        {
+            "sentence": "これは主張1です。",
+            "lang": "ja_JP",
+            "extentInfoJson": "{}",
+            "isNegativeSentence": false,
+            "knowledgeForImages":[]
+        }
+    ],
+    "claimLogicRelation": [
+    ]
+}
+' http://localhost:9002/regist
+
+
 curl -X POST -H "Content-Type: application/json" -d '{
     "regulation": {
         "knowledgeLeft": {
@@ -65,7 +71,8 @@ curl -X POST -H "Content-Type: application/json" -d '{
                         "sentence": "これは主張1です。",
                         "lang": "ja_JP",
                         "extentInfoJson": "{}",
-                        "isNegativeSentence": false
+                        "isNegativeSentence": false,
+                        "knowledgeForImages":[]
                     }
                 ],
                 "claimLogicRelation": []
@@ -91,7 +98,8 @@ curl -X POST -H "Content-Type: application/json" -d '{
                         "sentence": "これは前提1です。",
                         "lang": "ja_JP",
                         "extentInfoJson": "{}",
-                        "isNegativeSentence": false
+                        "isNegativeSentence": false,
+                        "knowledgeForImages":[]
                     }
                 ],
                 "claimLogicRelation": []
@@ -100,18 +108,6 @@ curl -X POST -H "Content-Type: application/json" -d '{
     }
 }' http://localhost:9004/analyzeKnowledgeTree
 
-#If you just want to search the knowledge base
-curl -X POST -H "Content-Type: application/json" -d '{
-    "premise": [],
-    "claim": [
-        {
-            "sentence": "案ずるより産むが易し。",
-            "lang": "ja_JP",
-            "extentInfoJson": "{}",
-            "isNegativeSentence": false
-        }
-    ]
-}' http://localhost:9004/analyze
 ```
 
 ## Note
