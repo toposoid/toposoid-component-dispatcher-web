@@ -390,7 +390,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val sentenceA = "There are two cats."
       val referenceA = Reference(url = "", surface = "cats", surfaceIndex = 3, isWholeSentence = false,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
-      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, weight = 466, height = 310)
+      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, width = 466, height = 310)
       val propositionId1 = getUUID()
       val sentenceId1 = getUUID()
       val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA)
@@ -431,7 +431,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
-          |                                    "weight": 466,
+          |                                    "width": 466,
           |                                    "height": 310
           |                                }
           |                            }
@@ -475,7 +475,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
-          |                                    "weight": 466,
+          |                                    "width": 466,
           |                                    "height": 310
           |                                }
           |                            }
@@ -606,7 +606,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val sentenceA = "There are two cats."
       val referenceA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
-      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, weight = 466, height = 310)
+      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, width = 466, height = 310)
       val propositionId1 = getUUID()
       val sentenceId1 = getUUID()
       val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA)
@@ -647,7 +647,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
-          |                                    "weight": 466,
+          |                                    "width": 466,
           |                                    "height": 310
           |                                }
           |                            }
@@ -691,7 +691,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
-          |                                    "weight": 466,
+          |                                    "width": 466,
           |                                    "height": 310
           |                                }
           |                            }
