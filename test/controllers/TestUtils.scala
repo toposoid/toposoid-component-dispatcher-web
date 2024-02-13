@@ -28,7 +28,7 @@ import com.ideal.linked.toposoid.vectorizer.FeatureVectorizer
 import play.api.libs.json.Json
 import io.jvm.uuid.UUID
 
-case class ImageBoxInfo(x:Int, y:Int, weight:Int, height:Int)
+case class ImageBoxInfo(x:Int, y:Int, width:Int, height:Int)
 
 object TestUtils {
 
@@ -50,7 +50,7 @@ object TestUtils {
   }
 
   def getImageInfo(reference: Reference, imageBoxInfo: ImageBoxInfo): KnowledgeForImage = {
-    val imageReference = ImageReference(reference: Reference, imageBoxInfo.x, imageBoxInfo.y, imageBoxInfo.weight, imageBoxInfo.height)
+    val imageReference = ImageReference(reference: Reference, imageBoxInfo.x, imageBoxInfo.y, imageBoxInfo.width, imageBoxInfo.height)
     val knowledgeForImage = KnowledgeForImage(id = getUUID(), imageReference = imageReference)
     val registContentResultJson = ToposoidUtils.callComponent(
       Json.toJson(knowledgeForImage).toString(),
