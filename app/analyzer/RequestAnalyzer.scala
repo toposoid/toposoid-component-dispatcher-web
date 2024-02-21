@@ -16,15 +16,15 @@
 
 package analyzer
 
+import analyzer.ImageUtils.addImageInformation
 import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.toposoid.common.{CLAIM, PREMISE, ToposoidUtils}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects, DeductionResult}
-import com.ideal.linked.toposoid.protocol.model.parser.{InputSentence, InputSentenceForParser, KnowledgeForParser, KnowledgeLeaf, KnowledgeNode, KnowledgeTree}
+import com.ideal.linked.toposoid.protocol.model.parser.{InputSentenceForParser, KnowledgeForParser, KnowledgeLeaf, KnowledgeNode, KnowledgeTree}
 import controllers.{ParsedKnowledgeTree, SentenceInfo}
 import play.api.libs.json.Json
 
-import scala.collection.immutable.ListMap
 import scala.util.{Failure, Success, Try}
 import io.jvm.uuid.UUID
 
@@ -39,6 +39,7 @@ class RequestAnalyzer {
    * @return
    */
   def assignTrivialProposition(analyzedSentenceObjects:List[AnalyzedSentenceObject], sentenceMapForSat:Map[String, SentenceInfo], subFormulaMap:Map[String, String]): (Map[String, String], Map[String, Option[DeductionResult]])  ={
+    val hasPremise = analyzedSentenceObjects.filter(x => x.knowledgeBaseSemiGlobalNode.sentenceType == PREMISE.index).size > 0
     //This is a list of PropositionIds that can be found to be true or false as a result of searching GraphDB.
     val trivialPropositionIds:Map[String,Option[DeductionResult]] =
       analyzedSentenceObjects.foldLeft(Map.empty[String, Option[DeductionResult]]){
@@ -48,7 +49,12 @@ class RequestAnalyzer {
     //This is converting the positionId to satId
     val trivialSatIds = trivialPropositionIds.foldLeft(Map.empty[String, Boolean]){
       (acc, x) => x._2 match {
-        case Some(_) => acc ++ Map(sentenceMapForSat.get(x._1).get.satId -> x._2.get.status)
+        case Some(_) => {
+          hasPremise match {
+            case true => acc ++ Map(sentenceMapForSat.get(x._1).get.satId -> (x._2.get.status && x._2.get.havePremiseInGivenProposition))
+            case _  => acc ++ Map(sentenceMapForSat.get(x._1).get.satId -> x._2.get.status)
+          }
+        }
         case _ => acc
       }
     }
@@ -83,10 +89,10 @@ class RequestAnalyzer {
     val propositionId = analyzedSentenceObject.nodeMap.map(_._2.propositionId).head
 
     //An analyzedSentenceObject has GraphDB search results of either Premis or Claim depending on the sentenceType.
-    val deductionResult:DeductionResult = analyzedSentenceObject.deductionResultMap.get(analyzedSentenceObject.sentenceType.toString).get
-    val status:Option[DeductionResult] = deductionResult.matchedPropositionIds.size match {
-      case 0 => None
-      case _ => Some(deductionResult)
+    val deductionResult:DeductionResult = analyzedSentenceObject.deductionResult
+    val status:Option[DeductionResult] = deductionResult.status match {
+      case true => Some(deductionResult)
+      case _ => None
     }
     Map(propositionId -> status)
   }
@@ -112,16 +118,20 @@ class RequestAnalyzer {
       case 0 =>
         List.empty[AnalyzedSentenceObject]
       case _ =>
-        val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("SENTENCE_PARSER_JP_WEB_HOST"), "9001", "analyze")
-        Json.parse(parseResultJapanese).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+        val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_PORT"), "analyze")
+        val asos = Json.parse(parseResultJapanese).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+        //Add Informations of Images
+        addImageInformation(asos, premiseJapanese:::claimJapanese)
     }
 
     val deductionEnglishList:List[AnalyzedSentenceObject] = numOfKnowledgeEnglish match{
       case 0 =>
         List.empty[AnalyzedSentenceObject]
       case _ =>
-        val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("SENTENCE_PARSER_EN_WEB_HOST"), "9007", "analyze")
-        Json.parse(parseResultEnglish).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+        val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_PORT"), "analyze")
+        val asos = Json.parse(parseResultEnglish).as[AnalyzedSentenceObjects].analyzedSentenceObjects
+        //Add Informations of Images
+        addImageInformation(asos, premiseEnglish:::claimEnglish)
     }
 
     return deductionJapaneseList ::: deductionEnglishList
@@ -180,11 +190,11 @@ class RequestAnalyzer {
     }
 
     //Extract all the positionIds contained in the leaf while keeping the order.
-    val premisePropositionIds:List[String] = parseResult.filter(_.sentenceType == PREMISE.index).map(_.nodeMap.head._2.propositionId).distinct
-    val claimPropositionIds:List[String] = parseResult.filter(_.sentenceType == CLAIM.index).map(_.nodeMap.head._2.propositionId).distinct
+    val premisePropositionIds:List[String] = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == PREMISE.index).map(_.nodeMap.head._2.propositionId).distinct
+    val claimPropositionIds:List[String] = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == CLAIM.index).map(_.nodeMap.head._2.propositionId).distinct
 
-    val premiseKnowledgeMap:Map[String, Knowledge] = (premisePropositionIds zip v.premiseList).groupBy(_._1).mapValues(_.map(_._2).head)
-    val claimKnowledgeMap:Map[String, Knowledge] = (claimPropositionIds zip v.claimList).groupBy(_._1).mapValues(_.map(_._2).head)
+    val premiseKnowledgeMap:Map[String, Knowledge] = (premisePropositionIds zip v.premiseList).groupBy(_._1).mapValues(_.map(_._2).head).toMap
+    val claimKnowledgeMap:Map[String, Knowledge] = (claimPropositionIds zip v.claimList).groupBy(_._1).mapValues(_.map(_._2).head).toMap
 
     val sentenceInfoMap:Map[String, SentenceInfo] = (premiseKnowledgeMap ++ claimKnowledgeMap).foldLeft(Map.empty[String, SentenceInfo]){
       (acc, x) =>acc ++ Map(x._1 -> SentenceInfo(x._2.sentence, x._2.isNegativeSentence,  sentenceMapForSat.get(x._2.sentence).get.toString))
@@ -245,4 +255,5 @@ class RequestAnalyzer {
       (acc, x) => acc + " " + x + " AND"
     }.trim
   }
+
 }

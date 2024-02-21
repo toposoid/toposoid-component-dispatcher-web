@@ -17,13 +17,13 @@
 package controllers
 
 import akka.util.Timeout
+import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
-import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, PropositionRelation}
-import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObjects
-import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdges}
-import com.ideal.linked.toposoid.protocol.model.parser.{KnowledgeForParser, KnowledgeSentenceSetForParser}
-import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
-import com.ideal.linked.toposoid.vectorizer.FeatureVectorizer
+import com.ideal.linked.toposoid.common.ToposoidUtils
+import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, Reference}
+import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
+import com.ideal.linked.toposoid.protocol.model.parser.{KnowledgeForParser}
+import controllers.TestUtils.{getKnowledge, getUUID, registSingleClaim}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -38,90 +38,27 @@ import scala.concurrent.duration.DurationInt
 
 class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite  with DefaultAwaitTimeout with Injecting{
 
+  before {
+    ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_PORT"), "createSchema")
+    ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_PORT"), "createSchema")
+    Neo4JAccessor.delete()
+    Thread.sleep(1000)
+  }
+
   override def beforeAll(): Unit = {
     Neo4JAccessor.delete()
-    val propositionId1 = UUID.random.toString
-    val sentenceId1 = UUID.random.toString
-    val sentenceA = "案ずるより産むが易し。"
-    val knowledge1 = Knowledge(sentenceA,"ja_JP", "{}", false)
-    registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
-
-    val propositionId2 = UUID.random.toString
-    val sentenceId2 = UUID.random.toString
-    val sentenceB = "自然界の法則がすべての慣性系で同じように成り立っている。"
-    val knowledge2 = Knowledge(sentenceB,"ja_JP", "{}", false)
-    registSingleClaim(KnowledgeForParser(propositionId2, sentenceId2, knowledge2))
-
   }
 
   override def afterAll(): Unit = {
     Neo4JAccessor.delete()
   }
 
-  //override implicit def defaultAwaitTimeout: Timeout = 120.seconds
   override implicit def defaultAwaitTimeout: Timeout = 600.seconds
 
-  def registSingleClaim(knowledgeForParser:KnowledgeForParser): Unit = {
-    val knowledgeSentenceSetForParser = KnowledgeSentenceSetForParser(
-      List.empty[KnowledgeForParser],
-      List.empty[PropositionRelation],
-      List(knowledgeForParser),
-      List.empty[PropositionRelation])
-    Sentence2Neo4jTransformer.createGraph(knowledgeSentenceSetForParser)
-    FeatureVectorizer.createVector(knowledgeSentenceSetForParser)
-    Thread.sleep(5000)
-
-  }
-
   val controller: HomeController = inject[HomeController]
+  val lang = "ja_JP"
 
-  "The specification1" should {
-    "returns an appropriate response" in {
-
-      val json = """{
-                   |    "premise":[],
-                   |    "claim":[{"sentence":"案ずるより産むが易し。","lang": "ja_JP", "extentInfoJson":"{}", "isNegativeSentence":false}]
-                   |}""".stripMargin
-
-      val fr = FakeRequest(POST, "/analyze")
-        .withHeaders("Content-type" -> "application/json")
-        .withJsonBody(Json.parse(json))
-
-      val result = call(controller.analyze(), fr)
-      status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
-      val jsonResult = contentAsJson(result).toString()
-      val analyzedSentenceObjects: AnalyzedSentenceObjects = Json.parse(jsonResult).as[AnalyzedSentenceObjects]
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("0").get.status).size == 0)
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("1").get.status).size == 1)
-
-    }
-  }
-
-  "The specification2" should {
-    "returns an appropriate response" in {
-
-      val json = """{
-                   |    "premise":[],
-                   |    "claim":[{"sentence":"自然界の物理法則は例外なくどの慣性系でも成立する。","lang": "ja_JP", "extentInfoJson":"{}", "isNegativeSentence":false}]
-                   |}""".stripMargin
-
-      val fr = FakeRequest(POST, "/analyze")
-        .withHeaders("Content-type" -> "application/json")
-        .withJsonBody(Json.parse(json))
-
-      val result = call(controller.analyze(), fr)
-      status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
-      val jsonResult = contentAsJson(result).toString()
-      val analyzedSentenceObjects: AnalyzedSentenceObjects = Json.parse(jsonResult).as[AnalyzedSentenceObjects]
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("0").get.status).size == 0)
-      assert(analyzedSentenceObjects.analyzedSentenceObjects.filter(_.deductionResultMap.get("1").get.status).size == 1)
-
-    }
-  }
-
-  "The specification3" should {
+  "The specification1(nontrivial)" should {
     "returns an appropriate response" in {
 
       val json = """{
@@ -138,19 +75,22 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "sentence": "Aは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
-                   |                            "isNegativeSentence": false
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[]
                    |                        },
                    |                        {
                    |                            "sentence": "Bは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
-                   |                            "isNegativeSentence": false
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[]
                    |                        },
                    |                        {
                    |                            "sentence": "Cは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
-                   |                            "isNegativeSentence": true
+                   |                            "isNegativeSentence": true,
+                   |                            "knowledgeForImages":[]
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": [
@@ -176,19 +116,22 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "sentence": "Aは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
-                   |                            "isNegativeSentence": false
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[]
                    |                        },
                    |                        {
                    |                            "sentence": "Bは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
-                   |                            "isNegativeSentence": true
+                   |                            "isNegativeSentence": true,
+                   |                            "knowledgeForImages":[]
                    |                        },
                    |                        {
                    |                            "sentence": "Cは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
-                   |                            "isNegativeSentence": false
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[]
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": [
@@ -215,19 +158,22 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        "sentence": "Aは正直者である。",
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": true
+                   |                        "isNegativeSentence": true,
+                   |                        "knowledgeForImages":[]
                    |                    },
                    |                    {
                    |                        "sentence": "Bは正直者である。",
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": false
+                   |                        "isNegativeSentence": false,
+                   |                        "knowledgeForImages":[]
                    |                    },
                    |                    {
                    |                        "sentence": "Cは正直者である。",
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": false
+                   |                        "isNegativeSentence": false,
+                   |                        "knowledgeForImages":[]
                    |                    }
                    |                ],
                    |                "claimLogicRelation": [
@@ -256,7 +202,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "sentence": "Aは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
-                   |                            "isNegativeSentence": false
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[]
                    |                        }
                    |                    ],
                    |                    "premiseLogicRelation": [],
@@ -265,7 +212,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "sentence": "Cは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
-                   |                            "isNegativeSentence": true
+                   |                            "isNegativeSentence": true,
+                   |                            "knowledgeForImages":[]
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": []
@@ -278,7 +226,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "sentence": "Bは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
-                   |                            "isNegativeSentence": false
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[]
                    |                        }
                    |                    ],
                    |                    "premiseLogicRelation": [],
@@ -287,7 +236,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "sentence": "Aは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
-                   |                            "isNegativeSentence": false
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[]
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": []
@@ -301,7 +251,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        "sentence": "Cは正直者である。",
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": false
+                   |                        "isNegativeSentence": false,
+                   |                        "knowledgeForImages":[]
                    |                    }
                    |                ],
                    |                "premiseLogicRelation": [],
@@ -310,7 +261,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        "sentence": "Bは正直者である。",
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": true
+                   |                        "isNegativeSentence": true,
+                   |                        "knowledgeForImages":[]
                    |                    }
                    |                ],
                    |                "claimLogicRelation": []
@@ -329,68 +281,84 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val jsonResult = contentAsJson(result).toString()
       val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
 
-      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if(!x.source.status.equals("")){
+          assert(x.source.status.equals("OPTIMUM FOUND"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("OPTIMUM FOUND"))
+        }
+      })
 
     }
   }
 
-  "The specification4" should {
+  "The specification2(exact-synonym--match-trivial)" should {
     "returns an appropriate response" in {
 
-      val json = """{
-                   |    "regulation": {
-                   |        "knowledgeLeft": {
-                   |            "leaf": {
-                   |                "premiseList": [],
-                   |                "premiseLogicRelation": [],
-                   |                "claimList": [],
-                   |                "claimLogicRelation": []
-                   |            }
-                   |        },
-                   |        "operator": "",
-                   |        "knowledgeRight": {
-                   |            "leaf": {
-                   |                "premiseList": [],
-                   |                "premiseLogicRelation": [],
-                   |                "claimList": [
-                   |                    {
-                   |                        "sentence": "これは主張1です。",
-                   |                        "lang": "ja_JP",
-                   |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": false
-                   |                    }
-                   |                ],
-                   |                "claimLogicRelation": []
-                   |            }
-                   |        }
-                   |    },
-                   |    "hypothesis": {
-                   |        "knowledgeLeft": {
-                   |            "leaf": {
-                   |                "premiseList": [],
-                   |                "premiseLogicRelation": [],
-                   |                "claimList": [],
-                   |                "claimLogicRelation": []
-                   |            }
-                   |        },
-                   |        "operator": "",
-                   |        "knowledgeRight": {
-                   |            "leaf": {
-                   |                "premiseList": [],
-                   |                "premiseLogicRelation": [],
-                   |                "claimList": [
-                   |                    {
-                   |                        "sentence": "これは主張1です。",
-                   |                        "lang": "ja_JP",
-                   |                        "extentInfoJson": "{}",
-                   |                        "isNegativeSentence": false
-                   |                    }
-                   |                ],
-                   |                "claimLogicRelation": []
-                   |            }
-                   |        }
-                   |    }
-                   |}""".stripMargin
+      val propositionId1 = UUID.random.toString
+      val sentenceId1 = UUID.random.toString
+      val sentenceA = "太郎は秀逸な発案をした。"
+      val knowledge1 = Knowledge(sentenceA, "ja_JP", "{}", false)
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+
+      val json =
+        """{
+          |    "regulation": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "太郎は秀逸な提案をした。",
+          |                        "lang": "ja_JP",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages":[]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    },
+          |    "hypothesis": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "太郎は秀逸な提案をした。",
+          |                        "lang": "ja_JP",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages":[]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    }
+          |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
         .withHeaders("Content-type" -> "application/json")
@@ -402,118 +370,360 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val jsonResult = contentAsJson(result).toString()
       val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
 
-      analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value ))
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("TRIVIAL"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("TRIVIAL"))
+        }
+      })
 
-    }
-
-    "The specification5" should {
-      "returns an appropriate response" in {
-
-        val json =
-          """{
-            |    "regulation": {
-            |        "knowledgeLeft": {
-            |            "leaf": {
-            |                "premiseList": [],
-            |                "premiseLogicRelation": [],
-            |                "claimList": [],
-            |                "claimLogicRelation": []
-            |            }
-            |        },
-            |        "operator": "",
-            |        "knowledgeRight": {
-            |            "leaf": {
-            |                "premiseList": [],
-            |                "premiseLogicRelation": [],
-            |                "claimList": [
-            |                    {
-            |                        "sentence": "全ての人は自分の運命を自分で決められる",
-            |                        "lang": "ja_JP",
-            |                        "extentInfoJson": "{}",
-            |                        "isNegativeSentence": false
-            |                    },
-            |                    {
-            |                        "sentence": "人生は自分でつくるもの",
-            |                        "lang": "ja_JP",
-            |                        "extentInfoJson": "{}",
-            |                        "isNegativeSentence": false
-            |                    }
-            |                ],
-            |                "claimLogicRelation": [
-            |                    {
-            |                        "operator": "AND",
-            |                        "sourceIndex": 0,
-            |                        "destinationIndex": 1
-            |                    }
-            |                ]
-            |            }
-            |        }
-            |    },
-            |    "hypothesis": {
-            |        "knowledgeLeft": {
-            |            "leaf": {
-            |                "premiseList": [],
-            |                "premiseLogicRelation": [],
-            |                "claimList": [],
-            |                "claimLogicRelation": []
-            |            }
-            |        },
-            |        "operator": "",
-            |        "knowledgeRight": {
-            |            "leaf": {
-            |                "premiseList": [],
-            |                "premiseLogicRelation": [],
-            |                "claimList": [
-            |                    {
-            |                        "sentence": "全ての人は自分の運命を自分で決められる",
-            |                        "lang": "ja_JP",
-            |                        "extentInfoJson": "{}",
-            |                        "isNegativeSentence": false
-            |                    },
-            |                    {
-            |                        "sentence": "人生は自分でつくるもの",
-            |                        "lang": "ja_JP",
-            |                        "extentInfoJson": "{}",
-            |                        "isNegativeSentence": false
-            |                    }
-            |                ],
-            |                "claimLogicRelation": [
-            |                    {
-            |                        "operator": "AND",
-            |                        "sourceIndex": 0,
-            |                        "destinationIndex": 1
-            |                    }
-            |                ]
-            |            }
-            |        }
-            |    }
-            |}""".stripMargin
-
-        val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
-          .withHeaders("Content-type" -> "application/json")
-          .withJsonBody(Json.parse(json))
-
-        val result = call(controller.analyzeKnowledgeTree(), fr)
-        status(result) mustBe OK
-        contentType(result) mustBe Some("application/json")
-        val jsonResult = contentAsJson(result).toString()
-        val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
-
-        analyzedEdges.analyzedEdges.map(x => println(x.source, x.target, x.value))
-
-      }
     }
   }
 
-  def checkAnalyzedEdges(actual:AnalyzedEdges, sentence1:String, status1:String, sentence2:String, status2:String, operator:String):Boolean = {
-    actual.analyzedEdges.filter(x =>
-        x.source.sentence.equals(sentence1) &&
-        x.source.status.equals(status1) &&
-        x.target.sentence.equals(sentence2) &&
-        x.target.status.equals(status2) &&
-        x.value.equals(operator)).size == 1
-    //false
+  "The specification3(image-vector-match-trivial)" should {
+    "returns an appropriate response" in {
+
+      val sentenceA = "猫が２匹います。"
+      val referenceA = Reference(url = "", surface = "猫が", surfaceIndex = 0, isWholeSentence = false,
+        originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
+      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, width = 466, height = 310)
+      val propositionId1 = getUUID()
+      val sentenceId1 = getUUID()
+      //val knowledge1 = Knowledge(sentenceA,"ja_JP", "{}", false, List(imageA))
+      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA)
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+
+      val json =
+        """{
+          |    "regulation": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "ペットが２匹います。",
+          |                        "lang": "ja_JP",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [
+          |                            {
+          |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
+          |                                "imageReference": {
+          |                                    "reference": {
+          |                                        "url": "",
+          |                                        "surface": "ペットが",
+          |                                        "surfaceIndex": 0,
+          |                                        "isWholeSentence": false,
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                    },
+          |                                    "x": 11,
+          |                                    "y": 11,
+          |                                    "width": 466,
+          |                                    "height": 310
+          |                                }
+          |                            }
+          |                        ]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    },
+          |    "hypothesis": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "ペットが２匹います。",
+          |                        "lang": "ja_JP",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [
+          |                            {
+          |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
+          |                                "imageReference": {
+          |                                    "reference": {
+          |                                        "url": "",
+          |                                        "surface": "ペットが",
+          |                                        "surfaceIndex": 0,
+          |                                        "isWholeSentence": false,
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                    },
+          |                                    "x": 11,
+          |                                    "y": 11,
+          |                                    "width": 466,
+          |                                    "height": 310
+          |                                }
+          |                            }
+          |                        ]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    }
+          |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("TRIVIAL"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("TRIVIAL"))
+        }
+      })
+
+    }
   }
 
+  "The specification4(sentence-match-trivial)" should {
+    "returns an appropriate response" in {
+
+      val propositionId1 = UUID.random.toString
+      val sentenceId1 = UUID.random.toString
+      val sentenceA = "自然界の法則がすべての慣性系で同じように成り立っている。"
+      val knowledge1 = Knowledge(sentenceA, "ja_JP", "{}", false)
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+
+      val json =
+        """{
+          |    "regulation": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "自然界の物理法則は例外なくどの慣性系でも成立する。",
+          |                        "lang": "ja_JP",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages":[]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    },
+          |    "hypothesis": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "自然界の物理法則は例外なくどの慣性系でも成立する。",
+          |                        "lang": "ja_JP",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages":[]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    }
+          |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("TRIVIAL"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("TRIVIAL"))
+        }
+      })
+
+    }
+  }
+
+
+  "The specification5(whole-sentence-image-feature-match-trivial)" should {
+    "returns an appropriate response" in {
+
+      val sentenceA = "猫が２匹います。"
+      val referenceA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
+        originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
+      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, width = 466, height = 310)
+      val propositionId1 = getUUID()
+      val sentenceId1 = getUUID()
+      //val knowledge1 = Knowledge(sentenceA,"ja_JP", "{}", false, List(imageA))
+      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA)
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+
+      val json =
+        """{
+          |    "regulation": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "ペットが２匹います。",
+          |                        "lang": "ja_JP",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [
+          |                            {
+          |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
+          |                                "imageReference": {
+          |                                    "reference": {
+          |                                        "url": "",
+          |                                        "surface": "",
+          |                                        "surfaceIndex": -1,
+          |                                        "isWholeSentence": true,
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                    },
+          |                                    "x": 11,
+          |                                    "y": 11,
+          |                                    "width": 466,
+          |                                    "height": 310
+          |                                }
+          |                            }
+          |                        ]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    },
+          |    "hypothesis": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "ペットが２匹います。",
+          |                        "lang": "ja_JP",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [
+          |                            {
+          |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
+          |                                "imageReference": {
+          |                                    "reference": {
+          |                                        "url": "",
+          |                                        "surface": "",
+          |                                        "surfaceIndex": -1,
+          |                                        "isWholeSentence": true,
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                    },
+          |                                    "x": 11,
+          |                                    "y": 11,
+          |                                    "width": 466,
+          |                                    "height": 310
+          |                                }
+          |                            }
+          |                        ]
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    }
+          |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json")
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("TRIVIAL"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("TRIVIAL"))
+        }
+      })
+
+    }
+  }
 }
 

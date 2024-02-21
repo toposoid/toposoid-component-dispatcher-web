@@ -64,6 +64,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * Matches with the knowledge database and returns the result of the logical solution in JSON.
    * @return
    */
+  /*
   def analyze() = Action(parse.json) { request =>
     try {
       val requestAnalyzer = new RequestAnalyzer()
@@ -74,7 +75,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       val knowledgeSentenceSet = KnowledgeSentenceSet(inputSentence.premise,List.empty[PropositionRelation], inputSentence.claim, List.empty[PropositionRelation])
       val parseResult:List[AnalyzedSentenceObject] = requestAnalyzer.parseKnowledgeSentence(knowledgeSentenceSet)
       val parseResultJson:String = Json.toJson(AnalyzedSentenceObjects(parseResult)).toString()
-      val deductionResult:String = ToposoidUtils.callComponent(parseResultJson, conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_HOST"), "9003", "executeDeduction")
+      val deductionResult:String = ToposoidUtils.callComponent(parseResultJson, conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_HOST"), conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_PORT"), "executeDeduction")
       Ok(deductionResult).as(JSON)
     }catch{
       case e: Exception => {
@@ -83,7 +84,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       }
     }
   }
-
+  */
   /**
    * This function parses a tree-structured and logical expression including sentence.
    * Input / output is request, response and REST in json.
@@ -135,7 +136,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
         result.analyzedSentenceObjectsMap.values.foldLeft(List.empty[AnalyzedSentenceObject]) {
           (acc, asos) => {
             //The processing unit of DEDUCTION_ADMIN_WEB is KnowledgeSentenceSet.
-            val deductionResult: String = ToposoidUtils.callComponent(Json.toJson(asos).toString(), conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_HOST"), "9003", "executeDeduction")
+            val deductionResult: String = ToposoidUtils.callComponent(Json.toJson(asos).toString(), conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_HOST"), conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_PORT"), "executeDeduction")
             acc ++ Json.parse(deductionResult).as[AnalyzedSentenceObjects].analyzedSentenceObjects
           }
         }

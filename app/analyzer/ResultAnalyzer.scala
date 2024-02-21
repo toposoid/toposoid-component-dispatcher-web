@@ -55,7 +55,7 @@ class ResultAnalyzer {
           (acc, x) => acc ++ Map(x._1 -> makeAnalyzedNode(x._1, satSolverResult.satResultMap.get(x._2.satId).get, trivialIdMapUnion, sentenceInfoMapUnion))
         }
 
-        AnalyzedEdges(makeAnalyzedEdges(relationUnion, analyzedNodes))
+        AnalyzedEdges(makeAnalyzedEdges(relationUnion, analyzedNodes).distinct)
       }
     }
   }
