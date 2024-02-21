@@ -19,6 +19,9 @@ services:
       - TOPOSOID_SAT_SOLVER_WEB_HOST=toposoid-sat-solver-web
       - TOPOSOID_SAT_SOLVER_WEB_PORT=9009
       - TOPOSOID_DEDUCTION_ADMIN_SKIP=0
+      - TOPOSOID_CONTENTS_ADMIN_HOST=toposoid-contents-admin-web
+      - TOPOSOID_CONTENTS_ADMIN_PORT=9012
+
     ports:
       - 9004:9004
   toposoid-sat-solver-web:
