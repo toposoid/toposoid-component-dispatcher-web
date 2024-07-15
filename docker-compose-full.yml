@@ -257,6 +257,7 @@ services:
       - TOPOSOID_WEAVIATE_HOST=data-accessor-sentence-weaviate-web
       - TOPOSOID_WEAVIATE_PORT=8080
       - TOPOSOID_WEAVIATE_SIMILARITY_THRESHOLD=0.85
+      - TOPOSOID_DATA_ACCESSOR_PORT=9011
     ports:
       - 9020:9011
     depends_on:
@@ -290,6 +291,7 @@ services:
       - TOPOSOID_WEAVIATE_HOST=data-accessor-image-weaviate-web
       - TOPOSOID_WEAVIATE_PORT=8081
       - TOPOSOID_WEAVIATE_SIMILARITY_THRESHOLD=0.85
+      - TOPOSOID_DATA_ACCESSOR_PORT=9011
     ports:
       - 9021:9011
     depends_on:

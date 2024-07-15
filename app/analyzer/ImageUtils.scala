@@ -17,7 +17,7 @@
 package analyzer
 
 import com.ideal.linked.common.DeploymentConverter.conf
-import com.ideal.linked.toposoid.common.{IMAGE, MANUAL, ToposoidUtils}
+import com.ideal.linked.toposoid.common.{IMAGE, MANUAL, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.featurevector.model.RegistContentResult
 import com.ideal.linked.toposoid.knowledgebase.model.{KnowledgeBaseNode, KnowledgeBaseSemiGlobalNode, KnowledgeFeatureReference, LocalContext, LocalContextForFeature}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeForImage}
@@ -32,13 +32,13 @@ object ImageUtils {
    * @param knowledgeForParsers
    * @return
    */
-  def addImageInformation(asos: List[AnalyzedSentenceObject], knowledgeForParsers: List[KnowledgeForParser]): List[AnalyzedSentenceObject] = {
+  def addImageInformation(asos: List[AnalyzedSentenceObject], knowledgeForParsers: List[KnowledgeForParser], transversalState:TransversalState): List[AnalyzedSentenceObject] = {
     //upload temporary images
     val updateKnowledgeForParsers = knowledgeForParsers.map(x => {
       x.knowledge.knowledgeForImages.size match {
         case 0 => x
         case _ => {
-          val knowledgeForImages = x.knowledge.knowledgeForImages.map(uploadImage(_))
+          val knowledgeForImages = x.knowledge.knowledgeForImages.map(uploadImage(_, transversalState))
           val knowledge = Knowledge(x.knowledge.sentence, x.knowledge.lang, x.knowledge.extentInfoJson, x.knowledge.isNegativeSentence, knowledgeForImages)
           KnowledgeForParser(x.propositionId, x.sentenceId, knowledge)
         }
@@ -157,13 +157,14 @@ object ImageUtils {
    * @param knowledgeForImage
    * @return
    */
-  private def uploadImage(knowledgeForImage: KnowledgeForImage): KnowledgeForImage = {
+  private def uploadImage(knowledgeForImage: KnowledgeForImage, transversalState:TransversalState): KnowledgeForImage = {
     //TODO TOPOSOID_CONTENTS_ADMIN_HOST APIインターフェース追加　＆　テンポラリファイル削除バッチの実装
     val registContentResultJson = ToposoidUtils.callComponent(
       Json.toJson(knowledgeForImage).toString(),
       conf.getString("TOPOSOID_CONTENTS_ADMIN_HOST"),
       conf.getString("TOPOSOID_CONTENTS_ADMIN_PORT"),
-      "uploadTemporaryImage")
+      "uploadTemporaryImage",
+      transversalState)
     val registContentResult: RegistContentResult = Json.parse(registContentResultJson).as[RegistContentResult]
     registContentResult.knowledgeForImage
   }

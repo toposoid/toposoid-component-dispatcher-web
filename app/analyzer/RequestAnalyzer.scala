@@ -18,7 +18,7 @@ package analyzer
 
 import analyzer.ImageUtils.addImageInformation
 import com.ideal.linked.common.DeploymentConverter.conf
-import com.ideal.linked.toposoid.common.{CLAIM, PREMISE, ToposoidUtils}
+import com.ideal.linked.toposoid.common.{CLAIM, PREMISE, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects, DeductionResult}
 import com.ideal.linked.toposoid.protocol.model.parser.{InputSentenceForParser, KnowledgeForParser, KnowledgeLeaf, KnowledgeNode, KnowledgeTree}
@@ -102,7 +102,7 @@ class RequestAnalyzer {
    * @param knowledgeSentenceSet
    * @return
    */
-  def parseKnowledgeSentence(knowledgeSentenceSet: KnowledgeSentenceSet):List[AnalyzedSentenceObject] = Try{
+  def parseKnowledgeSentence(knowledgeSentenceSet: KnowledgeSentenceSet, transversalState:TransversalState):List[AnalyzedSentenceObject] = Try{
 
     val premiseJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
     val claimJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
@@ -118,20 +118,20 @@ class RequestAnalyzer {
       case 0 =>
         List.empty[AnalyzedSentenceObject]
       case _ =>
-        val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_PORT"), "analyze")
+        val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_PORT"), "analyze", transversalState)
         val asos = Json.parse(parseResultJapanese).as[AnalyzedSentenceObjects].analyzedSentenceObjects
         //Add Informations of Images
-        addImageInformation(asos, premiseJapanese:::claimJapanese)
+        addImageInformation(asos, premiseJapanese:::claimJapanese, transversalState)
     }
 
     val deductionEnglishList:List[AnalyzedSentenceObject] = numOfKnowledgeEnglish match{
       case 0 =>
         List.empty[AnalyzedSentenceObject]
       case _ =>
-        val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_PORT"), "analyze")
+        val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_PORT"), "analyze", transversalState)
         val asos = Json.parse(parseResultEnglish).as[AnalyzedSentenceObjects].analyzedSentenceObjects
         //Add Informations of Images
-        addImageInformation(asos, premiseEnglish:::claimEnglish)
+        addImageInformation(asos, premiseEnglish:::claimEnglish, transversalState)
     }
 
     return deductionJapaneseList ::: deductionEnglishList
@@ -147,13 +147,13 @@ class RequestAnalyzer {
    * @param result
    * @return
    */
-  def analyzeRecursive(t : KnowledgeTree, result:ParsedKnowledgeTree):ParsedKnowledgeTree = {
+  def analyzeRecursive(t : KnowledgeTree, result:ParsedKnowledgeTree, transversalState:TransversalState):ParsedKnowledgeTree = {
     t match {
       case KnowledgeNode(v, left, right) =>
         //Here, set the value to always be entered in left sisde.
-        val r1 = analyzeRecursive(left, result)
+        val r1 = analyzeRecursive(left, result, transversalState)
         if(v != "AND" && v != "OR" && r1.formula != "") return ParsedKnowledgeTree("-1",  r1.leafId, r1.subFormulaMap, r1.analyzedSentenceObjectsMap, r1.sentenceInfoMap, r1.sentenceMapForSat, r1.relations)
-        val r2 = analyzeRecursive(right, r1)
+        val r2 = analyzeRecursive(right, r1, transversalState)
         val newFormula = r1.leafId match {
           case "-1" => "%s %s %s".format(r2.formula, r2.leafId, v)
           case _ => "%s %s %s %s".format(r2.formula, r1.leafId, r2.leafId, v)
@@ -161,7 +161,7 @@ class RequestAnalyzer {
         val relations = List((List.empty[String], List.empty[PropositionRelation], List.empty[String], List.empty[PropositionRelation], List(r1.leafId, r2.leafId), List(PropositionRelation(v, 0, 1)) ))
         ParsedKnowledgeTree(r1.leafId,  newFormula, r2.subFormulaMap, r2.analyzedSentenceObjectsMap, r2.sentenceInfoMap, r2.sentenceMapForSat, r2.relations ++ relations)
       case KnowledgeLeaf(v) =>
-        analyzeRecursiveSub(v, result)
+        analyzeRecursiveSub(v, result, transversalState)
     }
   }
   /**
@@ -170,11 +170,11 @@ class RequestAnalyzer {
    * @param result
    * @return
    */
-  private def analyzeRecursiveSub(v:KnowledgeSentenceSet, result:ParsedKnowledgeTree): ParsedKnowledgeTree ={
+  private def analyzeRecursiveSub(v:KnowledgeSentenceSet, result:ParsedKnowledgeTree, transversalState:TransversalState): ParsedKnowledgeTree ={
 
     if(v.claimList.size == 0 && v.premiseList.size == 0) return result
 
-    val parseResult = this.parseKnowledgeSentence(v)
+    val parseResult = this.parseKnowledgeSentence(v, transversalState)
     val sentenceMapForSat = (v.premiseList ++ v.claimList).foldLeft(result.sentenceMapForSat) {
       (acc, x) =>{
         if(!acc.isDefinedAt(x.sentence)){
