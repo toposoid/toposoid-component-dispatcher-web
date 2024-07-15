@@ -18,12 +18,12 @@ package controllers
 
 import analyzer.{RequestAnalyzer, ResultAnalyzer}
 import com.ideal.linked.common.DeploymentConverter.conf
-import com.ideal.linked.toposoid.common.ToposoidUtils
+import com.ideal.linked.toposoid.common.{TRANSVERSAL_STATE, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects, DeductionResult}
-import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdges}
+import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
 import com.ideal.linked.toposoid.protocol.model.parser.{InputSentence, KnowledgeTree}
-import com.ideal.linked.toposoid.protocol.model.sat.{FormulaSet}
+import com.ideal.linked.toposoid.protocol.model.sat.FormulaSet
 import com.typesafe.scalalogging.LazyLogging
 
 import javax.inject._
@@ -92,22 +92,24 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * @return
    */
   def analyzeKnowledgeTree() = Action(parse.json) { request =>
+    val transversalState = Json.parse(request.headers.get(TRANSVERSAL_STATE .str).get).as[TransversalState]
     try {
       val json = request.body
-      logger.info(json.toString())
+      logger.info(ToposoidUtils.formatMessageForLogger(json.toString(), transversalState.username))
       val targetProblem:TargetProblem = Json.parse(json.toString).as[TargetProblem]
       val resultAnalyzer = new ResultAnalyzer()
       val regulationKnowledgeTree:KnowledgeTree = targetProblem.regulation
       val hypothesisKnowledgeTree:KnowledgeTree = targetProblem.hypothesis
-      val satInputForRegulation:SatInput = analyzeKnowledgeTreeSub(regulationKnowledgeTree, Map.empty[String, Int])
-      val satInputForHypothesis:SatInput = analyzeKnowledgeTreeSub(hypothesisKnowledgeTree, satInputForRegulation.parsedKnowledgeTree.sentenceMapForSat)
-      val analyzedEdges:AnalyzedEdges = resultAnalyzer.getAnalyzedEdges(satInputForRegulation, satInputForHypothesis)
+      val satInputForRegulation:SatInput = analyzeKnowledgeTreeSub(regulationKnowledgeTree, Map.empty[String, Int], transversalState)
+      val satInputForHypothesis:SatInput = analyzeKnowledgeTreeSub(hypothesisKnowledgeTree, satInputForRegulation.parsedKnowledgeTree.sentenceMapForSat, transversalState)
+      val analyzedEdges:AnalyzedEdges = resultAnalyzer.getAnalyzedEdges(satInputForRegulation, satInputForHypothesis, transversalState)
       val analyzedResponse =Json.toJson(analyzedEdges)
-      logger.info(analyzedResponse.toString())
+      logger.info(ToposoidUtils.formatMessageForLogger(analyzedResponse.toString(), transversalState.username))
+      logger.info(ToposoidUtils.formatMessageForLogger("dispatching deduction component completed.", transversalState.username))
       Ok(analyzedResponse).as(JSON)
     }catch{
       case e: Exception => {
-        logger.error(e.toString, e)
+        logger.error(ToposoidUtils.formatMessageForLogger(e.toString, transversalState.username), e)
         BadRequest(Json.obj("status" ->"Error", "message" -> e.toString()))
       }
     }
@@ -119,10 +121,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * @param sentenceMapForSat
    * @return
    */
-  private def analyzeKnowledgeTreeSub(knowledgeTree:KnowledgeTree, sentenceMapForSat:Map[String, Int]): SatInput ={
+  private def analyzeKnowledgeTreeSub(knowledgeTree:KnowledgeTree, sentenceMapForSat:Map[String, Int], transversalState:TransversalState): SatInput ={
     val requestAnalyzer = new RequestAnalyzer()
     val initResultObject = ParsedKnowledgeTree("-1", "", Map.empty[String, String], Map.empty[String, AnalyzedSentenceObjects], Map.empty[String,SentenceInfo], sentenceMapForSat, List.empty[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])])
-    val result = requestAnalyzer.analyzeRecursive(knowledgeTree, initResultObject)
+    val result = requestAnalyzer.analyzeRecursive(knowledgeTree, initResultObject, transversalState)
 
     val analyzedSentenceObjectsAfterDeduction:List[AnalyzedSentenceObject] = conf.getString("TOPOSOID_DEDUCTION_ADMIN_SKIP") match {
       case "1" => {
@@ -136,7 +138,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
         result.analyzedSentenceObjectsMap.values.foldLeft(List.empty[AnalyzedSentenceObject]) {
           (acc, asos) => {
             //The processing unit of DEDUCTION_ADMIN_WEB is KnowledgeSentenceSet.
-            val deductionResult: String = ToposoidUtils.callComponent(Json.toJson(asos).toString(), conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_HOST"), conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_PORT"), "executeDeduction")
+            val deductionResult: String = ToposoidUtils.callComponent(Json.toJson(asos).toString(), conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_HOST"), conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_PORT"), "executeDeduction", transversalState)
             acc ++ Json.parse(deductionResult).as[AnalyzedSentenceObjects].analyzedSentenceObjects
           }
         }
