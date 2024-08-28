@@ -305,7 +305,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val sentenceId1 = UUID.random.toString
       val sentenceA = "Life is so comfortable."
       val knowledge1 = Knowledge(sentenceA, "en_US", "{}", false)
-      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val json =
         """{
@@ -396,8 +396,8 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, width = 466, height = 310)
       val propositionId1 = getUUID()
       val sentenceId1 = getUUID()
-      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA)
-      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA, transversalState)
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val json =
         """{
@@ -520,7 +520,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val sentenceId1 = UUID.random.toString
       val sentenceA = "The culprit is among us."
       val knowledge1 = Knowledge(sentenceA, lang, "{}", false)
-      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val json =
         """{
@@ -612,8 +612,8 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, width = 466, height = 310)
       val propositionId1 = getUUID()
       val sentenceId1 = getUUID()
-      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA)
-      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1))
+      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA, transversalState)
+      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val json =
         """{
