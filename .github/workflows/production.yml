@@ -31,40 +31,40 @@ jobs:
             docker system prune -f
             docker volume prune -f
             docker build --build-arg TARGET_BRANCH=${{ env.PJ_BRANCH }} --build-arg JAVA_OPT_XMX=4g --tag ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} -f Dockerfile-workflow .
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-component-dispatcher-web
-            docker-compose -f docker-compose-workflow-full.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt headerCheck"
-            docker-compose -f docker-compose-workflow-full.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt test:headerCheck"
-            docker-compose -f docker-compose-workflow-full.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt compile"
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-common-nlp-japanese-web
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-common-image-recognition-web
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-contents-admin-web
-            docker-compose -f docker-compose-workflow-full.yml up -d neo4j
-            docker-compose -f docker-compose-workflow-full.yml up -d scala-data-accessor-neo4j-web
-            docker-compose -f docker-compose-workflow-full.yml up -d sentence-weaviate
-            docker-compose -f docker-compose-workflow-full.yml up -d data-accessor-sentence-weaviate-web
-            docker-compose -f docker-compose-workflow-full.yml up -d image-weaviate
-            docker-compose -f docker-compose-workflow-full.yml up -d data-accessor-image-weaviate-web
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-unit-exact-match-web
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-unit-synonym-match-web
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-unit-image-vector-match-web
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-unit-sentence-vector-match-web
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-unit-whole-sentence-image-match-web          
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-admin-web
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-sat-solver-web            
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-sentence-parser-japanese-web  
-            docker-compose -f docker-compose-workflow.yml up -d redis
-            docker-compose -f docker-compose-workflow.yml up -d data-accessor-redis-web                    
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-component-dispatcher-web
+            docker compose -f docker-compose-workflow-full.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt headerCheck"
+            docker compose -f docker-compose-workflow-full.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt test:headerCheck"
+            docker compose -f docker-compose-workflow-full.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt compile"
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-common-nlp-japanese-web
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-common-image-recognition-web
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-contents-admin-web
+            docker compose -f docker-compose-workflow-full.yml up -d neo4j
+            docker compose -f docker-compose-workflow-full.yml up -d scala-data-accessor-neo4j-web
+            docker compose -f docker-compose-workflow-full.yml up -d sentence-weaviate
+            docker compose -f docker-compose-workflow-full.yml up -d data-accessor-sentence-weaviate-web
+            docker compose -f docker-compose-workflow-full.yml up -d image-weaviate
+            docker compose -f docker-compose-workflow-full.yml up -d data-accessor-image-weaviate-web
+            docker compose -f docker-compose-workflow-full.yml up -d redis
+            docker compose -f docker-compose-workflow-full.yml up -d data-accessor-redis-web                              
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-unit-exact-match-web
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-unit-synonym-match-web
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-unit-image-vector-match-web
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-unit-sentence-vector-match-web
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-unit-whole-sentence-image-match-web          
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-deduction-admin-web
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-sat-solver-web            
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-sentence-parser-japanese-web  
             curl --retry 10 --retry-delay 5 --retry-all-errors -X POST http://localhost:7474
             curl --retry 10 --retry-delay 5 --retry-all-errors -X POST -H "Content-Type: application/json" -d '{"sentence": "これはテストです。"}' http://localhost:9006/getFeatureVector
-            docker-compose -f docker-compose-workflow-full.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*Japanese'"
-            docker-compose -f docker-compose-workflow-full.yml rm -fsv toposoid-common-nlp-japanese-web
-            docker-compose -f docker-compose-workflow-full.yml rm -fsv toposoid-sentence-parser-japanese-web
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-common-nlp-english-web
-            docker-compose -f docker-compose-workflow-full.yml up -d corenlp            
-            docker-compose -f docker-compose-workflow-full.yml up -d toposoid-sentence-parser-english-web
+            docker compose -f docker-compose-workflow-full.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*Japanese'"
+            docker compose -f docker-compose-workflow-full.yml rm -fsv toposoid-common-nlp-japanese-web
+            docker compose -f docker-compose-workflow-full.yml rm -fsv toposoid-sentence-parser-japanese-web
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-common-nlp-english-web
+            docker compose -f docker-compose-workflow-full.yml up -d corenlp            
+            docker compose -f docker-compose-workflow-full.yml up -d toposoid-sentence-parser-english-web
             curl -X POST  -d 'Life is beautiful.' http://localhost:9000
             curl --retry 10 --retry-delay 5 --retry-all-errors -X POST -H "Content-Type: application/json" -d '{"sentence": "This is a test"}' http://localhost:9008/getFeatureVector
-            docker-compose -f docker-compose-workflow-full.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*English'"
+            docker compose -f docker-compose-workflow-full.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*English'"
             docker rm --force $(docker ps -a -q) > /dev/null 2>&1 && :
             docker rmi --force ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
       - name: Docker meta

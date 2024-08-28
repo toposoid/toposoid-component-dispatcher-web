@@ -39,11 +39,12 @@ import scala.concurrent.duration.DurationInt
 
 class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite with DefaultAwaitTimeout with Injecting{
 
-  val transversalState:String = Json.toJson(TransversalState(username="guest")).toString()
+  val transversalState:TransversalState = TransversalState(userId="test-user", username="guest", roleId=0, csrfToken = "")
+  val transversalStateJson:String = Json.toJson(transversalState).toString()
 
   before {
-    ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_PORT"), "createSchema", TransversalState(username="guest"))
-    ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_PORT"), "createSchema", TransversalState(username="guest"))
+    ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_PORT"), "createSchema", transversalState)
+    ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_PORT"), "createSchema", transversalState)
     Neo4JAccessor.delete()
     Thread.sleep(1000)
   }
@@ -276,7 +277,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
-        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalState)
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
         .withJsonBody(Json.parse(json))
 
       val result = call(controller.analyzeKnowledgeTree(), fr)
@@ -365,7 +366,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
-        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalState)
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
         .withJsonBody(Json.parse(json))
 
       val result = call(controller.analyzeKnowledgeTree(), fr)
@@ -491,7 +492,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
-        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalState)
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
         .withJsonBody(Json.parse(json))
 
       val result = call(controller.analyzeKnowledgeTree(), fr)
@@ -580,7 +581,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
-        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalState)
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
         .withJsonBody(Json.parse(json))
 
       val result = call(controller.analyzeKnowledgeTree(), fr)
@@ -707,7 +708,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |}""".stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
-        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalState)
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
         .withJsonBody(Json.parse(json))
 
       val result = call(controller.analyzeKnowledgeTree(), fr)
