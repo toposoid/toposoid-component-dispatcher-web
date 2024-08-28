@@ -95,7 +95,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
     val transversalState = Json.parse(request.headers.get(TRANSVERSAL_STATE .str).get).as[TransversalState]
     try {
       val json = request.body
-      logger.info(ToposoidUtils.formatMessageForLogger(json.toString(), transversalState.username))
+      logger.info(ToposoidUtils.formatMessageForLogger(json.toString(), transversalState.userId))
       val targetProblem:TargetProblem = Json.parse(json.toString).as[TargetProblem]
       val resultAnalyzer = new ResultAnalyzer()
       val regulationKnowledgeTree:KnowledgeTree = targetProblem.regulation
@@ -104,12 +104,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       val satInputForHypothesis:SatInput = analyzeKnowledgeTreeSub(hypothesisKnowledgeTree, satInputForRegulation.parsedKnowledgeTree.sentenceMapForSat, transversalState)
       val analyzedEdges:AnalyzedEdges = resultAnalyzer.getAnalyzedEdges(satInputForRegulation, satInputForHypothesis, transversalState)
       val analyzedResponse =Json.toJson(analyzedEdges)
-      logger.info(ToposoidUtils.formatMessageForLogger(analyzedResponse.toString(), transversalState.username))
-      logger.info(ToposoidUtils.formatMessageForLogger("dispatching deduction component completed.", transversalState.username))
+      logger.info(ToposoidUtils.formatMessageForLogger(analyzedResponse.toString(), transversalState.userId))
+      logger.info(ToposoidUtils.formatMessageForLogger("dispatching deduction component completed.", transversalState.userId))
       Ok(analyzedResponse).as(JSON)
     }catch{
       case e: Exception => {
-        logger.error(ToposoidUtils.formatMessageForLogger(e.toString, transversalState.username), e)
+        logger.error(ToposoidUtils.formatMessageForLogger(e.toString, transversalState.userId), e)
         BadRequest(Json.obj("status" ->"Error", "message" -> e.toString()))
       }
     }
