@@ -8,6 +8,7 @@ ENV _JAVA_OPTIONS="-Xms512m -Xmx"${JAVA_OPT_XMX}
 
 RUN git clone https://github.com/toposoid/toposoid-component-dispatcher-web.git \
 && cd toposoid-component-dispatcher-web \
+&& git pull \
 && git fetch origin ${TARGET_BRANCH} \
 && git checkout ${TARGET_BRANCH} \
 && sbt playUpdateSecret 1> /dev/null \

@@ -19,7 +19,6 @@ package controllers
 
 import akka.util.Timeout
 import com.ideal.linked.common.DeploymentConverter.conf
-import com.ideal.linked.data.accessor.neo4j.Neo4JAccessor
 import com.ideal.linked.toposoid.common.{TRANSVERSAL_STATE, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, Reference}
 import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
@@ -45,16 +44,16 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
   before {
     ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_PORT"), "createSchema", transversalState)
     ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_PORT"), "createSchema", transversalState)
-    Neo4JAccessor.delete()
+    TestUtils.deleteNeo4JAllData(transversalState)
     Thread.sleep(1000)
   }
 
   override def beforeAll(): Unit = {
-    Neo4JAccessor.delete()
+    TestUtils.deleteNeo4JAllData(transversalState)
   }
 
   override def afterAll(): Unit = {
-    Neo4JAccessor.delete()
+    TestUtils.deleteNeo4JAllData(transversalState)
   }
 
   override implicit def defaultAwaitTimeout: Timeout = 600.seconds

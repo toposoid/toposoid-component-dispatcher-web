@@ -4,10 +4,11 @@ WORKDIR /app
 ARG TARGET_BRANCH
 ARG JAVA_OPT_XMX
 ENV DEPLOYMENT=local
-ENV _JAVA_OPTIONS="-Xms256m -Xmx"${JAVA_OPT_XMX}
+ENV _JAVA_OPTIONS="-Xss512k -Xms256m -Xmx"${JAVA_OPT_XMX}
 
 RUN git clone https://github.com/toposoid/toposoid-component-dispatcher-web.git \
 && cd toposoid-component-dispatcher-web \
+&& git pull \
 && git fetch origin ${TARGET_BRANCH} \
 && git checkout ${TARGET_BRANCH}
 

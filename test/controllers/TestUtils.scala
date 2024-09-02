@@ -22,8 +22,9 @@ import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.toposoid.knowledgebase.featurevector.model.RegistContentResult
 import com.ideal.linked.toposoid.knowledgebase.model.{KnowledgeBaseNode, KnowledgeBaseSemiGlobalNode, KnowledgeFeatureReference, LocalContext, LocalContextForFeature}
 import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects}
+import com.ideal.linked.toposoid.protocol.model.neo4j.Neo4jRecords
 import com.ideal.linked.toposoid.protocol.model.parser.{KnowledgeForParser, KnowledgeSentenceSetForParser}
-import com.ideal.linked.toposoid.sentence.transformer.neo4j.Sentence2Neo4jTransformer
+import com.ideal.linked.toposoid.sentence.transformer.neo4j.{Neo4JUtilsImpl, Sentence2Neo4jTransformer}
 import com.ideal.linked.toposoid.vectorizer.FeatureVectorizer
 import play.api.libs.json.Json
 import io.jvm.uuid.UUID
@@ -31,6 +32,20 @@ import io.jvm.uuid.UUID
 case class ImageBoxInfo(x:Int, y:Int, width:Int, height:Int)
 
 object TestUtils {
+
+  def deleteNeo4JAllData(transversalState: TransversalState): Unit = {
+    val query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+    val neo4JUtils = new Neo4JUtilsImpl()
+    neo4JUtils.executeQuery(query, transversalState)
+  }
+
+  def executeQueryAndReturn(query: String, transversalState: TransversalState): Neo4jRecords = {
+    val convertQuery = ToposoidUtils.encodeJsonInJson(query)
+    val hoge = ToposoidUtils.decodeJsonInJson(convertQuery)
+    val json = s"""{ "query":"$convertQuery", "target": "" }"""
+    val jsonResult = ToposoidUtils.callComponent(json, conf.getString("TOPOSOID_GRAPHDB_WEB_HOST"), conf.getString("TOPOSOID_GRAPHDB_WEB_PORT"), "getQueryFormattedResult", transversalState)
+    Json.parse(jsonResult).as[Neo4jRecords]
+  }
 
   var usedUuidList = List.empty[String]
 
