@@ -80,21 +80,30 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                            "lang": "en_US",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        },
                    |                        {
                    |                            "sentence": "B is honest.",
                    |                            "lang": "en_US",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        },
                    |                        {
                    |                            "sentence": "C is honest.",
                    |                            "lang": "en_US",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": [
@@ -121,21 +130,30 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                            "lang": "en_US",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        },
                    |                        {
                    |                            "sentence": "B is honest.",
                    |                            "lang": "en_US",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        },
                    |                        {
                    |                            "sentence": "C is honest.",
                    |                            "lang": "en_US",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": [
@@ -163,21 +181,32 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                        "lang": "en_US",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": true,
-                   |                        "knowledgeForImages":[]
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                    },
                    |                    {
                    |                        "sentence": "B is honest.",
                    |                        "lang": "en_US",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
-                   |                        "knowledgeForImages":[]
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
                    |                    },
                    |                    {
                    |                        "sentence": "C is honest.",
                    |                        "lang": "en_US",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
-                   |                        "knowledgeForImages":[]
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
                    |                    }
                    |                ],
                    |                "claimLogicRelation": [
@@ -207,7 +236,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                            "lang": "en_US",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "premiseLogicRelation": [],
@@ -217,7 +249,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                            "lang": "en_US",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": []
@@ -231,7 +266,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                            "lang": "en_US",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "premiseLogicRelation": [],
@@ -241,7 +279,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                            "lang": "en_US",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": []
@@ -256,7 +297,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                        "lang": "en_US",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
-                   |                        "knowledgeForImages":[]
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                    }
                    |                ],
                    |                "premiseLogicRelation": [],
@@ -266,7 +310,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                        "lang": "en_US",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": true,
-                   |                        "knowledgeForImages":[]
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                    }
                    |                ],
                    |                "claimLogicRelation": []
@@ -328,7 +375,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                        "lang": "en_US",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
-          |                        "knowledgeForImages":[]
+          |                        "knowledgeForImages":[],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -355,7 +405,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                        "lang": "en_US",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
-          |                        "knowledgeForImages":[]
+          |                        "knowledgeForImages":[],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -429,7 +482,8 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                        "surface": "pets",
           |                                        "surfaceIndex": 3,
           |                                        "isWholeSentence": false,
-          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
+          |                                        "metaInformations": []
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
@@ -437,7 +491,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                    "height": 310
           |                                }
           |                            }
-          |                        ]
+          |                        ],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -473,7 +530,8 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                        "surface": "pets",
           |                                        "surfaceIndex": 3,
           |                                        "isWholeSentence": false,
-          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
+          |                                        "metaInformations": []
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
@@ -481,7 +539,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                    "height": 310
           |                                }
           |                            }
-          |                        ]
+          |                        ],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -543,7 +604,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                        "lang": "en_US",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
-          |                        "knowledgeForImages":[]
+          |                        "knowledgeForImages":[],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -570,7 +634,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                        "lang": "en_US",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
-          |                        "knowledgeForImages":[]
+          |                        "knowledgeForImages":[],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -645,7 +712,8 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                        "surface": "",
           |                                        "surfaceIndex": -1,
           |                                        "isWholeSentence": true,
-          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
+          |                                        "metaInformations": []
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
@@ -653,7 +721,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                    "height": 310
           |                                }
           |                            }
-          |                        ]
+          |                        ],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -689,7 +760,8 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                        "surface": "",
           |                                        "surfaceIndex": -1,
           |                                        "isWholeSentence": true,
-          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
+          |                                        "metaInformations": []
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
@@ -697,7 +769,10 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                    "height": 310
           |                                }
           |                            }
-          |                        ]
+          |                        ],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []

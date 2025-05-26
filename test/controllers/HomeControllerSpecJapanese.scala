@@ -326,8 +326,11 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                        "lang": "ja_JP",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
-          |                        "knowledgeForImages":[]
-          |                    }
+          |                        "knowledgeForImages":[],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+          |                   }
           |                ],
           |                "claimLogicRelation": []
           |            }
@@ -353,7 +356,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                        "lang": "ja_JP",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
-          |                        "knowledgeForImages":[]
+          |                        "knowledgeForImages":[],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -428,7 +434,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                        "surface": "ペットが",
           |                                        "surfaceIndex": 0,
           |                                        "isWholeSentence": false,
-          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
+          |                                        "metaInformations": []
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
@@ -436,7 +443,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                    "height": 310
           |                                }
           |                            }
-          |                        ]
+          |                        ],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -472,7 +482,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                        "surface": "ペットが",
           |                                        "surfaceIndex": 0,
           |                                        "isWholeSentence": false,
-          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
+          |                                        "metaInformations": []
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
@@ -480,7 +491,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                    "height": 310
           |                                }
           |                            }
-          |                        ]
+          |                        ],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -542,7 +556,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                        "lang": "ja_JP",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
-          |                        "knowledgeForImages":[]
+          |                        "knowledgeForImages":[],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -569,7 +586,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                        "lang": "ja_JP",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
-          |                        "knowledgeForImages":[]
+          |                        "knowledgeForImages":[],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -645,7 +665,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                        "surface": "",
           |                                        "surfaceIndex": -1,
           |                                        "isWholeSentence": true,
-          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
+          |                                        "metaInformations": []
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
@@ -653,7 +674,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                    "height": 310
           |                                }
           |                            }
-          |                        ]
+          |                        ],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
@@ -689,7 +713,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                        "surface": "",
           |                                        "surfaceIndex": -1,
           |                                        "isWholeSentence": true,
-          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg"
+          |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
+          |                                        "metaInformations": []
           |                                    },
           |                                    "x": 11,
           |                                    "y": 11,
@@ -697,7 +722,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                    "height": 310
           |                                }
           |                            }
-          |                        ]
+          |                        ],
+          |                        "knowledgeForTables": [],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
           |                    }
           |                ],
           |                "claimLogicRelation": []
