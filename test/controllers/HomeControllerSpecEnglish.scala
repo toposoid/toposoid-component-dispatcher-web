@@ -23,7 +23,7 @@ import com.ideal.linked.toposoid.common.{TRANSVERSAL_STATE, ToposoidUtils, Trans
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, Reference}
 import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
 import com.ideal.linked.toposoid.protocol.model.parser.KnowledgeForParser
-import controllers.TestUtils.{getKnowledge, getUUID, registSingleClaim}
+import controllers.TestUtilsEx.{getKnowledge, getUUID, registerSingleClaim}
 import io.jvm.uuid.UUID
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
@@ -32,7 +32,7 @@ import play.api.Play.materializer
 import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.test.Helpers.{POST, contentType, status, _}
-import play.api.test.{FakeRequest, _}
+import play.api.test._
 
 import scala.concurrent.duration.DurationInt
 
@@ -44,16 +44,16 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
   before {
     ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_PORT"), "createSchema", transversalState)
     ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_PORT"), "createSchema", transversalState)
-    TestUtils.deleteNeo4JAllData(transversalState)
+    TestUtilsEx.deleteNeo4JAllData(transversalState)
     Thread.sleep(1000)
   }
 
   override def beforeAll(): Unit = {
-    TestUtils.deleteNeo4JAllData(transversalState)
+    TestUtilsEx.deleteNeo4JAllData(transversalState)
   }
 
   override def afterAll(): Unit = {
-    TestUtils.deleteNeo4JAllData(transversalState)
+    TestUtilsEx.deleteNeo4JAllData(transversalState)
   }
 
   override implicit def defaultAwaitTimeout: Timeout = 600.seconds
@@ -304,7 +304,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val sentenceId1 = UUID.random.toString
       val sentenceA = "Life is so comfortable."
       val knowledge1 = Knowledge(sentenceA, "en_US", "{}", false)
-      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+      registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val json =
         """{
@@ -396,7 +396,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val propositionId1 = getUUID()
       val sentenceId1 = getUUID()
       val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA, transversalState)
-      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+      registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val json =
         """{
@@ -519,7 +519,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val sentenceId1 = UUID.random.toString
       val sentenceA = "The culprit is among us."
       val knowledge1 = Knowledge(sentenceA, lang, "{}", false)
-      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+      registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val json =
         """{
@@ -612,7 +612,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val propositionId1 = getUUID()
       val sentenceId1 = getUUID()
       val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA, transversalState)
-      registSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+      registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val json =
         """{

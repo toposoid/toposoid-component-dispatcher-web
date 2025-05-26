@@ -24,6 +24,5 @@ libraryDependencies += "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.15"
 libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.5.31"
 libraryDependencies += "io.jvm.uuid" %% "scala-uuid" % "0.3.1"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test
-libraryDependencies += "com.ideal.linked" %% "toposoid-sentence-transformer-neo4j" % "0.6-SNAPSHOT" % Test
-libraryDependencies += "com.ideal.linked" %% "toposoid-feature-vectorizer" % "0.6-SNAPSHOT" % Test
+libraryDependencies +=  "com.ideal.linked" %% "toposoid-test-utils" % "0.6-SNAPSHOT" % Test
 libraryDependencies += "io.jvm.uuid" %% "scala-uuid" % "0.3.1" % Test

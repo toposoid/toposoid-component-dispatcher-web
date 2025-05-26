@@ -142,9 +142,9 @@ object ImageUtils {
           knowledgeFeatureReferences = updateKnowledgeFeatureReferences)
 
         KnowledgeBaseSemiGlobalNode(
-          nodeId = knowledgeBaseSemiGlobalNode.nodeId,
-          propositionId = knowledgeBaseSemiGlobalNode.propositionId,
           sentenceId = knowledgeBaseSemiGlobalNode.sentenceId,
+          propositionId = knowledgeBaseSemiGlobalNode.propositionId,
+          documentId = knowledgeBaseSemiGlobalNode.documentId,
           sentence = knowledgeBaseSemiGlobalNode.sentence,
           sentenceType = knowledgeBaseSemiGlobalNode.sentenceType,
           localContextForFeature = updateLocalContextForFeature)
