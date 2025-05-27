@@ -78,21 +78,32 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
                    |                        },
                    |                        {
                    |                            "sentence": "Bは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
                    |                        },
                    |                        {
                    |                            "sentence": "Cは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": [
@@ -119,21 +130,30 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        },
                    |                        {
                    |                            "sentence": "Bは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        },
                    |                        {
                    |                            "sentence": "Cは正直者である。",
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": [
@@ -161,21 +181,31 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": true,
-                   |                        "knowledgeForImages":[]
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
                    |                    },
                    |                    {
                    |                        "sentence": "Bは正直者である。",
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
-                   |                        "knowledgeForImages":[]
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                    },
                    |                    {
                    |                        "sentence": "Cは正直者である。",
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
-                   |                        "knowledgeForImages":[]
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                    }
                    |                ],
                    |                "claimLogicRelation": [
@@ -205,7 +235,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "premiseLogicRelation": [],
@@ -215,7 +248,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": []
@@ -229,7 +265,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "premiseLogicRelation": [],
@@ -239,7 +278,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                            "lang": "ja_JP",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
-                   |                            "knowledgeForImages":[]
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                        }
                    |                    ],
                    |                    "claimLogicRelation": []
@@ -254,7 +296,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
-                   |                        "knowledgeForImages":[]
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
                    |                    }
                    |                ],
                    |                "premiseLogicRelation": [],
@@ -264,7 +309,11 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        "lang": "ja_JP",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": true,
-                   |                        "knowledgeForImages":[]
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
                    |                    }
                    |                ],
                    |                "claimLogicRelation": []
