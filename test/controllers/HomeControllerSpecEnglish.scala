@@ -77,7 +77,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                    "claimList": [
                    |                        {
                    |                            "sentence": "A is honest.",
-                   |                            "lang": "en_US",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -87,7 +87,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                        },
                    |                        {
                    |                            "sentence": "B is honest.",
-                   |                            "lang": "en_US",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -97,7 +97,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                        },
                    |                        {
                    |                            "sentence": "C is honest.",
-                   |                            "lang": "en_US",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
                    |                            "knowledgeForImages":[],
@@ -127,7 +127,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                    "claimList": [
                    |                        {
                    |                            "sentence": "A is honest.",
-                   |                            "lang": "en_US",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -137,7 +137,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                        },
                    |                        {
                    |                            "sentence": "B is honest.",
-                   |                            "lang": "en_US",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
                    |                            "knowledgeForImages":[],
@@ -147,7 +147,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                        },
                    |                        {
                    |                            "sentence": "C is honest.",
-                   |                            "lang": "en_US",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -178,7 +178,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                "claimList": [
                    |                    {
                    |                        "sentence": "A is honest.",
-                   |                        "lang": "en_US",
+                   |                        "lang": "",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": true,
                    |                        "knowledgeForImages":[],
@@ -188,7 +188,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                    },
                    |                    {
                    |                        "sentence": "B is honest.",
-                   |                        "lang": "en_US",
+                   |                        "lang": "",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
                    |                        "knowledgeForImages":[],
@@ -199,7 +199,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                    },
                    |                    {
                    |                        "sentence": "C is honest.",
-                   |                        "lang": "en_US",
+                   |                        "lang": "",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
                    |                        "knowledgeForImages":[],
@@ -233,7 +233,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                    "premiseList": [
                    |                        {
                    |                            "sentence": "A is honest.",
-                   |                            "lang": "en_US",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -246,7 +246,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                    "claimList": [
                    |                        {
                    |                            "sentence": "C is honest.",
-                   |                            "lang": "en_US",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
                    |                            "knowledgeForImages":[],
@@ -263,7 +263,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                    "premiseList": [
                    |                        {
                    |                            "sentence": "B is honest.",
-                   |                            "lang": "en_US",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -276,7 +276,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                    "claimList": [
                    |                        {
                    |                            "sentence": "A is honest.",
-                   |                            "lang": "en_US",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -294,7 +294,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                "premiseList": [
                    |                    {
                    |                        "sentence": "C is honest.",
-                   |                        "lang": "en_US",
+                   |                        "lang": "",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
                    |                        "knowledgeForImages":[],
@@ -307,7 +307,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
                    |                "claimList": [
                    |                    {
                    |                        "sentence": "B is honest.",
-                   |                        "lang": "en_US",
+                   |                        "lang": "",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": true,
                    |                        "knowledgeForImages":[],
@@ -372,7 +372,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "claimList": [
           |                    {
           |                        "sentence": "Living is so comfortable.",
-          |                        "lang": "en_US",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages":[],
@@ -402,7 +402,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "claimList": [
           |                    {
           |                        "sentence": "Living is so comfortable.",
-          |                        "lang": "en_US",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages":[],
@@ -470,7 +470,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "claimList": [
           |                    {
           |                        "sentence": "There are two pets.",
-          |                        "lang": "en_US",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages": [
@@ -518,7 +518,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "claimList": [
           |                    {
           |                        "sentence": "There are two pets.",
-          |                        "lang": "en_US",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages": [
@@ -601,7 +601,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "claimList": [
           |                    {
           |                        "sentence": "the culprit was one of us.",
-          |                        "lang": "en_US",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages":[],
@@ -631,7 +631,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "claimList": [
           |                    {
           |                        "sentence": "We confirmed that the culprit was one of us.",
-          |                        "lang": "en_US",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages":[],
@@ -700,7 +700,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "claimList": [
           |                    {
           |                        "sentence": "There are two pets.",
-          |                        "lang": "en_US",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages": [
@@ -748,7 +748,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "claimList": [
           |                    {
           |                        "sentence": "There are two pets.",
-          |                        "lang": "en_US",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages": [

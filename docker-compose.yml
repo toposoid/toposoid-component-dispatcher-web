@@ -20,7 +20,8 @@ services:
       - TOPOSOID_DEDUCTION_ADMIN_SKIP=0
       - TOPOSOID_CONTENTS_ADMIN_HOST=toposoid-contents-admin-web
       - TOPOSOID_CONTENTS_ADMIN_PORT=9012
-
+      - TOPOSOID_LANGUAGE_DETECTOR_HOST=toposoid-language-detector-web
+      - TOPOSOID_LANGUAGE_DETECTOR_PORT=9017
     ports:
       - 9004:9004
   toposoid-sat-solver-web:
@@ -349,3 +350,7 @@ services:
     depends_on:
       - redis
 
+  toposoid-language-detector-web:
+    image: toposoid/toposoid-language-detector-web:0.6-SNAPSHOT
+    ports:
+      - 9017:9017

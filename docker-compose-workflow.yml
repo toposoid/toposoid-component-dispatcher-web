@@ -30,6 +30,8 @@ services:
       - TOPOSOID_COMMON_IMAGE_RECOGNITION_HOST=toposoid-common-image-recognition-web
       - TOPOSOID_COMMON_IMAGE_RECOGNITION_PORT=9013
       - TOPOSOID_CONTENTS_ADMIN_HOST=toposoid-contents-admin-web
+      - TOPOSOID_LANGUAGE_DETECTOR_HOST=toposoid-language-detector-web
+      - TOPOSOID_LANGUAGE_DETECTOR_PORT=9017
       - TOPOSOID_CONTENTS_ADMIN_PORT=9012
     ports:
       - 9004:9004
@@ -347,3 +349,8 @@ services:
       - "9015:9015"
     depends_on:
       - redis
+
+  toposoid-language-detector-web:
+    image: toposoid/toposoid-language-detector-web:0.6-SNAPSHOT
+    ports:
+      - 9017:9017
