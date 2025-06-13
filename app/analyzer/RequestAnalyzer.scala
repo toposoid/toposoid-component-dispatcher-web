@@ -102,8 +102,10 @@ class RequestAnalyzer {
    * @param knowledgeSentenceSet
    * @return
    */
-  def parseKnowledgeSentence(knowledgeSentenceSet: KnowledgeSentenceSet, transversalState:TransversalState):List[AnalyzedSentenceObject] = Try{
+  def parseKnowledgeSentence(noLangKnowledgeSentenceSet: KnowledgeSentenceSet, transversalState:TransversalState):List[AnalyzedSentenceObject] = Try{
 
+    val resKnowledgeSentenceSet: String =  ToposoidUtils.callComponent(Json.toJson(noLangKnowledgeSentenceSet).toString(), conf.getString("TOPOSOID_LANGUAGE_DETECTOR_HOST"), conf.getString("TOPOSOID_LANGUAGE_DETECTOR_PORT"), "detectLanguages", transversalState)
+    val knowledgeSentenceSet = Json.parse(resKnowledgeSentenceSet).as[KnowledgeSentenceSet]
     val premiseJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
     val claimJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
     val premiseEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))

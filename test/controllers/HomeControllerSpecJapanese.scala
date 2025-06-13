@@ -75,7 +75,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                    "claimList": [
                    |                        {
                    |                            "sentence": "Aは正直者である。",
-                   |                            "lang": "ja_JP",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -86,7 +86,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        },
                    |                        {
                    |                            "sentence": "Bは正直者である。",
-                   |                            "lang": "ja_JP",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -97,7 +97,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        },
                    |                        {
                    |                            "sentence": "Cは正直者である。",
-                   |                            "lang": "ja_JP",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
                    |                            "knowledgeForImages":[],
@@ -127,7 +127,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                    "claimList": [
                    |                        {
                    |                            "sentence": "Aは正直者である。",
-                   |                            "lang": "ja_JP",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -137,7 +137,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        },
                    |                        {
                    |                            "sentence": "Bは正直者である。",
-                   |                            "lang": "ja_JP",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
                    |                            "knowledgeForImages":[],
@@ -147,7 +147,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                        },
                    |                        {
                    |                            "sentence": "Cは正直者である。",
-                   |                            "lang": "ja_JP",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -178,7 +178,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                "claimList": [
                    |                    {
                    |                        "sentence": "Aは正直者である。",
-                   |                        "lang": "ja_JP",
+                   |                        "lang": "",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": true,
                    |                        "knowledgeForImages":[],
@@ -189,7 +189,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                    },
                    |                    {
                    |                        "sentence": "Bは正直者である。",
-                   |                        "lang": "ja_JP",
+                   |                        "lang": "",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
                    |                        "knowledgeForImages":[],
@@ -199,7 +199,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                    },
                    |                    {
                    |                        "sentence": "Cは正直者である。",
-                   |                        "lang": "ja_JP",
+                   |                        "lang": "",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
                    |                        "knowledgeForImages":[],
@@ -232,7 +232,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                    "premiseList": [
                    |                        {
                    |                            "sentence": "Aは正直者である。",
-                   |                            "lang": "ja_JP",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -245,7 +245,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                    "claimList": [
                    |                        {
                    |                            "sentence": "Cは正直者である。",
-                   |                            "lang": "ja_JP",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": true,
                    |                            "knowledgeForImages":[],
@@ -262,7 +262,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                    "premiseList": [
                    |                        {
                    |                            "sentence": "Bは正直者である。",
-                   |                            "lang": "ja_JP",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -275,7 +275,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                    "claimList": [
                    |                        {
                    |                            "sentence": "Aは正直者である。",
-                   |                            "lang": "ja_JP",
+                   |                            "lang": "",
                    |                            "extentInfoJson": "{}",
                    |                            "isNegativeSentence": false,
                    |                            "knowledgeForImages":[],
@@ -293,7 +293,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                "premiseList": [
                    |                    {
                    |                        "sentence": "Cは正直者である。",
-                   |                        "lang": "ja_JP",
+                   |                        "lang": "",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": false,
                    |                        "knowledgeForImages":[],
@@ -306,7 +306,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
                    |                "claimList": [
                    |                    {
                    |                        "sentence": "Bは正直者である。",
-                   |                        "lang": "ja_JP",
+                   |                        "lang": "",
                    |                        "extentInfoJson": "{}",
                    |                        "isNegativeSentence": true,
                    |                        "knowledgeForImages":[],
@@ -372,7 +372,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "claimList": [
           |                    {
           |                        "sentence": "太郎は秀逸な提案をした。",
-          |                        "lang": "ja_JP",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages":[],
@@ -402,7 +402,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "claimList": [
           |                    {
           |                        "sentence": "太郎は秀逸な提案をした。",
-          |                        "lang": "ja_JP",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages":[],
@@ -471,7 +471,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "claimList": [
           |                    {
           |                        "sentence": "ペットが２匹います。",
-          |                        "lang": "ja_JP",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages": [
@@ -519,7 +519,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "claimList": [
           |                    {
           |                        "sentence": "ペットが２匹います。",
-          |                        "lang": "ja_JP",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages": [
@@ -602,7 +602,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "claimList": [
           |                    {
           |                        "sentence": "自然界の物理法則は例外なくどの慣性系でも成立する。",
-          |                        "lang": "ja_JP",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages":[],
@@ -632,7 +632,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "claimList": [
           |                    {
           |                        "sentence": "自然界の物理法則は例外なくどの慣性系でも成立する。",
-          |                        "lang": "ja_JP",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages":[],
@@ -702,7 +702,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "claimList": [
           |                    {
           |                        "sentence": "ペットが２匹います。",
-          |                        "lang": "ja_JP",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages": [
@@ -750,7 +750,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "claimList": [
           |                    {
           |                        "sentence": "ペットが２匹います。",
-          |                        "lang": "ja_JP",
+          |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
           |                        "knowledgeForImages": [
