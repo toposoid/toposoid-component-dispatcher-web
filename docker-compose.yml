@@ -22,6 +22,23 @@ services:
       - TOPOSOID_CONTENTS_ADMIN_PORT=9012
       - TOPOSOID_LANGUAGE_DETECTOR_HOST=toposoid-language-detector-web
       - TOPOSOID_LANGUAGE_DETECTOR_PORT=9017
+      - TOPOSOID_IN_MEMORY_DB_WEB_HOST=data-accessor-redis-web
+      - TOPOSOID_IN_MEMORY_DB_WEB_PORT=9015
+      - TOPOSOID_DEDUCTION_UNIT1_HOST=toposoid-deduction-unit-exact-match-web
+      - TOPOSOID_DEDUCTION_UNIT2_HOST=toposoid-deduction-unit-synonym-match-web
+      - TOPOSOID_DEDUCTION_UNIT3_HOST=toposoid-deduction-unit-sentence-vector-match-web
+      - TOPOSOID_DEDUCTION_UNIT4_HOST=toposoid-deduction-unit-image-vector-match-web
+      - TOPOSOID_DEDUCTION_UNIT5_HOST=toposoid-deduction-unit-whole-sentence-image-match-web
+      - TOPOSOID_DEDUCTION_UNIT1_PORT=9101
+      - TOPOSOID_DEDUCTION_UNIT2_PORT=9102
+      - TOPOSOID_DEDUCTION_UNIT3_PORT=9103
+      - TOPOSOID_DEDUCTION_UNIT4_PORT=9104
+      - TOPOSOID_DEDUCTION_UNIT5_PORT=9105
+      - TOPOSOID_DEDUCTION_UNIT1_NAME=ExactMatch
+      - TOPOSOID_DEDUCTION_UNIT2_NAME=SynonymMatch
+      - TOPOSOID_DEDUCTION_UNIT3_NAME=ImageVectorMatch
+      - TOPOSOID_DEDUCTION_UNIT4_NAME=SentenceVectorMatch
+      - TOPOSOID_DEDUCTION_UNIT5_NAME=WholeSentenceImageMatch
     ports:
       - 9004:9004
   toposoid-sat-solver-web:
