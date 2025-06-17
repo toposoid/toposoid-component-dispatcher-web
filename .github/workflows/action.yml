@@ -53,16 +53,16 @@ jobs:
             docker compose -f docker-compose-workflow.yml up -d toposoid-sentence-parser-japanese-web
             docker compose -f docker-compose-workflow.yml up -d toposoid-contents-admin-web 
             docker compose -f docker-compose-workflow.yml up -d toposoid-language-detector-web
-            curl --retry 10 --retry-delay 5 --retry-all-errors -X POST http://localhost:7474
-            curl --retry 10 --retry-delay 5 --retry-all-errors -X POST -H "Content-Type: application/json" -H "X_TOPOSOID_TRANSVERSAL_STATE: {'userId':'test-user', 'username':'guest', 'roleId':0, 'csrfToken':''}" -d '{"sentence": "これはテストです。"}' http://localhost:9006/getFeatureVector
+            curl --retry 15 --retry-delay 5 --retry-all-errors -X POST http://localhost:7474
+            curl --retry 15 --retry-delay 5 --retry-all-errors -X POST -H "Content-Type: application/json" -H "X_TOPOSOID_TRANSVERSAL_STATE: {'userId':'test-user', 'username':'guest', 'roleId':0, 'csrfToken':''}" -d '{"sentence": "これはテストです。"}' http://localhost:9006/getFeatureVector
             docker compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*Japanese'"
             docker compose -f docker-compose-workflow.yml rm -fsv toposoid-common-nlp-japanese-web
             docker compose -f docker-compose-workflow.yml rm -fsv toposoid-sentence-parser-japanese-web
             docker compose -f docker-compose-workflow.yml up -d toposoid-common-nlp-english-web
             docker compose -f docker-compose-workflow.yml up -d corenlp            
             docker compose -f docker-compose-workflow.yml up -d toposoid-sentence-parser-english-web
-            curl --retry 10 --retry-delay 5 --retry-all-errors -X POST  -d 'Life is beautiful.' http://localhost:9000
-            curl --retry 10 --retry-delay 5 --retry-all-errors -X POST -H "Content-Type: application/json" -H "X_TOPOSOID_TRANSVERSAL_STATE: {'userId':'test-user', 'username':'guest', 'roleId':0, 'csrfToken':''}" -d '{"sentence": "This is a test"}' http://localhost:9008/getFeatureVector
+            curl --retry 15 --retry-delay 5 --retry-all-errors -X POST  -d 'Life is beautiful.' http://localhost:9000
+            curl --retry 15 --retry-delay 5 --retry-all-errors -X POST -H "Content-Type: application/json" -H "X_TOPOSOID_TRANSVERSAL_STATE: {'userId':'test-user', 'username':'guest', 'roleId':0, 'csrfToken':''}" -d '{"sentence": "This is a test"}' http://localhost:9008/getFeatureVector
             docker compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*English'"
             docker rm --force $(docker ps -a -q) > /dev/null 2>&1 && :
             docker rmi --force ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
