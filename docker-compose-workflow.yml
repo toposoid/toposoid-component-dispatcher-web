@@ -30,6 +30,7 @@ services:
       - TOPOSOID_COMMON_IMAGE_RECOGNITION_HOST=toposoid-common-image-recognition-web
       - TOPOSOID_COMMON_IMAGE_RECOGNITION_PORT=9013
       - TOPOSOID_CONTENTS_ADMIN_HOST=toposoid-contents-admin-web
+      - TOPOSOID_CONTENTS_ADMIN_PORT=9012
       - TOPOSOID_LANGUAGE_DETECTOR_HOST=toposoid-language-detector-web
       - TOPOSOID_LANGUAGE_DETECTOR_PORT=9017
       - TOPOSOID_IN_MEMORY_DB_WEB_HOST=data-accessor-redis-web
@@ -49,7 +50,6 @@ services:
       - TOPOSOID_DEDUCTION_UNIT3_NAME=ImageVectorMatch
       - TOPOSOID_DEDUCTION_UNIT4_NAME=SentenceVectorMatch
       - TOPOSOID_DEDUCTION_UNIT5_NAME=WholeSentenceImageMatch
-      - TOPOSOID_CONTENTS_ADMIN_PORT=9012
     ports:
       - 9004:9004
   toposoid-sat-solver-web:

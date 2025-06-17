@@ -882,6 +882,20 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val endPoints = Json.parse(jsonResult).as[Seq[Endpoint]]
       assert(endPoints.filter(x => x.host.equals("-") && x.port.equals("-")).size == 5)
 
+      val defaultEndPoints: Seq[Endpoint] = Seq(
+        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT1_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT1_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT1_NAME")),
+        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT2_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT2_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT2_NAME")),
+        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT3_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT3_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT3_NAME")),
+        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT4_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT4_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT4_NAME")),
+        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT5_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT5_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT5_NAME")))
+
+      val fr3 = FakeRequest(POST, "/changeEndPoints")
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+        .withJsonBody(Json.toJson(defaultEndPoints))
+
+      val result3 = call(controller.changeEndPoints(), fr3)
+      status(result3) mustBe OK
+
     }
   }
 
