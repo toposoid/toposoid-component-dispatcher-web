@@ -32,6 +32,8 @@ services:
       - TOPOSOID_CONTENTS_ADMIN_HOST=toposoid-contents-admin-web
       - TOPOSOID_LANGUAGE_DETECTOR_HOST=toposoid-language-detector-web
       - TOPOSOID_LANGUAGE_DETECTOR_PORT=9017
+      - TOPOSOID_IN_MEMORY_DB_WEB_HOST=data-accessor-redis-web
+      - TOPOSOID_IN_MEMORY_DB_WEB_PORT=9015
       - TOPOSOID_CONTENTS_ADMIN_PORT=9012
     ports:
       - 9004:9004

@@ -18,10 +18,11 @@ package controllers
 
 import analyzer.{RequestAnalyzer, ResultAnalyzer}
 import com.ideal.linked.common.DeploymentConverter.conf
+import com.ideal.linked.toposoid.common.InMemoryDbUtils.{getEndPoints, setEndPoints}
 import com.ideal.linked.toposoid.common.{TRANSVERSAL_STATE, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects, DeductionResult}
-import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
+import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdges, Endpoint}
 import com.ideal.linked.toposoid.protocol.model.parser.{InputSentence, KnowledgeTree}
 import com.ideal.linked.toposoid.protocol.model.sat.FormulaSet
 import com.typesafe.scalalogging.LazyLogging
@@ -51,6 +52,11 @@ case class SatInput(parsedKnowledgeTree:ParsedKnowledgeTree,
                     trivialIdMap:Map[String, Option[DeductionResult]],
                     formulaSet :FormulaSet)
 
+case class ReqSelector(index:Int, function:Endpoint)
+object ReqSelector {
+  implicit val jsonWrites = Json.writes[ReqSelector]
+  implicit val jsonReads = Json.reads[ReqSelector]
+}
 /**
  * This controller creates an `Action` to integrates two major microservices.
  * One is a microservice that analyzes the predicate argument structure of sentences,
@@ -148,6 +154,41 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
     val formulaSet = FormulaSet(result.formula.trim, subFormulaMapAfterAssignment)
     SatInput(result, trivialIdMap, formulaSet)
   }
+
+  /**
+   * This function receives the URL information of the microservice as JSON and
+   * Register and update microservices that perform deductive reasoning
+   *
+   * @return
+   */
+  def changeEndPoints() = Action(parse.json) { request =>
+    val transversalState = Json.parse(request.headers.get(TRANSVERSAL_STATE.str).get).as[TransversalState]
+    try {
+      val json = request.body
+      val endPoints: Seq[Endpoint] = Json.parse(json.toString).as[Seq[Endpoint]]
+      val updatedEndPoints: Seq[Endpoint] = setEndPoints(endPoints, transversalState)
+      logger.info(ToposoidUtils.formatMessageForLogger("Changing End-Points completed." + updatedEndPoints.toString(), transversalState.userId))
+      Ok("""{"status":"OK"}""").as(JSON)
+    } catch {
+      case e: Exception => {
+        logger.error(ToposoidUtils.formatMessageForLogger(e.toString, transversalState.userId), e)
+        BadRequest(Json.obj("status" -> "Error", "message" -> e.toString()))
+      }
+    }
+  }
+
+  def getEndPointsFromInMemoryDB() = Action(parse.json) { request =>
+    val transversalState = Json.parse(request.headers.get(TRANSVERSAL_STATE.str).get).as[TransversalState]
+    try {
+      Ok(Json.toJson(getEndPoints(transversalState))).as(JSON)
+    } catch {
+      case e: Exception => {
+        logger.error(ToposoidUtils.formatMessageForLogger(e.toString, transversalState.userId), e)
+        BadRequest(Json.obj("status" -> "Error", "message" -> e.toString()))
+      }
+    }
+  }
+
 
 }
 
