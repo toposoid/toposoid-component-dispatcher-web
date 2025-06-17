@@ -20,9 +20,9 @@ import akka.util.Timeout
 import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.toposoid.common.{TRANSVERSAL_STATE, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, Reference}
-import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
+import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdges, Endpoint}
 import com.ideal.linked.toposoid.protocol.model.parser.KnowledgeForParser
-import controllers.TestUtilsEx.{getKnowledge, getUUID, registerSingleClaim}
+import controllers.TestUtilsEx.{executeQueryAndReturn, getKnowledge, getUUID, registerSingleClaim}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -804,5 +804,86 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
     }
   }
+
+
+  "The configuration that there are init deduction-units." should {
+    "returns an appropriate response" in {
+
+
+      val fr2 = FakeRequest(POST, "/getEndPoints")
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+        .withJsonBody(Json.parse("{}"))
+
+      val result2 = call(controller.getEndPointsFromInMemoryDB(), fr2)
+      status(result2) mustBe OK
+      contentType(result2) mustBe Some("application/json")
+
+      val jsonResult = contentAsJson(result2).toString()
+      val endPoints = Json.parse(jsonResult).as[Seq[Endpoint]]
+
+      assert(endPoints.size == 5)
+      val defaultEndPoints: Seq[Endpoint] = Seq(
+        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT1_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT1_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT1_NAME")),
+        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT2_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT2_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT2_NAME")),
+        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT3_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT3_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT3_NAME")),
+        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT4_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT4_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT4_NAME")),
+        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT5_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT5_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT5_NAME"))
+      )
+
+      endPoints.zip(defaultEndPoints).foreach(x => {
+        assert(x._1 == x._2)
+      })
+    }
+  }
+
+    "The configuration that there are no deduction-units." should {
+    "returns an appropriate response" in {
+      /*
+      for (index <- 0 to 4) {
+        val json =
+          """{
+            |    "index": %d,
+            |    "function":{
+            |        "host": "%s",
+            |        "port": "%s"
+            |    }
+            |}""".stripMargin.format(index, "-", "-")
+
+        val fr1 = FakeRequest(POST, "/changeEndPoints")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(json))
+
+        val result1 = call(controller.changeEndPoints(), fr1)
+        status(result1) mustBe OK
+        contentType(result1) mustBe Some("application/json")
+        assert(contentAsJson(result1).toString().equals("""{"status":"OK"}"""))
+      }
+      */
+      val emptyEndPoints = Seq(Endpoint("-", "-", ""), Endpoint("-", "-", ""), Endpoint("-", "-", ""), Endpoint("-", "-", ""), Endpoint("-", "-", ""))
+      val fr1 = FakeRequest(POST, "/changeEndPoints")
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+        .withJsonBody(Json.toJson(emptyEndPoints))
+
+      val result1 = call(controller.changeEndPoints(), fr1)
+      status(result1) mustBe OK
+      contentType(result1) mustBe Some("application/json")
+      assert(contentAsJson(result1).toString().equals("""{"status":"OK"}"""))
+
+
+      val fr2 = FakeRequest(POST, "/getEndPoints")
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+        .withJsonBody(Json.parse("{}"))
+
+      val result2 = call(controller.getEndPointsFromInMemoryDB(), fr2)
+      status(result2) mustBe OK
+      contentType(result2) mustBe Some("application/json")
+
+      val jsonResult = contentAsJson(result2).toString()
+      val endPoints = Json.parse(jsonResult).as[Seq[Endpoint]]
+      assert(endPoints.filter(x => x.host.equals("-") && x.port.equals("-")).size == 5)
+
+    }
+  }
+
 }
 
