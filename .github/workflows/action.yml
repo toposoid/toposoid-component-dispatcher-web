@@ -28,7 +28,7 @@ jobs:
             docker images
             docker system prune -f
             docker volume prune -f
-            docker build --build-arg TARGET_BRANCH=${{ env.PJ_BRANCH }} --build-arg JAVA_OPT_XMX=1g --tag ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} -f Dockerfile-workflow .
+            docker build --build-arg TARGET_BRANCH=${{ env.PJ_BRANCH }} --tag ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} -f Dockerfile-workflow .
             docker compose -f docker-compose-workflow.yml up -d toposoid-component-dispatcher-web
             docker compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt headerCheck"
             docker compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt test:headerCheck"
@@ -36,7 +36,7 @@ jobs:
             docker compose -f docker-compose-workflow.yml up -d toposoid-common-nlp-japanese-web
             docker compose -f docker-compose-workflow.yml up -d toposoid-common-image-recognition-web 
             docker compose -f docker-compose-workflow.yml up -d neo4j
-            docker compose -f docker-compose-workflow.yml up -d scala-data-accessor-neo4j-web
+            docker compose -f docker-compose-workflow.yml up -d data-accessor-neo4j-web
             docker compose -f docker-compose-workflow.yml up -d sentence-weaviate
             docker compose -f docker-compose-workflow.yml up -d data-accessor-sentence-weaviate-web
             docker compose -f docker-compose-workflow.yml up -d image-weaviate
@@ -71,11 +71,11 @@ jobs:
         uses: crazy-max/ghaction-docker-meta@v3
         with:
           images: toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
-      - name: Login to GHCR
+      - name: Login to CR
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.GHCR_USER }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          username: toposoid
+          password: ${{ secrets.CR_TOKEN }}
       - name: Build And Push Docker Image
         uses: docker/build-push-action@v3
         with:
@@ -84,14 +84,3 @@ jobs:
           tags: toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
           build-args: |
             TARGET_BRANCH=${{ env.PJ_BRANCH }}
-            JAVA_OPT_XMX=4g
-      - name: Build And Push Docker Image For Test
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: Dockerfile
-          push: true
-          tags: toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}-lowspec
-          build-args: |
-            TARGET_BRANCH=${{ env.PJ_BRANCH }}
-            JAVA_OPT_XMX=1g
