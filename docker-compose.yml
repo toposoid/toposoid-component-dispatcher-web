@@ -356,7 +356,7 @@ services:
       - "6379:6379"
 
   data-accessor-redis-web:
-    image: toposoid/data-accessor-redis-web:0.6-SNAPSHOT-lowspec
+    image: toposoid/data-accessor-redis-web:0.6-SNAPSHOT
     environment:
       - PRIVATE_IP_ADDRESS=data-accessor-redis-web
       - TOPOSOID_IN_MEMORY_DB_HOST=redis
