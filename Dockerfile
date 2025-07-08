@@ -2,9 +2,8 @@ FROM toposoid/toposoid-scala-lib:0.6-SNAPSHOT
 
 WORKDIR /app
 ARG TARGET_BRANCH
-ARG JAVA_OPT_XMX
 ENV DEPLOYMENT=local
-ENV _JAVA_OPTIONS="-Xms512m -Xmx"${JAVA_OPT_XMX}
+ENV _JAVA_OPTIONS="-Xms512m -Xmx4g"
 
 RUN git clone https://github.com/toposoid/toposoid-test-utils.git \
 && cd toposoid-test-utils \
