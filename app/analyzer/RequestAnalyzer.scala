@@ -98,6 +98,17 @@ class RequestAnalyzer {
     Map(propositionId -> status)
   }
 
+  private def preprocess(rawKnowledgeSentenceSet: KnowledgeSentenceSet, transversalState: TransversalState): KnowledgeSentenceSet = {
+
+    val resKnowledgeSentenceSet: String = ToposoidUtils.callComponent(Json.toJson(rawKnowledgeSentenceSet).toString(), conf.getString("TOPOSOID_LANGUAGE_DETECTOR_HOST"), conf.getString("TOPOSOID_LANGUAGE_DETECTOR_PORT"), "detectLanguages", transversalState)
+    val knowledgeSentenceSet = Json.parse(resKnowledgeSentenceSet).as[KnowledgeSentenceSet]
+    KnowledgeSentenceSet(
+      premiseList = ToposoidUtils.preprocessForSentence(knowledgeSentenceSet.premiseList),
+      premiseLogicRelation = knowledgeSentenceSet.premiseLogicRelation,
+      claimList = ToposoidUtils.preprocessForSentence(knowledgeSentenceSet.claimList),
+      claimLogicRelation = knowledgeSentenceSet.claimLogicRelation
+    )
+  }
   /**
    * This function delegates the processing of a given sentence to passer for each multilingual.
    * @param knowledgeSentenceSet
@@ -105,8 +116,7 @@ class RequestAnalyzer {
    */
   def parseKnowledgeSentence(noLangKnowledgeSentenceSet: KnowledgeSentenceSet, transversalState:TransversalState):List[AnalyzedSentenceObject] = Try{
 
-    val resKnowledgeSentenceSet: String =  ToposoidUtils.callComponent(Json.toJson(noLangKnowledgeSentenceSet).toString(), conf.getString("TOPOSOID_LANGUAGE_DETECTOR_HOST"), conf.getString("TOPOSOID_LANGUAGE_DETECTOR_PORT"), "detectLanguages", transversalState)
-    val knowledgeSentenceSet = Json.parse(resKnowledgeSentenceSet).as[KnowledgeSentenceSet]
+    val knowledgeSentenceSet = preprocess(noLangKnowledgeSentenceSet, transversalState)
     val premiseJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
     val claimJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
     val premiseEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
