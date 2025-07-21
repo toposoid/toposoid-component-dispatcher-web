@@ -8,7 +8,7 @@ env:
   PJ_ACTOR: toposoid
   PJ_REPO: toposoid-component-dispatcher-web
   PJ_BRANCH: feature
-  PJ_VERSION: 0.6-SNAPSHOT
+  PJ_VERSION: 0.6
 jobs:
   unit-test_toposoid-component-dispatcher-web:
     runs-on: self-hosted
@@ -20,11 +20,11 @@ jobs:
       - name: Execute tests
         run: |
             cd ${GITHUB_WORKSPACE} && cd ../
-            cd ./${{ env.PJ_REPO }}            
+            cd ./${{ env.PJ_REPO }}
             docker rm --force $(docker ps -a -q) > /dev/null 2>&1 && :
             docker rmi --force ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}> /dev/null 2>&1 && :
             docker rmi --force toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}> /dev/null 2>&1 && :
-            docker rmi --force toposoid/toposoid-scala-lib:${{ env.PJ_VERSION }}> /dev/null 2>&1 && :                             
+            docker rmi --force toposoid/toposoid-scala-lib:${{ env.PJ_VERSION }}> /dev/null 2>&1 && :
             docker images
             docker system prune -f
             docker volume prune -f
@@ -34,7 +34,7 @@ jobs:
             docker compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt test:headerCheck"
             docker compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt compile"
             docker compose -f docker-compose-workflow.yml up -d toposoid-common-nlp-japanese-web
-            docker compose -f docker-compose-workflow.yml up -d toposoid-common-image-recognition-web 
+            docker compose -f docker-compose-workflow.yml up -d toposoid-common-image-recognition-web
             docker compose -f docker-compose-workflow.yml up -d neo4j
             docker compose -f docker-compose-workflow.yml up -d data-accessor-neo4j-web
             docker compose -f docker-compose-workflow.yml up -d sentence-weaviate
@@ -42,16 +42,16 @@ jobs:
             docker compose -f docker-compose-workflow.yml up -d image-weaviate
             docker compose -f docker-compose-workflow.yml up -d data-accessor-image-weaviate-web
             docker compose -f docker-compose-workflow.yml up -d redis
-            docker compose -f docker-compose-workflow.yml up -d data-accessor-redis-web                    
+            docker compose -f docker-compose-workflow.yml up -d data-accessor-redis-web
             docker compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-exact-match-web
             docker compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-synonym-match-web
             docker compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-image-vector-match-web
             docker compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-sentence-vector-match-web
-            docker compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-whole-sentence-image-match-web          
+            docker compose -f docker-compose-workflow.yml up -d toposoid-deduction-unit-whole-sentence-image-match-web
             docker compose -f docker-compose-workflow.yml up -d toposoid-deduction-admin-web
-            docker compose -f docker-compose-workflow.yml up -d toposoid-sat-solver-web            
+            docker compose -f docker-compose-workflow.yml up -d toposoid-sat-solver-web
             docker compose -f docker-compose-workflow.yml up -d toposoid-sentence-parser-japanese-web
-            docker compose -f docker-compose-workflow.yml up -d toposoid-contents-admin-web 
+            docker compose -f docker-compose-workflow.yml up -d toposoid-contents-admin-web
             docker compose -f docker-compose-workflow.yml up -d toposoid-language-detector-web
             curl --retry 15 --retry-delay 5 --retry-all-errors -X POST http://localhost:7474
             curl --retry 15 --retry-delay 5 --retry-all-errors -X POST -H "Content-Type: application/json" -H "X_TOPOSOID_TRANSVERSAL_STATE: {'userId':'test-user', 'username':'guest', 'roleId':0, 'csrfToken':''}" -d '{"sentence": "これはテストです。"}' http://localhost:9006/getFeatureVector
@@ -59,7 +59,7 @@ jobs:
             docker compose -f docker-compose-workflow.yml rm -fsv toposoid-common-nlp-japanese-web
             docker compose -f docker-compose-workflow.yml rm -fsv toposoid-sentence-parser-japanese-web
             docker compose -f docker-compose-workflow.yml up -d toposoid-common-nlp-english-web
-            docker compose -f docker-compose-workflow.yml up -d corenlp            
+            docker compose -f docker-compose-workflow.yml up -d corenlp
             docker compose -f docker-compose-workflow.yml up -d toposoid-sentence-parser-english-web
             curl --retry 15 --retry-delay 5 --retry-all-errors -X POST  -d 'Life is beautiful.' http://localhost:9000
             curl --retry 15 --retry-delay 5 --retry-all-errors -X POST -H "Content-Type: application/json" -H "X_TOPOSOID_TRANSVERSAL_STATE: {'userId':'test-user', 'username':'guest', 'roleId':0, 'csrfToken':''}" -d '{"sentence": "This is a test"}' http://localhost:9008/getFeatureVector

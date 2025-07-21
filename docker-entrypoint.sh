@@ -18,4 +18,4 @@ fi
 
 export _JAVA_OPTIONS=$_JAVA_OPTIONS
 cd /app/toposoid-component-dispatcher-web/target/universal
-toposoid-component-dispatcher-web-0.6-SNAPSHOT/bin/toposoid-component-dispatcher-web
+toposoid-component-dispatcher-web-0.6/bin/toposoid-component-dispatcher-web
