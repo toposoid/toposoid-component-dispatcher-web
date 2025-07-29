@@ -1,24 +1,25 @@
 /*
- * Copyright 2021 Linked Ideal LLC.[https://linked-ideal.com/]
+ * Copyright (C) 2025  Linked Ideal LLC.[https://linked-ideal.com/]
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package analyzer
 
 import analyzer.ImageUtils.addImageInformation
 import com.ideal.linked.common.DeploymentConverter.conf
-import com.ideal.linked.toposoid.common.{CLAIM, PREMISE, ToposoidUtils}
+import com.ideal.linked.toposoid.common.{CLAIM, PREMISE, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects, DeductionResult}
 import com.ideal.linked.toposoid.protocol.model.parser.{InputSentenceForParser, KnowledgeForParser, KnowledgeLeaf, KnowledgeNode, KnowledgeTree}
@@ -97,13 +98,25 @@ class RequestAnalyzer {
     Map(propositionId -> status)
   }
 
+  private def preprocess(rawKnowledgeSentenceSet: KnowledgeSentenceSet, transversalState: TransversalState): KnowledgeSentenceSet = {
+
+    val resKnowledgeSentenceSet: String = ToposoidUtils.callComponent(Json.toJson(rawKnowledgeSentenceSet).toString(), conf.getString("TOPOSOID_LANGUAGE_DETECTOR_HOST"), conf.getString("TOPOSOID_LANGUAGE_DETECTOR_PORT"), "detectLanguages", transversalState)
+    val knowledgeSentenceSet = Json.parse(resKnowledgeSentenceSet).as[KnowledgeSentenceSet]
+    KnowledgeSentenceSet(
+      premiseList = ToposoidUtils.preprocessForSentence(knowledgeSentenceSet.premiseList),
+      premiseLogicRelation = knowledgeSentenceSet.premiseLogicRelation,
+      claimList = ToposoidUtils.preprocessForSentence(knowledgeSentenceSet.claimList),
+      claimLogicRelation = knowledgeSentenceSet.claimLogicRelation
+    )
+  }
   /**
    * This function delegates the processing of a given sentence to passer for each multilingual.
    * @param knowledgeSentenceSet
    * @return
    */
-  def parseKnowledgeSentence(knowledgeSentenceSet: KnowledgeSentenceSet):List[AnalyzedSentenceObject] = Try{
+  def parseKnowledgeSentence(noLangKnowledgeSentenceSet: KnowledgeSentenceSet, transversalState:TransversalState):List[AnalyzedSentenceObject] = Try{
 
+    val knowledgeSentenceSet = preprocess(noLangKnowledgeSentenceSet, transversalState)
     val premiseJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
     val claimJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
     val premiseEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
@@ -118,20 +131,20 @@ class RequestAnalyzer {
       case 0 =>
         List.empty[AnalyzedSentenceObject]
       case _ =>
-        val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_PORT"), "analyze")
+        val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_PORT"), "analyze", transversalState)
         val asos = Json.parse(parseResultJapanese).as[AnalyzedSentenceObjects].analyzedSentenceObjects
         //Add Informations of Images
-        addImageInformation(asos, premiseJapanese:::claimJapanese)
+        addImageInformation(asos, premiseJapanese:::claimJapanese, transversalState)
     }
 
     val deductionEnglishList:List[AnalyzedSentenceObject] = numOfKnowledgeEnglish match{
       case 0 =>
         List.empty[AnalyzedSentenceObject]
       case _ =>
-        val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_PORT"), "analyze")
+        val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_PORT"), "analyze", transversalState)
         val asos = Json.parse(parseResultEnglish).as[AnalyzedSentenceObjects].analyzedSentenceObjects
         //Add Informations of Images
-        addImageInformation(asos, premiseEnglish:::claimEnglish)
+        addImageInformation(asos, premiseEnglish:::claimEnglish, transversalState)
     }
 
     return deductionJapaneseList ::: deductionEnglishList
@@ -147,13 +160,13 @@ class RequestAnalyzer {
    * @param result
    * @return
    */
-  def analyzeRecursive(t : KnowledgeTree, result:ParsedKnowledgeTree):ParsedKnowledgeTree = {
+  def analyzeRecursive(t : KnowledgeTree, result:ParsedKnowledgeTree, transversalState:TransversalState):ParsedKnowledgeTree = {
     t match {
       case KnowledgeNode(v, left, right) =>
         //Here, set the value to always be entered in left sisde.
-        val r1 = analyzeRecursive(left, result)
+        val r1 = analyzeRecursive(left, result, transversalState)
         if(v != "AND" && v != "OR" && r1.formula != "") return ParsedKnowledgeTree("-1",  r1.leafId, r1.subFormulaMap, r1.analyzedSentenceObjectsMap, r1.sentenceInfoMap, r1.sentenceMapForSat, r1.relations)
-        val r2 = analyzeRecursive(right, r1)
+        val r2 = analyzeRecursive(right, r1, transversalState)
         val newFormula = r1.leafId match {
           case "-1" => "%s %s %s".format(r2.formula, r2.leafId, v)
           case _ => "%s %s %s %s".format(r2.formula, r1.leafId, r2.leafId, v)
@@ -161,7 +174,7 @@ class RequestAnalyzer {
         val relations = List((List.empty[String], List.empty[PropositionRelation], List.empty[String], List.empty[PropositionRelation], List(r1.leafId, r2.leafId), List(PropositionRelation(v, 0, 1)) ))
         ParsedKnowledgeTree(r1.leafId,  newFormula, r2.subFormulaMap, r2.analyzedSentenceObjectsMap, r2.sentenceInfoMap, r2.sentenceMapForSat, r2.relations ++ relations)
       case KnowledgeLeaf(v) =>
-        analyzeRecursiveSub(v, result)
+        analyzeRecursiveSub(v, result, transversalState)
     }
   }
   /**
@@ -170,11 +183,11 @@ class RequestAnalyzer {
    * @param result
    * @return
    */
-  private def analyzeRecursiveSub(v:KnowledgeSentenceSet, result:ParsedKnowledgeTree): ParsedKnowledgeTree ={
+  private def analyzeRecursiveSub(v:KnowledgeSentenceSet, result:ParsedKnowledgeTree, transversalState:TransversalState): ParsedKnowledgeTree ={
 
     if(v.claimList.size == 0 && v.premiseList.size == 0) return result
 
-    val parseResult = this.parseKnowledgeSentence(v)
+    val parseResult = this.parseKnowledgeSentence(v, transversalState)
     val sentenceMapForSat = (v.premiseList ++ v.claimList).foldLeft(result.sentenceMapForSat) {
       (acc, x) =>{
         if(!acc.isDefinedAt(x.sentence)){

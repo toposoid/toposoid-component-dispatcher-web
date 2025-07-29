@@ -6,5 +6,9 @@
 # An example controller showing a sample home page
 #POST    /analyze             controllers.HomeController.analyze()
 + nocsrf
-POST    /analyzeKnowledgeTree             controllers.HomeController.analyzeKnowledgeTree()
+POST    /analyzeKnowledgeTree       controllers.HomeController.analyzeKnowledgeTree()
++ nocsrf
+POST    /changeEndPoints            controllers.HomeController.changeEndPoints()
++ nocsrf
+POST    /getEndPoints               controllers.HomeController.getEndPointsFromInMemoryDB()
 
