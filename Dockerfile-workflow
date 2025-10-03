@@ -1,4 +1,4 @@
-FROM toposoid/toposoid-scala-lib:0.6
+FROM toposoid/toposoid-scala-lib:0.7-SNAPSHOT
 
 WORKDIR /app
 ARG TARGET_BRANCH
