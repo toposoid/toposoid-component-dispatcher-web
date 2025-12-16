@@ -30,12 +30,12 @@ import com.typesafe.scalalogging.LazyLogging
 
 import javax.inject._
 import play.api._
-import play.api.libs.json.Json
 import play.api.mvc._
+import play.api.libs.json.{Json, OWrites, Reads, JsValue}
 
 case class TargetProblem(regulation:KnowledgeTree, hypothesis:KnowledgeTree)
 object TargetProblem {
-  implicit lazy val reader = Json.reads[TargetProblem]
+  implicit lazy val reader:Reads[TargetProblem] = Json.reads[TargetProblem]
 }
 
 case class ParsedKnowledgeTree( leafId:String,
@@ -55,8 +55,8 @@ case class SatInput(parsedKnowledgeTree:ParsedKnowledgeTree,
 
 case class ReqSelector(index:Int, function:Endpoint)
 object ReqSelector {
-  implicit val jsonWrites = Json.writes[ReqSelector]
-  implicit val jsonReads = Json.reads[ReqSelector]
+  implicit val jsonWrites:OWrites[ReqSelector] = Json.writes[ReqSelector]
+  implicit val jsonReads:Reads[ReqSelector] = Json.reads[ReqSelector]
 }
 /**
  * This controller creates an `Action` to integrates two major microservices.
@@ -98,7 +98,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * This output provides information for inference in the SAT.
    * @return
    */
-  def analyzeKnowledgeTree() = Action(parse.json) { request =>
+  def analyzeKnowledgeTree():Action[JsValue] = Action(parse.json[JsValue])  { request =>
     val transversalState = Json.parse(request.headers.get(TRANSVERSAL_STATE .str).get).as[TransversalState]
     try {
       val json = request.body
@@ -162,7 +162,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    *
    * @return
    */
-  def changeEndPoints() = Action(parse.json) { request =>
+  def changeEndPoints():Action[JsValue] = Action(parse.json[JsValue]) { request =>
     val transversalState = Json.parse(request.headers.get(TRANSVERSAL_STATE.str).get).as[TransversalState]
     try {
       val json = request.body
@@ -178,7 +178,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
     }
   }
 
-  def getEndPointsFromInMemoryDB() = Action(parse.json) { request =>
+  def getEndPointsFromInMemoryDB():Action[JsValue] = Action(parse.json[JsValue])  { request =>
     val transversalState = Json.parse(request.headers.get(TRANSVERSAL_STATE.str).get).as[TransversalState]
     try {
       Ok(Json.toJson(getEndPoints(transversalState))).as(JSON)

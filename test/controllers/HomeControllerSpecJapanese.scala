@@ -17,7 +17,7 @@
 
 package controllers
 
-import akka.util.Timeout
+import org.apache.pekko.util.Timeout
 import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.toposoid.common.{TRANSVERSAL_STATE, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, Reference}
@@ -32,7 +32,7 @@ import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.test.Helpers.{POST, contentType, status, _}
 import play.api.test._
-import io.jvm.uuid.UUID
+//import io.jvm.uuid.UUID
 
 import scala.concurrent.duration.DurationInt
 
@@ -348,8 +348,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
   "The specification2(exact-synonym--match-trivial)" should {
     "returns an appropriate response" in {
 
-      val propositionId1 = UUID.random.toString
-      val sentenceId1 = UUID.random.toString
+      val propositionId1 = java.util.UUID.randomUUID().toString
+      val sentenceId1 = java.util.UUID.randomUUID().toString
       val sentenceA = "太郎は秀逸な発案をした。"
       val knowledge1 = Knowledge(sentenceA, "ja_JP", "{}", false)
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
@@ -578,8 +578,8 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
   "The specification4(sentence-match-trivial)" should {
     "returns an appropriate response" in {
 
-      val propositionId1 = UUID.random.toString
-      val sentenceId1 = UUID.random.toString
+      val propositionId1 = java.util.UUID.randomUUID().toString
+      val sentenceId1 = java.util.UUID.randomUUID().toString
       val sentenceA = "自然界の法則がすべての慣性系で同じように成り立っている。"
       val knowledge1 = Knowledge(sentenceA, "ja_JP", "{}", false)
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)

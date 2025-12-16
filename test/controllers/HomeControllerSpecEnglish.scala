@@ -18,14 +18,14 @@
 package controllers
 
 
-import akka.util.Timeout
+import org.apache.pekko.util.Timeout
 import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.toposoid.common.{TRANSVERSAL_STATE, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, Reference}
 import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
 import com.ideal.linked.toposoid.protocol.model.parser.KnowledgeForParser
 import controllers.TestUtilsEx.{getKnowledge, getUUID, registerSingleClaim}
-import io.jvm.uuid.UUID
+//import io.jvm.uuid.UUID
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -348,8 +348,8 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
   "The specification2(exact-synonym--match-trivial)" should {
     "returns an appropriate response" in {
 
-      val propositionId1 = UUID.random.toString
-      val sentenceId1 = UUID.random.toString
+      val propositionId1 = java.util.UUID.randomUUID().toString
+      val sentenceId1 = java.util.UUID.randomUUID().toString
       val sentenceA = "Life is so comfortable."
       val knowledge1 = Knowledge(sentenceA, "en_US", "{}", false)
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
@@ -577,8 +577,8 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
   "The specification4(sentence-match-trivial)" should {
     "returns an appropriate response" in {
 
-      val propositionId1 = UUID.random.toString
-      val sentenceId1 = UUID.random.toString
+      val propositionId1 = java.util.UUID.randomUUID().toString
+      val sentenceId1 = java.util.UUID.randomUUID().toString
       val sentenceA = "The culprit is among us."
       val knowledge1 = Knowledge(sentenceA, lang, "{}", false)
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
