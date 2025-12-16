@@ -27,7 +27,7 @@ import controllers.{ParsedKnowledgeTree, SentenceInfo}
 import play.api.libs.json.Json
 
 import scala.util.{Failure, Success, Try}
-import io.jvm.uuid.UUID
+//import io.jvm.uuid.UUID
 
 class RequestAnalyzer {
 
@@ -117,10 +117,10 @@ class RequestAnalyzer {
   def parseKnowledgeSentence(noLangKnowledgeSentenceSet: KnowledgeSentenceSet, transversalState:TransversalState):List[AnalyzedSentenceObject] = Try{
 
     val knowledgeSentenceSet = preprocess(noLangKnowledgeSentenceSet, transversalState)
-    val premiseJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
-    val claimJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang == "ja_JP").map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
-    val premiseEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
-    val claimEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(UUID.random.toString, UUID.random.toString, _))
+    val premiseJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang == "ja_JP").map(KnowledgeForParser(java.util.UUID.randomUUID().toString, java.util.UUID.randomUUID().toString, _))
+    val claimJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang == "ja_JP").map(KnowledgeForParser(java.util.UUID.randomUUID().toString, java.util.UUID.randomUUID().toString, _))
+    val premiseEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(java.util.UUID.randomUUID().toString, java.util.UUID.randomUUID().toString, _))
+    val claimEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(java.util.UUID.randomUUID().toString, java.util.UUID.randomUUID().toString, _))
     val japaneseInputSentences:String = Json.toJson(InputSentenceForParser(premiseJapanese, claimJapanese)).toString()
     val englishInputSentences:String = Json.toJson(InputSentenceForParser(premiseEnglish, claimEnglish)).toString()
 
