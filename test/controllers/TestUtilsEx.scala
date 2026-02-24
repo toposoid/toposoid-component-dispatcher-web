@@ -17,7 +17,7 @@
 
 package controllers
 
-import com.ideal.linked.toposoid.common.{IMAGE, MANUAL, Neo4JUtilsImpl, ToposoidUtils, TransversalState}
+import com.ideal.linked.toposoid.common.{FeatureType, DataEntryType, Neo4JUtilsImpl, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{ImageReference, Knowledge, KnowledgeForImage, PropositionRelation, Reference}
 import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.toposoid.knowledgebase.featurevector.model.RegistContentResult
@@ -106,10 +106,10 @@ object TestUtilsEx {
                   propositionId = y._2.propositionId,
                   sentenceId = y._2.sentenceId,
                   featureId = getUUID(),
-                  featureType = IMAGE.index,
+                  featureType = FeatureType.IMAGE.index,
                   url = z.imageReference.reference.url,
                   source = z.imageReference.reference.originalUrlOrReference,
-                  featureInputType = MANUAL.index,
+                  featureInputType = DataEntryType.MANUAL.index,
                   extentText = "{}")
               }
             }
@@ -120,11 +120,12 @@ object TestUtilsEx {
               predicateArgumentStructure = y._2.predicateArgumentStructure,
               localContext = LocalContext(
                 lang = y._2.localContext.lang,
-                namedEntity = y._2.localContext.namedEntity,
+                namedEntities = y._2.localContext.namedEntities,
                 rangeExpressions = y._2.localContext.rangeExpressions,
                 categories = y._2.localContext.categories,
                 domains = y._2.localContext.domains,
-                knowledgeFeatureReferences = knowledgeFeatureReferences))
+                knowledgeFeatureReferences = knowledgeFeatureReferences,
+                properNouns = y._2.localContext.properNouns))
             acc2 ++ Map(y._1 -> knowledgeBaseNode)
           }
         }
@@ -157,10 +158,10 @@ object TestUtilsEx {
           propositionId = x.knowledgeBaseSemiGlobalNode.propositionId,
           sentenceId = x.knowledgeBaseSemiGlobalNode.sentenceId,
           featureId = getUUID(),
-          featureType = IMAGE.index,
+          featureType = FeatureType.IMAGE.index,
           url = knowledgeForImage.imageReference.reference.url,
           source = knowledgeForImage.imageReference.reference.originalUrlOrReference,
-          featureInputType = MANUAL.index,
+          featureInputType = DataEntryType.MANUAL.index,
           extentText = "{}")
 
         val localContextForFeature = LocalContextForFeature(

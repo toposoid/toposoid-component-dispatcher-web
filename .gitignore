@@ -9,8 +9,10 @@ target
 /RUNNING_PID
 .DS_Store
 docker-compose-local.yml
+docker-compose-dev.yml
 .devcontainer
 .metals
 .vscode
 project/project
 metals.sbt
+.bloop

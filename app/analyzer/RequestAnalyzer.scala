@@ -19,7 +19,7 @@ package analyzer
 
 import analyzer.ImageUtils.addImageInformation
 import com.ideal.linked.common.DeploymentConverter.conf
-import com.ideal.linked.toposoid.common.{CLAIM, PREMISE, ToposoidUtils, TransversalState}
+import com.ideal.linked.toposoid.common.{SentenceType, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects, DeductionResult}
 import com.ideal.linked.toposoid.protocol.model.parser.{InputSentenceForParser, KnowledgeForParser, KnowledgeLeaf, KnowledgeNode, KnowledgeTree}
@@ -40,7 +40,7 @@ class RequestAnalyzer {
    * @return
    */
   def assignTrivialProposition(analyzedSentenceObjects:List[AnalyzedSentenceObject], sentenceMapForSat:Map[String, SentenceInfo], subFormulaMap:Map[String, String]): (Map[String, String], Map[String, Option[DeductionResult]])  ={
-    val hasPremise = analyzedSentenceObjects.filter(x => x.knowledgeBaseSemiGlobalNode.sentenceType == PREMISE.index).size > 0
+    val hasPremise = analyzedSentenceObjects.filter(x => x.knowledgeBaseSemiGlobalNode.sentenceType == SentenceType.PREMISE.index).size > 0
     //This is a list of PropositionIds that can be found to be true or false as a result of searching GraphDB.
     val trivialPropositionIds:Map[String,Option[DeductionResult]] =
       analyzedSentenceObjects.foldLeft(Map.empty[String, Option[DeductionResult]]){
@@ -203,8 +203,8 @@ class RequestAnalyzer {
     }
 
     //Extract all the positionIds contained in the leaf while keeping the order.
-    val premisePropositionIds:List[String] = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == PREMISE.index).map(_.nodeMap.head._2.propositionId).distinct
-    val claimPropositionIds:List[String] = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == CLAIM.index).map(_.nodeMap.head._2.propositionId).distinct
+    val premisePropositionIds:List[String] = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == SentenceType.PREMISE.index).map(_.nodeMap.head._2.propositionId).distinct
+    val claimPropositionIds:List[String] = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == SentenceType.CLAIM.index).map(_.nodeMap.head._2.propositionId).distinct
 
     val premiseKnowledgeMap:Map[String, Knowledge] = (premisePropositionIds zip v.premiseList).groupBy(_._1).mapValues(_.map(_._2).head).toMap
     val claimKnowledgeMap:Map[String, Knowledge] = (claimPropositionIds zip v.claimList).groupBy(_._1).mapValues(_.map(_._2).head).toMap
