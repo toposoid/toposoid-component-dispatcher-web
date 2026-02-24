@@ -18,7 +18,7 @@
 package analyzer
 
 import com.ideal.linked.common.DeploymentConverter.conf
-import com.ideal.linked.toposoid.common.{IMAGE, MANUAL, ToposoidUtils, TransversalState}
+import com.ideal.linked.toposoid.common.{FeatureType, DataEntryType, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.featurevector.model.RegistContentResult
 import com.ideal.linked.toposoid.knowledgebase.model.{KnowledgeBaseNode, KnowledgeBaseSemiGlobalNode, KnowledgeFeatureReference, LocalContext, LocalContextForFeature}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeForImage}
@@ -84,10 +84,10 @@ object ImageUtils {
                   propositionId = x._2.propositionId,
                   sentenceId = x._2.sentenceId,
                   featureId = y.id,
-                  featureType = IMAGE.index,
+                  featureType = FeatureType.IMAGE.index,
                   url = y.imageReference.reference.url,
                   source = y.imageReference.reference.originalUrlOrReference,
-                  featureInputType = MANUAL.index,
+                  featureInputType = DataEntryType.MANUAL.index,
                   extentText = "{}")
               } else {
                 acc
@@ -97,11 +97,13 @@ object ImageUtils {
           val localContext = x._2.localContext
           val updateLocalContext = LocalContext(
             lang = localContext.lang,
-            namedEntity = localContext.namedEntity,
+            namedEntities = localContext.namedEntities,
             rangeExpressions = localContext.rangeExpressions,
             categories = localContext.categories,
             domains = localContext.domains,
-            knowledgeFeatureReferences = updateKnowledgeFeatureReferences)
+            knowledgeFeatureReferences = updateKnowledgeFeatureReferences,
+            properNouns = localContext.properNouns
+            )
           val updateKnowledgeBaseNode = KnowledgeBaseNode(
             nodeId = x._2.nodeId,
             propositionId = x._2.propositionId,
@@ -131,10 +133,10 @@ object ImageUtils {
                 propositionId = knowledgeBaseSemiGlobalNode.propositionId,
                 sentenceId = knowledgeBaseSemiGlobalNode.sentenceId,
                 featureId =  y.id,
-                featureType = IMAGE.index,
+                featureType = FeatureType.IMAGE.index,
                 url = y.imageReference.reference.url,
                 source = y.imageReference.reference.originalUrlOrReference,
-                featureInputType = MANUAL.index,
+                featureInputType = DataEntryType.MANUAL.index,
                 extentText = "{}")
           }
         }
