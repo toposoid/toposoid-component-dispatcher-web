@@ -35,6 +35,7 @@ import play.api.test._
 //import io.jvm.uuid.UUID
 
 import scala.concurrent.duration.DurationInt
+import com.ideal.linked.toposoid.test.utils.TestUtils
 
 class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite  with DefaultAwaitTimeout with Injecting{
 
@@ -822,15 +823,16 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val jsonResult = contentAsJson(result2).toString()
       val endPoints = Json.parse(jsonResult).as[Seq[Endpoint]]
 
-      assert(endPoints.size == 5)
-      val defaultEndPoints: Seq[Endpoint] = Seq(
-        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT1_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT1_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT1_NAME")),
-        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT2_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT2_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT2_NAME")),
-        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT3_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT3_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT3_NAME")),
-        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT4_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT4_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT4_NAME")),
-        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT5_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT5_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT5_NAME"))
-      )
-
+      assert(endPoints.size == 2)
+      
+      val hosts = Json.parse(conf.getString("TOPOSOID_DEDUCTION_GROUP_UNITS")).as[List[String]]
+      val ports = Json.parse(conf.getString("TOPOSOID_DEDUCTION_GROUP_PORTS")).as[List[String]]
+      val names = Json.parse(conf.getString("TOPOSOID_DEDUCTION_GROUP_NAMES")).as[List[String]]
+      val defaultEndPoints: Seq[Endpoint] = hosts.zipWithIndex.lazyZip(ports).lazyZip(names).map { 
+        case ((x, idx), y, z) => 
+          Endpoint(x,y,z)
+      }.toSeq  
+      
       endPoints.zip(defaultEndPoints).foreach(x => {
         assert(x._1 == x._2)
       })
@@ -860,7 +862,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         assert(contentAsJson(result1).toString().equals("""{"status":"OK"}"""))
       }
       */
-      val emptyEndPoints = Seq(Endpoint("-", "-", ""), Endpoint("-", "-", ""), Endpoint("-", "-", ""), Endpoint("-", "-", ""), Endpoint("-", "-", ""))
+      val emptyEndPoints = Seq(Endpoint("-", "-", ""), Endpoint("-", "-", ""))
       val fr1 = FakeRequest(POST, "/changeEndPoints")
         .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
         .withJsonBody(Json.toJson(emptyEndPoints))
@@ -881,14 +883,15 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
       val jsonResult = contentAsJson(result2).toString()
       val endPoints = Json.parse(jsonResult).as[Seq[Endpoint]]
-      assert(endPoints.filter(x => x.host.equals("-") && x.port.equals("-")).size == 5)
+      assert(endPoints.filter(x => x.host.equals("-") && x.port.equals("-")).size == 2)
 
-      val defaultEndPoints: Seq[Endpoint] = Seq(
-        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT1_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT1_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT1_NAME")),
-        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT2_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT2_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT2_NAME")),
-        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT3_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT3_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT3_NAME")),
-        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT4_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT4_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT4_NAME")),
-        Endpoint(conf.getString("TOPOSOID_DEDUCTION_UNIT5_HOST"), port = conf.getString("TOPOSOID_DEDUCTION_UNIT5_PORT"), name = conf.getString("TOPOSOID_DEDUCTION_UNIT5_NAME")))
+      val hosts = Json.parse(conf.getString("TOPOSOID_DEDUCTION_GROUP_UNITS")).as[List[String]]
+      val ports = Json.parse(conf.getString("TOPOSOID_DEDUCTION_GROUP_PORTS")).as[List[String]]
+      val names = Json.parse(conf.getString("TOPOSOID_DEDUCTION_GROUP_NAMES")).as[List[String]]
+      val defaultEndPoints: Seq[Endpoint] = hosts.zipWithIndex.lazyZip(ports).lazyZip(names).map { 
+        case ((x, idx), y, z) => 
+          Endpoint(x,y,z)
+      }.toSeq  
 
       val fr3 = FakeRequest(POST, "/changeEndPoints")
         .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
