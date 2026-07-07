@@ -27,6 +27,8 @@ import controllers.{ParsedKnowledgeTree, SentenceInfo}
 import play.api.libs.json.Json
 
 import scala.util.{Failure, Success, Try}
+import com.ideal.linked.toposoid.common.ActionModeType
+import com.ideal.linked.toposoid.protocol.model.base.DeductionConfiguration
 //import io.jvm.uuid.UUID
 
 class RequestAnalyzer {
@@ -121,8 +123,8 @@ class RequestAnalyzer {
     val claimJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang == "ja_JP").map(KnowledgeForParser(java.util.UUID.randomUUID().toString, java.util.UUID.randomUUID().toString, _))
     val premiseEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(java.util.UUID.randomUUID().toString, java.util.UUID.randomUUID().toString, _))
     val claimEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(java.util.UUID.randomUUID().toString, java.util.UUID.randomUUID().toString, _))
-    val japaneseInputSentences:String = Json.toJson(InputSentenceForParser(premiseJapanese, claimJapanese)).toString()
-    val englishInputSentences:String = Json.toJson(InputSentenceForParser(premiseEnglish, claimEnglish)).toString()
+    val japaneseInputSentences:String = Json.toJson(InputSentenceForParser(premiseJapanese, claimJapanese, ActionModeType.DEDUCTION_MODE.index)).toString()
+    val englishInputSentences:String = Json.toJson(InputSentenceForParser(premiseEnglish, claimEnglish, ActionModeType.DEDUCTION_MODE.index)).toString()
 
     val numOfKnowledgeJapanese = premiseJapanese.size + claimJapanese.size
     val numOfKnowledgeEnglish = premiseEnglish.size + claimEnglish.size
@@ -233,7 +235,8 @@ class RequestAnalyzer {
     }
     val subFormulaMap = result.subFormulaMap ++ Map(leafId.toString -> subFormula)
     val relations = result.relations ++ List((premisePropositionIds, v.premiseLogicRelation, claimPropositionIds, v.claimLogicRelation, List.empty[String], List.empty[PropositionRelation]))
-    ParsedKnowledgeTree(leafId,  result.formula, subFormulaMap, result.analyzedSentenceObjectsMap ++ Map(leafId -> AnalyzedSentenceObjects(parseResult)), result.sentenceInfoMap ++ sentenceInfoMap, sentenceMapForSat, relations)
+    val dc = DeductionConfiguration(ActionModeType.DEDUCTION_MODE.index, "", Map.empty[String, String])
+    ParsedKnowledgeTree(leafId,  result.formula, subFormulaMap, result.analyzedSentenceObjectsMap ++ Map(leafId -> AnalyzedSentenceObjects(parseResult, dc)), result.sentenceInfoMap ++ sentenceInfoMap, sentenceMapForSat, relations)
   }
 
   /**

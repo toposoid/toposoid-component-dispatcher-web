@@ -19,7 +19,7 @@ package controllers
 
 import analyzer.{RequestAnalyzer, ResultAnalyzer}
 import com.ideal.linked.common.DeploymentConverter.conf
-import com.ideal.linked.toposoid.common.InMemoryDbUtils.{getEndPoints, setEndPoints}
+import com.ideal.linked.toposoid.common.InMemoryDbUtils.{getDeductionGroupEndPoints, setDeductionGroupEndPoints}
 import com.ideal.linked.toposoid.common.{TRANSVERSAL_STATE, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{KnowledgeSentenceSet, PropositionRelation}
 import com.ideal.linked.toposoid.protocol.model.base.{AnalyzedSentenceObject, AnalyzedSentenceObjects, DeductionResult}
@@ -167,7 +167,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
     try {
       val json = request.body
       val endPoints: Seq[Endpoint] = Json.parse(json.toString).as[Seq[Endpoint]]
-      val updatedEndPoints: Seq[Endpoint] = setEndPoints(endPoints, transversalState)
+      val updatedEndPoints: Seq[Endpoint] = setDeductionGroupEndPoints(endPoints, transversalState)
       logger.info(ToposoidUtils.formatMessageForLogger("Changing End-Points completed." + updatedEndPoints.toString(), transversalState.userId))
       Ok("""{"status":"OK"}""").as(JSON)
     } catch {
@@ -181,7 +181,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
   def getEndPointsFromInMemoryDB():Action[JsValue] = Action(parse.json[JsValue])  { request =>
     val transversalState = Json.parse(request.headers.get(TRANSVERSAL_STATE.str).get).as[TransversalState]
     try {
-      Ok(Json.toJson(getEndPoints(transversalState))).as(JSON)
+      Ok(Json.toJson(getDeductionGroupEndPoints(transversalState))).as(JSON)
     } catch {
       case e: Exception => {
         logger.error(ToposoidUtils.formatMessageForLogger(e.toString, transversalState.userId), e)
