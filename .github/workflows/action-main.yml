@@ -1,0 +1,33 @@
+name: Test And Build
+on:
+  push:
+    branches:
+      - feature
+  workflow_dispatch:
+env:
+  PJ_ACTOR: toposoid
+  PJ_REPO: toposoid-component-dispatcher-web
+  PJ_BRANCH: feature
+  PJ_VERSION: 0.7-SNAPSHOT
+jobs:
+  unit-test_toposoid-component-dispatcher-web-amd64:
+    uses: ./.github/workflows/action-amd64.yml
+    secrets: inherit  
+  unit-test_toposoid-component-dispatcher-web-arm64:
+    uses: ./.github/workflows/action-arm64.yml
+    secrets: inherit  
+  merge-and-push-base-manifest: 
+    runs-on: ubuntu-24.04
+    needs: [unit-test_toposoid-component-dispatcher-web-amd64, unit-test_toposoid-component-dispatcher-web-arm64]
+    steps:
+      - name: Login to CR
+        uses: docker/login-action@v3
+        with:
+          username: toposoid
+          password: ${{ secrets.CR_TOKEN }}
+      - name: Marge Push Base Manifest
+        run: |
+          docker pull toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}-amd64
+          docker pull --platform linux/arm64 toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}-arm64
+          docker manifest create toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}-amd64 toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}-arm64          
+          docker manifest push toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} 
