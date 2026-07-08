@@ -35,21 +35,9 @@ services:
       - TOPOSOID_LANGUAGE_DETECTOR_PORT=9017
       - TOPOSOID_IN_MEMORY_DB_WEB_HOST=data-accessor-redis-web
       - TOPOSOID_IN_MEMORY_DB_WEB_PORT=9015
-      - TOPOSOID_DEDUCTION_UNIT1_HOST=toposoid-deduction-unit-exact-match-web
-      - TOPOSOID_DEDUCTION_UNIT2_HOST=toposoid-deduction-unit-synonym-match-web
-      - TOPOSOID_DEDUCTION_UNIT3_HOST=toposoid-deduction-unit-sentence-vector-match-web
-      - TOPOSOID_DEDUCTION_UNIT4_HOST=toposoid-deduction-unit-image-vector-match-web
-      - TOPOSOID_DEDUCTION_UNIT5_HOST=toposoid-deduction-unit-whole-sentence-image-match-web
-      - TOPOSOID_DEDUCTION_UNIT1_PORT=9101
-      - TOPOSOID_DEDUCTION_UNIT2_PORT=9102
-      - TOPOSOID_DEDUCTION_UNIT3_PORT=9103
-      - TOPOSOID_DEDUCTION_UNIT4_PORT=9104
-      - TOPOSOID_DEDUCTION_UNIT5_PORT=9105
-      - TOPOSOID_DEDUCTION_UNIT1_NAME=ExactMatch
-      - TOPOSOID_DEDUCTION_UNIT2_NAME=SynonymMatch
-      - TOPOSOID_DEDUCTION_UNIT3_NAME=ImageVectorMatch
-      - TOPOSOID_DEDUCTION_UNIT4_NAME=SentenceVectorMatch
-      - TOPOSOID_DEDUCTION_UNIT5_NAME=WholeSentenceImageMatch
+      - TOPOSOID_DEDUCTION_GROUP_UNITS=["toposoid-embedding-deduction-unit-common-web", "toposoid-clause-deduction-unit-common-web"]
+      - TOPOSOID_DEDUCTION_GROUP_PORTS=["9202", "9201"]
+      - TOPOSOID_DEDUCTION_GROUP_NAMES=["GroupEmbeddingMatch", "GroupClauseMatch"]
     ports:
       - 9004:9004
   toposoid-sat-solver-web:
@@ -68,28 +56,105 @@ services:
       - PLAY_HTTP_PORT=9003
       - TOPOSOID_GRAPHDB_WEB_HOST=data-accessor-neo4j-web
       - TOPOSOID_GRAPHDB_WEB_PORT=9005
-      - TOPOSOID_DEDUCTION_UNIT1_HOST=toposoid-deduction-unit-exact-match-web
-      - TOPOSOID_DEDUCTION_UNIT1_PORT=9101
-      - TOPOSOID_DEDUCTION_UNIT2_HOST=toposoid-deduction-unit-synonym-match-web
-      - TOPOSOID_DEDUCTION_UNIT2_PORT=9102
-      - TOPOSOID_DEDUCTION_UNIT3_HOST=toposoid-deduction-unit-sentence-vector-match-web
-      - TOPOSOID_DEDUCTION_UNIT3_PORT=9103
-      - TOPOSOID_DEDUCTION_UNIT4_HOST=toposoid-deduction-unit-image-vector-match-web
-      - TOPOSOID_DEDUCTION_UNIT4_PORT=9104
-      - TOPOSOID_DEDUCTION_UNIT5_HOST=toposoid-deduction-unit-whole-sentence-image-match-web
-      - TOPOSOID_DEDUCTION_UNIT5_PORT=9105
-      - TOPOSOID_DEDUCTION_UNIT1_NAME=ExactMatch
-      - TOPOSOID_DEDUCTION_UNIT2_NAME=SynonymMatch
-      - TOPOSOID_DEDUCTION_UNIT3_NAME=ImageVectorMatch
-      - TOPOSOID_DEDUCTION_UNIT4_NAME=SentenceVectorMatch
-      - TOPOSOID_DEDUCTION_UNIT5_NAME=WholeSentenceImageMatch
+      - TOPOSOID_DEDUCTION_GROUP_UNITS=["toposoid-embedding-deduction-unit-common-web", "toposoid-clause-deduction-unit-common-web"]
+      - TOPOSOID_DEDUCTION_GROUP_PORTS=["9202", "9201"]
+      - TOPOSOID_DEDUCTION_GROUP_NAMES=["GroupEmbeddingMatch", "GroupClauseMatch"]
+      - TOPOSOID_SENTENCE_PARSER_JP_WEB_HOST=toposoid-sentence-parser-japanese-web
+      - TOPOSOID_SENTENCE_PARSER_JP_WEB_PORT=9001
+      - TOPOSOID_SENTENCE_PARSER_EN_WEB_HOST=toposoid-sentence-parser-english-web
+      - TOPOSOID_SENTENCE_PARSER_EN_WEB_PORT=9007
+      - TOPOSOID_COMMON_NLP_JP_WEB_HOST=toposoid-common-nlp-japanese-web
+      - TOPOSOID_COMMON_NLP_JP_WEB_PORT=9006
+      - TOPOSOID_COMMON_NLP_EN_WEB_HOST=toposoid-common-nlp-english-web
+      - TOPOSOID_COMMON_NLP_EN_WEB_PORT=9008
+      - TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_HOST=data-accessor-sentence-weaviate-web
+      - TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_PORT=9011
+      - TOPOSOID_SENTENCE_VECTORDB_SEARCH_NUM_MAX=5
+      - TOPOSOID_IMAGE_VECTORDB_ACCESSOR_HOST=data-accessor-image-weaviate-web
+      - TOPOSOID_IMAGE_VECTORDB_ACCESSOR_PORT=9011
+      - TOPOSOID_IMAGE_VECTORDB_SEARCH_NUM_MAX=5
+      - TOPOSOID_COMMON_IMAGE_RECOGNITION_HOST=toposoid-common-image-recognition-web
+      - TOPOSOID_COMMON_IMAGE_RECOGNITION_PORT=9013
+      - TOPOSOID_CONTENTS_ADMIN_HOST=toposoid-contents-admin-web
+      - TOPOSOID_CONTENTS_ADMIN_PORT=9012
       - TOPOSOID_IN_MEMORY_DB_WEB_HOST=data-accessor-redis-web
       - TOPOSOID_IN_MEMORY_DB_WEB_PORT=9015
+      - TOPOSOID_EMBEDDING_DEDUCTION_UNITS=["toposoid-deduction-unit-sentence-vector-match-web", "toposoid-deduction-unit-whole-sentence-image-match-web"]
+      - TOPOSOID_EMBEDDING_DEDUCTION_PORTS=["9103", "9105"]
+      - TOPOSOID_EMBEDDING_DEDUCTION_NAMES=["EmbeddingSentenceMatch", "EmbeddingWholeSentenceImageMatch"]
+      - TOPOSOID_CLAUSE_DEDUCTION_UNITS=["toposoid-deduction-unit-exact-match-web", "toposoid-deduction-unit-synonym-match-web", "toposoid-deduction-unit-image-vector-match-web"]
+      - TOPOSOID_CLAUSE_DEDUCTION_PORTS=["9101", "9102", "9104"]
+      - TOPOSOID_CLAUSE_DEDUCTION_NAMES=["ClauseBaseMatch","ClauseSynonymMatch","ClauseImageMatch"]
     ports:
       - 9003:9003
-    depends_on:
-      - toposoid-deduction-unit-exact-match-web
-      - toposoid-deduction-unit-synonym-match-web
+
+  toposoid-clause-deduction-unit-common-web:
+    image: toposoid/toposoid-clause-deduction-unit-common-web:0.7-SNAPSHOT
+    environment:
+      - PRIVATE_IP_ADDRESS=toposoid-clause-deduction-unit-common-web
+      - TOPOSOID_GRAPHDB_WEB_HOST=data-accessor-neo4j-web
+      - TOPOSOID_GRAPHDB_WEB_PORT=9005
+      - TOPOSOID_CLAUSE_DEDUCTION_UNITS=["toposoid-deduction-unit-exact-match-web", "toposoid-deduction-unit-synonym-match-web", "toposoid-deduction-unit-image-vector-match-web"]
+      - TOPOSOID_CLAUSE_DEDUCTION_PORTS=["9101", "9102", "9104"]
+      - TOPOSOID_CLAUSE_DEDUCTION_NAMES=["ClauseBaseMatch","ClauseSynonymMatch","ClauseImageMatch"]
+      - TOPOSOID_ONLY_CLAUSE_DEDUCTION_FORCE=false
+      - TOPOSOID_SENTENCE_PARSER_JP_WEB_HOST=toposoid-sentence-parser-japanese-web
+      - TOPOSOID_SENTENCE_PARSER_JP_WEB_PORT=9001
+      - TOPOSOID_SENTENCE_PARSER_EN_WEB_HOST=toposoid-sentence-parser-english-web
+      - TOPOSOID_SENTENCE_PARSER_EN_WEB_PORT=9007
+      - TOPOSOID_COMMON_NLP_JP_WEB_HOST=toposoid-common-nlp-japanese-web
+      - TOPOSOID_COMMON_NLP_JP_WEB_PORT=9006
+      - TOPOSOID_COMMON_NLP_EN_WEB_HOST=toposoid-common-nlp-english-web
+      - TOPOSOID_COMMON_NLP_EN_WEB_PORT=9008
+      - TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_HOST=data-accessor-sentence-weaviate-web
+      - TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_PORT=9011
+      - TOPOSOID_SENTENCE_VECTORDB_SEARCH_NUM_MAX=5
+      - TOPOSOID_IMAGE_VECTORDB_ACCESSOR_HOST=data-accessor-image-weaviate-web
+      - TOPOSOID_IMAGE_VECTORDB_ACCESSOR_PORT=9011
+      - TOPOSOID_IMAGE_VECTORDB_SEARCH_NUM_MAX=5
+      - TOPOSOID_COMMON_IMAGE_RECOGNITION_HOST=toposoid-common-image-recognition-web
+      - TOPOSOID_COMMON_IMAGE_RECOGNITION_PORT=9013
+      - TOPOSOID_CONTENTS_ADMIN_HOST=toposoid-contents-admin-web
+      - TOPOSOID_CONTENTS_ADMIN_PORT=9012
+      - TOPOSOID_IN_MEMORY_DB_WEB_HOST=data-accessor-redis-web
+      - TOPOSOID_IN_MEMORY_DB_WEB_PORT=9015
+      - PLAY_HTTP_PORT=9201
+    ports:
+      - 9201:9201
+
+  toposoid-embedding-deduction-unit-common-web:
+    image: toposoid/toposoid-embedding-deduction-unit-common-web:0.7-SNAPSHOT
+    environment:
+      - PRIVATE_IP_ADDRESS=toposoid-embedding-deduction-unit-common-web
+      - TOPOSOID_GRAPHDB_WEB_HOST=data-accessor-neo4j-web
+      - TOPOSOID_GRAPHDB_WEB_PORT=9005
+      - TOPOSOID_EMBEDDING_DEDUCTION_UNITS=["toposoid-deduction-unit-sentence-vector-match-web", "toposoid-deduction-unit-whole-sentence-image-match-web"]
+      - TOPOSOID_EMBEDDING_DEDUCTION_PORTS=["9103", "9105"]
+      - TOPOSOID_EMBEDDING_DEDUCTION_NAMES=["EmbeddingSentenceMatch", "EmbeddingWholeSentenceImageMatch"]
+      - TOPOSOID_SENTENCE_PARSER_JP_WEB_HOST=toposoid-sentence-parser-japanese-web
+      - TOPOSOID_SENTENCE_PARSER_JP_WEB_PORT=9001
+      - TOPOSOID_SENTENCE_PARSER_EN_WEB_HOST=toposoid-sentence-parser-english-web
+      - TOPOSOID_SENTENCE_PARSER_EN_WEB_PORT=9007
+      - TOPOSOID_COMMON_NLP_JP_WEB_HOST=toposoid-common-nlp-japanese-web
+      - TOPOSOID_COMMON_NLP_JP_WEB_PORT=9006
+      - TOPOSOID_COMMON_NLP_EN_WEB_HOST=toposoid-common-nlp-english-web
+      - TOPOSOID_COMMON_NLP_EN_WEB_PORT=9008
+      - TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_HOST=data-accessor-sentence-weaviate-web
+      - TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_PORT=9011
+      - TOPOSOID_SENTENCE_VECTORDB_SEARCH_NUM_MAX=5
+      - TOPOSOID_IMAGE_VECTORDB_ACCESSOR_HOST=data-accessor-image-weaviate-web
+      - TOPOSOID_IMAGE_VECTORDB_ACCESSOR_PORT=9011
+      - TOPOSOID_IMAGE_VECTORDB_SEARCH_NUM_MAX=5
+      - TOPOSOID_COMMON_IMAGE_RECOGNITION_HOST=toposoid-common-image-recognition-web
+      - TOPOSOID_COMMON_IMAGE_RECOGNITION_PORT=9013
+      - TOPOSOID_CONTENTS_ADMIN_HOST=toposoid-contents-admin-web
+      - TOPOSOID_CONTENTS_ADMIN_PORT=9012
+      - TOPOSOID_IN_MEMORY_DB_WEB_HOST=data-accessor-redis-web
+      - TOPOSOID_IN_MEMORY_DB_WEB_PORT=9015
+      - PLAY_HTTP_PORT=9202
+    ports:
+      - 9202:9202
+
   toposoid-deduction-unit-exact-match-web:
     image: toposoid/toposoid-deduction-unit-exact-match-web:0.7-SNAPSHOT
     environment:
@@ -233,9 +298,13 @@ services:
     ports:
       - 9008:9008
   corenlp:
-    image: toposoid/corenlp:3.4.2-lowspec
+    image: toposoid/corenlp:3.4.2
     ports:
       - 9000:9000
+    environment:
+      - TOPOSOID_JVM_XMS=512m
+      - TOPOSOID_JVM_XMX=2g
+      - TOPOSOID_JVM_XSS=512k          
   neo4j:
     image: neo4j:4.4.23
     ports:
@@ -246,14 +315,13 @@ services:
       - NEO4J_apoc_import_file_enabled=true
       - NEO4J_dbms_security_procedures_unrestricted=apoc.*,algo.*
       - NEO4J_dbms_memory_heap_initial__size=512m
-      - NEO4J_dbms_memory_heap_max__size=2G
+      - NEO4J_dbms_memory_heap_max__size=4G
       - NEO4J_dbms_transaction_timeout=10s
       - NEO4J_apoc_uuid_enabled=true
       - NEO4J_dbms_default__listen__address=0.0.0.0
       - NEO4J_dbms_allow__upgrade=true
       - NEO4J_dbms_default__database=neo4j
       - NEO4J_AUTH=neo4j/p@ssw0rd
-
   toposoid-contents-admin-web:
     image: toposoid/toposoid-contents-admin-web:0.7-SNAPSHOT
     environment:
@@ -286,7 +354,7 @@ services:
     environment:
       - TOPOSOID_WEAVIATE_HOST=sentence-weaviate
       - TOPOSOID_WEAVIATE_PORT=8080
-      - TOPOSOID_WEAVIATE_SIMILARITY_THRESHOLD=0.85
+      - TOPOSOID_WEAVIATE_SIMILARITY_THRESHOLD=0.77
       - TOPOSOID_DATA_ACCESSOR_PORT=9011
     ports:
       - 9020:9011
@@ -320,7 +388,7 @@ services:
     environment:
       - TOPOSOID_WEAVIATE_HOST=image-weaviate
       - TOPOSOID_WEAVIATE_PORT=8081
-      - TOPOSOID_WEAVIATE_SIMILARITY_THRESHOLD=0.85
+      - TOPOSOID_WEAVIATE_SIMILARITY_THRESHOLD=0.98
       - TOPOSOID_DATA_ACCESSOR_PORT=9011
     ports:
       - 9021:9011
@@ -349,6 +417,7 @@ services:
       HUGGINGFACE_APIKEY: ''
       ENABLE_MODULES: 'text2vec-cohere,text2vec-huggingface,text2vec-palm,text2vec-openai,generative-openai,generative-cohere,generative-palm,ref2vec-centroid,reranker-cohere,qna-openai'
       CLUSTER_HOSTNAME: 'node1'
+
   redis:
     #restart: always
     image: redis:7.2

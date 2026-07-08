@@ -1,0 +1,61 @@
+name: Test And Build
+on:
+  workflow_call:
+env:
+  PJ_ACTOR: toposoid
+  PJ_REPO: toposoid-component-dispatcher-web
+  PJ_BRANCH: feature
+  PJ_VERSION: 0.7-SNAPSHOT
+jobs:
+  unit-test_toposoid-component-dispatcher-web-amd64:
+    runs-on: [self-hosted, linux, X64]
+    steps:
+      - name: Clone ${{ env.PJ_REPO }}
+        uses: actions/checkout@v3
+        with:
+            repository: ${{ env.PJ_ACTOR }}/${{ env.PJ_REPO }}
+      - name: Execute tests
+        run: |
+            cd ${GITHUB_WORKSPACE} && cd ../
+            cd ./${{ env.PJ_REPO }}
+            docker rm --force $(docker ps -a -q) > /dev/null 2>&1 && :
+            docker rmi --force ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}> /dev/null 2>&1 && :
+            docker rmi --force toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}> /dev/null 2>&1 && :
+            docker rmi --force toposoid/toposoid-scala-lib:${{ env.PJ_VERSION }}> /dev/null 2>&1 && :
+            docker images
+            docker system prune -f
+            docker volume prune -f
+            docker build --build-arg TARGET_BRANCH=${{ env.PJ_BRANCH }} --tag ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }} -f Dockerfile-workflow --no-cache .
+            docker compose -f docker-compose-workflow.yml up -d
+            docker compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt headerCheck"
+            docker compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt test:headerCheck"
+            docker compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt compile"
+            curl --retry 15 --retry-delay 5 --retry-all-errors -X POST http://localhost:7474
+            curl --retry 15 --retry-delay 5 --retry-all-errors -X POST -H "Content-Type: application/json" -H "X_TOPOSOID_TRANSVERSAL_STATE: {'userId':'test-user', 'username':'guest', 'roleId':0, 'csrfToken':''}" -d '{"sentence": "これはテストです。"}' http://localhost:9006/getFeatureVector
+            docker compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*Japanese'"
+            docker compose -f docker-compose-workflow.yml rm -fsv toposoid-common-nlp-japanese-web
+            docker compose -f docker-compose-workflow.yml rm -fsv toposoid-sentence-parser-japanese-web
+            curl --retry 15 --retry-delay 5 --retry-all-errors -X POST  -d 'Life is beautiful.' http://localhost:9000
+            curl --retry 15 --retry-delay 5 --retry-all-errors -X POST -H "Content-Type: application/json" -H "X_TOPOSOID_TRANSVERSAL_STATE: {'userId':'test-user', 'username':'guest', 'roleId':0, 'csrfToken':''}" -d '{"sentence": "This is a test"}' http://localhost:9008/getFeatureVector
+            docker compose -f docker-compose-workflow.yml exec -T ${{ env.PJ_REPO }} bash -c "cd ${{ env.PJ_REPO }} && sbt 'testOnly **.*English'"
+            docker rm --force $(docker ps -a -q) > /dev/null 2>&1 && :
+            docker rmi --force ${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
+      - name: Docker meta
+        id: docker_meta
+        uses: crazy-max/ghaction-docker-meta@v3
+        with:
+          images: toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}
+      - name: Login to CR
+        uses: docker/login-action@v2
+        with:
+          username: toposoid
+          password: ${{ secrets.CR_TOKEN }}
+      - name: Build And Push Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          provenance: false
+          tags: toposoid/${{ env.PJ_REPO }}:${{ env.PJ_VERSION }}-amd64
+          build-args: |
+            TARGET_BRANCH=${{ env.PJ_BRANCH }}
