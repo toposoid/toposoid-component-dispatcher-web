@@ -23,7 +23,8 @@ import com.ideal.linked.toposoid.common.{TRANSVERSAL_STATE, ToposoidUtils, Trans
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, Reference}
 import com.ideal.linked.toposoid.protocol.model.frontend.{AnalyzedEdges, Endpoint}
 import com.ideal.linked.toposoid.protocol.model.parser.KnowledgeForParser
-import controllers.TestUtilsEx.{executeQueryAndReturn, getKnowledge, getUUID, registerSingleClaim}
+import controllers.TestUtilsEx.{getUUID, registerSingleClaim}
+import com.ideal.linked.toposoid.test.utils.TestUtils.{uploadImage}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -36,6 +37,8 @@ import play.api.test._
 
 import scala.concurrent.duration.DurationInt
 import com.ideal.linked.toposoid.test.utils.TestUtils
+import com.ideal.linked.toposoid.knowledgebase.regist.model.ImageReference
+import com.ideal.linked.toposoid.knowledgebase.regist.model.KnowledgeForImage
 
 class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite  with DefaultAwaitTimeout with Injecting{
 
@@ -446,12 +449,12 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
       val sentenceA = "猫が２匹います。"
       val referenceA = Reference(url = "", surface = "猫が", surfaceIndex = 0, isWholeSentence = false,
-        originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
-      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, width = 466, height = 310)
+        originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")    
+      val imageReferenceA = ImageReference(referenceA, x = 11, y = 11, width = 466, height = 310)
+      val knowledgeForImageA = KnowledgeForImage(getUUID(), imageReferenceA)       
       val propositionId1 = getUUID()
-      val sentenceId1 = getUUID()
-      //val knowledge1 = Knowledge(sentenceA,"ja_JP", "{}", false, List(imageA))
-      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA, transversalState)
+      val sentenceId1 = getUUID()      
+      val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForImages=List(uploadImage(knowledgeForImageA, transversalState)))
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val json =
@@ -678,11 +681,11 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val sentenceA = "猫が２匹います。"
       val referenceA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
-      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, width = 466, height = 310)
+      val imageReferenceA = ImageReference(referenceA, x = 11, y = 11, width = 466, height = 310)
+      val knowledgeForImageA = KnowledgeForImage(getUUID(), imageReferenceA)             
       val propositionId1 = getUUID()
       val sentenceId1 = getUUID()
-      //val knowledge1 = Knowledge(sentenceA,"ja_JP", "{}", false, List(imageA))
-      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA, transversalState)
+      val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForImages=List(uploadImage(knowledgeForImageA, transversalState)))
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val json =
