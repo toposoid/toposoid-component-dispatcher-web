@@ -447,7 +447,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
   "The specification3(image-vector-match-trivial)" should {
     "returns an appropriate response" in {
 
-      val sentenceA = "猫が２匹います。"
+      val sentenceA = "猫が２匹寝てます。"
       val referenceA = Reference(url = "", surface = "猫が", surfaceIndex = 0, isWholeSentence = false,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")    
       val imageReferenceA = ImageReference(referenceA, x = 11, y = 11, width = 466, height = 310)
@@ -456,6 +456,12 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val sentenceId1 = getUUID()      
       val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForImages=List(uploadImage(knowledgeForImageA, transversalState)))
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+
+      val paraphraseA = "ペットが２匹寝てます。"
+      val referenceParaA = Reference(url = "", surface = "ペットが２", surfaceIndex = 0, isWholeSentence = false,
+        originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
+      val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
+      val knowledgeForImageParaA = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
 
       val json =
         """{
@@ -475,7 +481,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "premiseLogicRelation": [],
           |                "claimList": [
           |                    {
-          |                        "sentence": "ペットが２匹います。",
+          |                        "sentence": "ペットが２匹寝てます。",
           |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
@@ -484,7 +490,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "ペットが",
           |                                        "surfaceIndex": 0,
           |                                        "isWholeSentence": false,
@@ -523,7 +529,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "premiseLogicRelation": [],
           |                "claimList": [
           |                    {
-          |                        "sentence": "ペットが２匹います。",
+          |                        "sentence": "ペットが２匹寝てます。",
           |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
@@ -532,7 +538,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "ペットが",
           |                                        "surfaceIndex": 0,
           |                                        "isWholeSentence": false,
@@ -555,7 +561,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |            }
           |        }
           |    }
-          |}""".stripMargin
+          |}""".replaceAll("___###REPLACE_URL###___", knowledgeForImageParaA.imageReference.reference.url).stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
         .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
@@ -688,6 +694,12 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForImages=List(uploadImage(knowledgeForImageA, transversalState)))
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
+      val paraphraseA = "ペットが２匹寝てます。"
+      val referenceParaA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
+        originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
+      val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
+      val knowledgeForImageParaA = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
+
       val json =
         """{
           |    "regulation": {
@@ -706,7 +718,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "premiseLogicRelation": [],
           |                "claimList": [
           |                    {
-          |                        "sentence": "ペットが２匹います。",
+          |                        "sentence": "ペットが２匹寝てます。",
           |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
@@ -754,7 +766,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                "premiseLogicRelation": [],
           |                "claimList": [
           |                    {
-          |                        "sentence": "ペットが２匹います。",
+          |                        "sentence": "ペットが２匹寝てます。",
           |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
@@ -786,7 +798,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |            }
           |        }
           |    }
-          |}""".stripMargin
+          |}""".replaceAll("___###REPLACE_URL###___", knowledgeForImageParaA.imageReference.reference.url).stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
         .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)

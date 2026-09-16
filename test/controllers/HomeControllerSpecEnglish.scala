@@ -456,6 +456,12 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
     val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForImages=List(uploadImage(knowledgeForImageA, transversalState)))
     registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
+    val paraphraseA = "There are two pets."
+    val referenceParaA = Reference(url = "", surface = "pets", surfaceIndex = 3, isWholeSentence = false,
+      originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
+    val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
+    val knowledgeForImageParaA = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
+
       val json =
         """{
           |    "regulation": {
@@ -483,7 +489,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "pets",
           |                                        "surfaceIndex": 3,
           |                                        "isWholeSentence": false,
@@ -531,7 +537,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "pets",
           |                                        "surfaceIndex": 3,
           |                                        "isWholeSentence": false,
@@ -554,7 +560,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |            }
           |        }
           |    }
-          |}""".stripMargin
+          |}""".replaceAll("___###REPLACE_URL###___", knowledgeForImageParaA.imageReference.reference.url).stripMargin.stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
         .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
@@ -687,6 +693,13 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForImages=List(uploadImage(knowledgeForImageA, transversalState)))
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
+      val paraphraseA = "There are two pets."
+      val referenceParaA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
+        originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
+      val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
+      val knowledgeForImageParaA = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
+
+
       val json =
         """{
           |    "regulation": {
@@ -714,7 +727,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "",
           |                                        "surfaceIndex": -1,
           |                                        "isWholeSentence": true,
@@ -762,7 +775,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "",
           |                                        "surfaceIndex": -1,
           |                                        "isWholeSentence": true,
@@ -785,7 +798,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |            }
           |        }
           |    }
-          |}""".stripMargin
+          |}""".replaceAll("___###REPLACE_URL###___", knowledgeForImageParaA.imageReference.reference.url).stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
         .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
