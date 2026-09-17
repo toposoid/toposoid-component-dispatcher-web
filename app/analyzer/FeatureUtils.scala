@@ -50,7 +50,6 @@ object FeatureUtils {
             acc :+ AnalyzedSentenceObject(updateNodeMap, x.edgeList, updateSemiGlobalNode, x.deductionResult)
           }
         }
-
       }
     }
   }
