@@ -19,13 +19,14 @@ package analyzer
 
 import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.toposoid.common.{FeatureType, DataEntryType, ToposoidUtils, TransversalState}
-//import com.ideal.linked.toposoid.knowledgebase.featurevector.model.RegistContentResult
 import com.ideal.linked.toposoid.knowledgebase.model.{KnowledgeBaseNode, KnowledgeBaseSemiGlobalNode, KnowledgeFeatureReference, LocalContext, LocalContextForFeature}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeForImage}
 import com.ideal.linked.toposoid.protocol.model.base.AnalyzedSentenceObject
 import com.ideal.linked.toposoid.protocol.model.parser.KnowledgeForParser
 import play.api.libs.json.Json
 import com.ideal.linked.toposoid.knowledgebase.regist.model.KnowledgeForTable
+import com.ideal.linked.toposoid.knowledgebase.image.model.RegisteredImageContentResult
+import com.ideal.linked.toposoid.knowledgebase.table.model.RegisteredTableContentResult
 
 object FeatureUtils {
   /**
@@ -35,33 +36,21 @@ object FeatureUtils {
    * @return
    */
   def addFeatureInformation(asos: List[AnalyzedSentenceObject], knowledgeForParsers: List[KnowledgeForParser], transversalState:TransversalState): List[AnalyzedSentenceObject] = {
-    //upload temporary images
-    /*
-    val updateKnowledgeForParsers = knowledgeForParsers.map(x => {
-      x.knowledge.knowledgeForImages.size match {
-        case 0 => x
-        case _ => {
-          val knowledgeForImages = x.knowledge.knowledgeForImages.map(uploadImage(_, transversalState))
-          val knowledge = Knowledge(x.knowledge.sentence, x.knowledge.lang, x.knowledge.extentInfoJson, x.knowledge.isNegativeSentence, knowledgeForImages)
-          KnowledgeForParser(x.propositionId, x.sentenceId, knowledge)
-        }
-      }
-    })
-    */
     asos.foldLeft(List.empty[AnalyzedSentenceObject]) {
       (acc, x) => {
         //Matching with sentenceId and linking image information
         val targetKnowledgeForParser = knowledgeForParsers.filter(_.sentenceId.equals(x.knowledgeBaseSemiGlobalNode.sentenceId)).head
         val knowledgeForImages = targetKnowledgeForParser.knowledge.knowledgeForImages
         val knowledgeForTables = targetKnowledgeForParser.knowledge.knowledgeForTables
-        knowledgeForImages.size match {
+        knowledgeForImages.size + knowledgeForTables.size match {
           case 0 => acc :+ x
           case _ => {
-            val updateNodeMap = addLocalContextToNodeMap(x.nodeMap, knowledgeForImages, knowledgeForTables)
-            val updateSemiGlobalNode = addLocalContextForFeatureToSemiGlobalNode(x.knowledgeBaseSemiGlobalNode, knowledgeForImages, knowledgeForTables)
+            val updateNodeMap = addLocalContextToNodeMap(x.nodeMap, knowledgeForImages, knowledgeForTables, transversalState)
+            val updateSemiGlobalNode = addLocalContextForFeatureToSemiGlobalNode(x.knowledgeBaseSemiGlobalNode, knowledgeForImages, knowledgeForTables, transversalState)
             acc :+ AnalyzedSentenceObject(updateNodeMap, x.edgeList, updateSemiGlobalNode, x.deductionResult)
           }
         }
+
       }
     }
   }
@@ -72,14 +61,24 @@ object FeatureUtils {
    * @param knowledgeForImages
    * @return
    */
-  private def addLocalContextToNodeMap(nodeMap: Map[String, KnowledgeBaseNode], knowledgeForImages: List[KnowledgeForImage], knowledgeForTables: List[KnowledgeForTable]): Map[String, KnowledgeBaseNode] = {
+  private def addLocalContextToNodeMap(nodeMap: Map[String, KnowledgeBaseNode], knowledgeForImages: List[KnowledgeForImage], knowledgeForTables: List[KnowledgeForTable], transversalState:TransversalState): Map[String, KnowledgeBaseNode] = {
 
-    val targetImages = knowledgeForImages.filterNot(_.imageReference.reference.isWholeSentence)
-    targetImages.size match {
+    val targetImages = knowledgeForImages.filterNot(_.imageReference.reference.isWholeSentence)    
+    val convertImages = targetImages.size match {
+      case 0 => List.empty[KnowledgeForImage]
+      case _ => targetImages.map(convertImage(_, transversalState))
+    }
+    val targetTables = knowledgeForTables.filterNot(_.tableReference.reference.isWholeSentence)
+    val convertTables = targetTables.size match {
+      case 0 => List.empty[KnowledgeForTable]
+      case _ => targetTables.map(convertTable(_, transversalState))
+    }
+
+    convertImages.size + convertTables.size match {
       case 0 => nodeMap
       case _ => {
-        nodeMap.map(x => {
-          val imageKnowledgeFeatureReferences = targetImages.foldLeft(List.empty[KnowledgeFeatureReference]) {
+        nodeMap.map(x => {          
+          val imageKnowledgeFeatureReferences = convertImages.foldLeft(List.empty[KnowledgeFeatureReference]) {
             (acc, y) => {
               if (x._2.predicateArgumentStructure.surface.equals(y.imageReference.reference.surface) &&
                 x._2.predicateArgumentStructure.currentId == y.imageReference.reference.surfaceIndex) {
@@ -98,8 +97,7 @@ object FeatureUtils {
             }
           }
 
-          val targetTables = knowledgeForTables.filterNot(_.tableReference.reference.isWholeSentence)
-          val tableKnowledgeFeatureReferences = targetTables.foldLeft(List.empty[KnowledgeFeatureReference]) {
+          val tableKnowledgeFeatureReferences = convertTables.foldLeft(List.empty[KnowledgeFeatureReference]) {
             (acc, y) => {
               if (x._2.predicateArgumentStructure.surface.equals(y.tableReference.reference.surface) &&
                 x._2.predicateArgumentStructure.currentId == y.tableReference.reference.surfaceIndex) {
@@ -146,67 +144,93 @@ object FeatureUtils {
    * @param knowledgeForImages
    * @return
    */
-  private def addLocalContextForFeatureToSemiGlobalNode(knowledgeBaseSemiGlobalNode: KnowledgeBaseSemiGlobalNode, knowledgeForImages: List[KnowledgeForImage], knowledgeForTables: List[KnowledgeForTable]): KnowledgeBaseSemiGlobalNode = {
+  private def addLocalContextForFeatureToSemiGlobalNode(knowledgeBaseSemiGlobalNode: KnowledgeBaseSemiGlobalNode, knowledgeForImages: List[KnowledgeForImage], knowledgeForTables: List[KnowledgeForTable], transversalState:TransversalState): KnowledgeBaseSemiGlobalNode = {
     val targetImages = knowledgeForImages.filter(_.imageReference.reference.isWholeSentence)
-    
-    val imageKnowledgeFeatureReferences = targetImages.foldLeft(List.empty[KnowledgeFeatureReference]) {
-          (acc, y) => {
-              acc :+ KnowledgeFeatureReference(
-                propositionId = knowledgeBaseSemiGlobalNode.propositionId,
-                sentenceId = knowledgeBaseSemiGlobalNode.sentenceId,
-                featureId =  y.id,
-                featureType = FeatureType.IMAGE.index,
-                url = y.imageReference.reference.url,
-                source = y.imageReference.reference.originalUrlOrReference,
-                featureInputType = DataEntryType.MANUAL.index,
-                featureExtendedFields = Map.empty[String, String])
-          }
-        }
-
+    val convertImages = targetImages.size match {
+      case 0 => List.empty[KnowledgeForImage]
+      case _ => targetImages.map(convertImage(_, transversalState))
+    }    
     val targetTables = knowledgeForTables.filter(_.tableReference.reference.isWholeSentence)
+    val convertTables = targetTables.size match {
+      case 0 => List.empty[KnowledgeForTable]
+      case _ => targetTables.map(convertTable(_, transversalState))
+    }
 
-    val tableKnowledgeFeatureReferences = targetTables.foldLeft(List.empty[KnowledgeFeatureReference]) {
-          (acc, y) => {
-              acc :+ KnowledgeFeatureReference(
-                propositionId = knowledgeBaseSemiGlobalNode.propositionId,
+    convertImages.size + targetTables.size match {
+      case 0 => knowledgeBaseSemiGlobalNode
+      case _ => {
+        val imageKnowledgeFeatureReferences = convertImages.foldLeft(List.empty[KnowledgeFeatureReference]) {
+              (acc, y) => {
+                  acc :+ KnowledgeFeatureReference(
+                    propositionId = knowledgeBaseSemiGlobalNode.propositionId,
+                    sentenceId = knowledgeBaseSemiGlobalNode.sentenceId,
+                    featureId =  y.id,
+                    featureType = FeatureType.IMAGE.index,
+                    url = y.imageReference.reference.url,
+                    source = y.imageReference.reference.originalUrlOrReference,
+                    featureInputType = DataEntryType.MANUAL.index,
+                    featureExtendedFields = Map.empty[String, String])
+              }
+            }
+
+        val tableKnowledgeFeatureReferences = convertTables.foldLeft(List.empty[KnowledgeFeatureReference]) {
+              (acc, y) => {
+                  acc :+ KnowledgeFeatureReference(
+                    propositionId = knowledgeBaseSemiGlobalNode.propositionId,
+                    sentenceId = knowledgeBaseSemiGlobalNode.sentenceId,
+                    featureId =  y.id,
+                    featureType = FeatureType.TABLE.index,
+                    url = y.tableReference.reference.url,
+                    source = y.tableReference.reference.originalUrlOrReference,
+                    featureInputType = DataEntryType.MANUAL.index,
+                    featureExtendedFields = Map.empty[String, String])
+              }
+            }
+        
+        val updateLocalContextForFeature = LocalContextForFeature(
+              lang = knowledgeBaseSemiGlobalNode.localContextForFeature.lang,
+              knowledgeFeatureReferences = imageKnowledgeFeatureReferences ::: tableKnowledgeFeatureReferences)
+
+              KnowledgeBaseSemiGlobalNode(
                 sentenceId = knowledgeBaseSemiGlobalNode.sentenceId,
-                featureId =  y.id,
-                featureType = FeatureType.TABLE.index,
-                url = y.tableReference.reference.url,
-                source = y.tableReference.reference.originalUrlOrReference,
-                featureInputType = DataEntryType.MANUAL.index,
-                featureExtendedFields = Map.empty[String, String])
-          }
-        }
-    
-    
+                propositionId = knowledgeBaseSemiGlobalNode.propositionId,
+                documentId = knowledgeBaseSemiGlobalNode.documentId,
+                sentence = knowledgeBaseSemiGlobalNode.sentence,
+                sentenceType = knowledgeBaseSemiGlobalNode.sentenceType,
+                localContextForFeature = updateLocalContextForFeature)
+      }
+    }
 
-    val updateLocalContextForFeature = LocalContextForFeature(
-          lang = knowledgeBaseSemiGlobalNode.localContextForFeature.lang,
-          knowledgeFeatureReferences = imageKnowledgeFeatureReferences ::: tableKnowledgeFeatureReferences)
 
-    KnowledgeBaseSemiGlobalNode(
-        sentenceId = knowledgeBaseSemiGlobalNode.sentenceId,
-        propositionId = knowledgeBaseSemiGlobalNode.propositionId,
-        documentId = knowledgeBaseSemiGlobalNode.documentId,
-        sentence = knowledgeBaseSemiGlobalNode.sentence,
-        sentenceType = knowledgeBaseSemiGlobalNode.sentenceType,
-        localContextForFeature = updateLocalContextForFeature)
   }
     
-  
-
-  /*
-  private def uploadImage(knowledgeForImage: KnowledgeForImage, transversalState:TransversalState): KnowledgeForImage = {
-    //TODO TOPOSOID_CONTENTS_ADMIN_HOST APIインターフェース追加　＆　テンポラリファイル削除バッチの実装
-    val registContentResultJson = ToposoidUtils.callComponent(
-      Json.toJson(knowledgeForImage).toString(),
-      conf.getString("TOPOSOID_CONTENTS_ADMIN_HOST"),
-      conf.getString("TOPOSOID_CONTENTS_ADMIN_PORT"),
-      "uploadTemporaryImage",
-      transversalState)
-    val registContentResult: RegistContentResult = Json.parse(registContentResultJson).as[RegistContentResult]
-    registContentResult.knowledgeForImage
+  private def convertImage(knowledgeForImage: KnowledgeForImage, transversalState:TransversalState): KnowledgeForImage = {
+    val resultJson = ToposoidUtils.callComponent(
+        Json.toJson(knowledgeForImage).toString(),
+        conf.getString("TOPOSOID_CONTENTS_ADMIN_HOST"),
+        conf.getString("TOPOSOID_CONTENTS_ADMIN_PORT"),
+        "convertImage",
+        transversalState)
+    val registeredImageContentResult = Json.parse(resultJson).as[RegisteredImageContentResult]
+    if(registeredImageContentResult.statusInfo.status.equals("OK")){
+      registeredImageContentResult.knowledgeForImage
+    }else{
+      throw Exception(registeredImageContentResult.statusInfo.message)
+    }
   }
-  */
+  private def convertTable(knowledgeForTable: KnowledgeForTable, transversalState:TransversalState): KnowledgeForTable = {
+    val resultJson = ToposoidUtils.callComponent(
+        Json.toJson(knowledgeForTable).toString(),
+        conf.getString("TOPOSOID_CONTENTS_ADMIN_HOST"),
+        conf.getString("TOPOSOID_CONTENTS_ADMIN_PORT"),
+        "convertTable",
+        transversalState)
+    val registeredTableContentResult = Json.parse(resultJson).as[RegisteredTableContentResult]
+    if(registeredTableContentResult.statusInfo.status.equals("OK")){
+      registeredTableContentResult.knowledgeForTable
+    }else{
+      throw Exception(registeredTableContentResult.statusInfo.message)
+    }
+  }
+
 }
