@@ -48,6 +48,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
   before {
     ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_SENTENCE_VECTORDB_ACCESSOR_PORT"), "createSchema", transversalState)
     ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_IMAGE_VECTORDB_ACCESSOR_PORT"), "createSchema", transversalState)
+    //ToposoidUtils.callComponent("{}", conf.getString("TOPOSOID_TABLE_VECTORDB_ACCESSOR_HOST"), conf.getString("TOPOSOID_TABLE_VECTORDB_ACCESSOR_PORT"), "createSchema", transversalState)
     TestUtilsEx.deleteNeo4JAllData(transversalState)
     Thread.sleep(1000)
   }
@@ -684,7 +685,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
   "The specification5(whole-sentence-image-feature-match-trivial)" should {
     "returns an appropriate response" in {
 
-      val sentenceA = "猫が２匹います。"
+      val sentenceA = "猫が２匹寝てます。"
       val referenceA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
       val imageReferenceA = ImageReference(referenceA, x = 11, y = 11, width = 466, height = 310)
@@ -727,7 +728,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "",
           |                                        "surfaceIndex": -1,
           |                                        "isWholeSentence": true,
@@ -775,7 +776,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "",
           |                                        "surfaceIndex": -1,
           |                                        "isWholeSentence": true,

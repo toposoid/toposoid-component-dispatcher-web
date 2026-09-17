@@ -693,7 +693,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForImages=List(uploadImage(knowledgeForImageA, transversalState)))
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
-      val paraphraseA = "There are two pets."
+      val paraphraseA = "There are cats."
       val referenceParaA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
       val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
@@ -718,7 +718,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "premiseLogicRelation": [],
           |                "claimList": [
           |                    {
-          |                        "sentence": "There are two pets.",
+          |                        "sentence": "There are cats.",
           |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
@@ -766,7 +766,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "premiseLogicRelation": [],
           |                "claimList": [
           |                    {
-          |                        "sentence": "There are two pets.",
+          |                        "sentence": "There are cats.",
           |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
