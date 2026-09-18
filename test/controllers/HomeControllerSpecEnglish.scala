@@ -25,7 +25,7 @@ import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, Referenc
 import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
 import com.ideal.linked.toposoid.protocol.model.parser.KnowledgeForParser
 import controllers.TestUtilsEx.{getUUID, registerSingleClaim}
-import com.ideal.linked.toposoid.test.utils.TestUtils.{uploadImage}
+import com.ideal.linked.toposoid.test.utils.TestUtils.{uploadImage, uploadTable}
 //import io.jvm.uuid.UUID
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
@@ -39,6 +39,8 @@ import play.api.test._
 import scala.concurrent.duration.DurationInt
 import com.ideal.linked.toposoid.knowledgebase.regist.model.ImageReference
 import com.ideal.linked.toposoid.knowledgebase.regist.model.KnowledgeForImage
+import com.ideal.linked.toposoid.knowledgebase.regist.model.TableReference
+import com.ideal.linked.toposoid.knowledgebase.regist.model.KnowledgeForTable
 
 class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite with DefaultAwaitTimeout with Injecting{
 
@@ -821,6 +823,148 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
 
     }
   }
+  "The specification6(table-vector-match-trivial)" should {
+    "returns an appropriate response" in {
+
+      val sentenceA = "There is evidence data."
+      val referenceA = Reference(url = "", surface = "data", surfaceIndex = 3, isWholeSentence = false,
+        originalUrlOrReference = "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0")
+      val tableReferenceA = TableReference(referenceA, skipHeaderRows=5, skipRowList=List(),multiHeaderRows=4, sheetNameForExcel= "se0101")
+      val knowledgeForTableA = KnowledgeForTable(getUUID(), tableReferenceA)  
+
+      val propositionId1 = getUUID()
+      val sentenceId1 = getUUID()      
+      val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForTables=List(uploadTable(knowledgeForTableA, transversalState)))
+      registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+
+      val paraphraseA = "There is evidence sample."
+      val referenceParaA = Reference(url = "", surface = "sample", surfaceIndex = 3, isWholeSentence = false,
+        originalUrlOrReference = "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0")  
+      val tableReferenceParaA = TableReference(referenceParaA, skipHeaderRows=5, skipRowList=List(),multiHeaderRows=4, sheetNameForExcel= "se0101")
+      val knowledgeForTableParaA = uploadTable(KnowledgeForTable(getUUID(), tableReferenceParaA), transversalState)
+
+      val json =
+        """{
+          |    "regulation": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "There are two pets.",
+          |                        "lang": "",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [],
+          |                        "knowledgeForTables": [
+          |                           {
+          |                               "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
+          |                               "tableReference": { 
+          |                                    "reference": {
+          |                                        "url": "___###REPLACE_URL###___",
+          |                                        "surface": "sample",
+          |                                        "surfaceIndex": 3,
+          |                                        "isWholeSentence": false,
+          |                                        "originalUrlOrReference": "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0",
+          |                                        "metaInformations": []
+          |                                    },
+          |                                "skipHeaderRows": 5, 
+          |                                "skipRowList": [],
+          |                                "multiHeaderRows": 4, 
+          |                                "sheetNameForExcel": "se0101"
+          |                           }
+          |                                
+          |                         ],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    },
+          |    "hypothesis": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "There are two pets.",
+          |                        "lang": "",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [],
+          |                        "knowledgeForTables": [
+          |                           {
+          |                               "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
+          |                               "tableReference": { 
+          |                                    "reference": {
+          |                                        "url": "___###REPLACE_URL###___",
+          |                                        "surface": "sample",
+          |                                        "surfaceIndex": 3,
+          |                                        "isWholeSentence": false,
+          |                                        "originalUrlOrReference": "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0",
+          |                                        "metaInformations": []
+          |                                    },
+          |                                "skipHeaderRows": 5, 
+          |                                "skipRowList": [],
+          |                                "multiHeaderRows": 4, 
+          |                                "sheetNameForExcel": "se0101"
+          |                           }
+          |                                
+          |                         ],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    }
+          |}""".replaceAll("___###REPLACE_URL###___", knowledgeForTableParaA.tableReference.reference.url).stripMargin.stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("TRIVIAL"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("TRIVIAL"))
+        }
+      })
+
+    }
+  }
+
 
 }
 
