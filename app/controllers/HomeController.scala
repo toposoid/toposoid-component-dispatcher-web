@@ -66,32 +66,7 @@ object ReqSelector {
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents) extends BaseController  with LazyLogging{
 
-  /**
-   * This function receives sentences as JSON. Sentences can be set in JSON separately for assumptions and claims.
-   * Matches with the knowledge database and returns the result of the logical solution in JSON.
-   * @return
-   */
-  /*
-  def analyze() = Action(parse.json) { request =>
-    try {
-      val requestAnalyzer = new RequestAnalyzer()
-      val json = request.body
-      val inputSentence: InputSentence = Json.parse(json.toString).as[InputSentence]
-      logger.info(inputSentence.premise.toString())
-      logger.info(inputSentence.claim.toString())
-      val knowledgeSentenceSet = KnowledgeSentenceSet(inputSentence.premise,List.empty[PropositionRelation], inputSentence.claim, List.empty[PropositionRelation])
-      val parseResult:List[AnalyzedSentenceObject] = requestAnalyzer.parseKnowledgeSentence(knowledgeSentenceSet)
-      val parseResultJson:String = Json.toJson(AnalyzedSentenceObjects(parseResult)).toString()
-      val deductionResult:String = ToposoidUtils.callComponent(parseResultJson, conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_HOST"), conf.getString("TOPOSOID_DEDUCTION_ADMIN_WEB_PORT"), "executeDeduction")
-      Ok(deductionResult).as(JSON)
-    }catch{
-      case e: Exception => {
-        logger.error(e.toString, e)
-        BadRequest(Json.obj("status" ->"Error", "message" -> e.toString()))
-      }
-    }
-  }
-  */
+
   /**
    * This function parses a tree-structured and logical expression including sentence.
    * Input / output is request, response and REST in json.

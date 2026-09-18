@@ -24,7 +24,8 @@ import com.ideal.linked.toposoid.common.{TRANSVERSAL_STATE, ToposoidUtils, Trans
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, Reference}
 import com.ideal.linked.toposoid.protocol.model.frontend.AnalyzedEdges
 import com.ideal.linked.toposoid.protocol.model.parser.KnowledgeForParser
-import controllers.TestUtilsEx.{getKnowledge, getUUID, registerSingleClaim}
+import controllers.TestUtilsEx.{getUUID, registerSingleClaim}
+import com.ideal.linked.toposoid.test.utils.TestUtils.{uploadImage, uploadTable}
 //import io.jvm.uuid.UUID
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatestplus.play.PlaySpec
@@ -36,6 +37,10 @@ import play.api.test.Helpers.{POST, contentType, status, _}
 import play.api.test._
 
 import scala.concurrent.duration.DurationInt
+import com.ideal.linked.toposoid.knowledgebase.regist.model.ImageReference
+import com.ideal.linked.toposoid.knowledgebase.regist.model.KnowledgeForImage
+import com.ideal.linked.toposoid.knowledgebase.regist.model.TableReference
+import com.ideal.linked.toposoid.knowledgebase.regist.model.KnowledgeForTable
 
 class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with BeforeAndAfterAll with GuiceOneAppPerSuite with DefaultAwaitTimeout with Injecting{
 
@@ -443,14 +448,21 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
   "The specification3(image-vector-match-trivial)" should {
     "returns an appropriate response" in {
 
-      val sentenceA = "There are two cats."
-      val referenceA = Reference(url = "", surface = "cats", surfaceIndex = 3, isWholeSentence = false,
-        originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
-      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, width = 466, height = 310)
-      val propositionId1 = getUUID()
-      val sentenceId1 = getUUID()
-      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA, transversalState)
-      registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+    val sentenceA = "There are two cats."
+    val referenceA = Reference(url = "", surface = "cats", surfaceIndex = 3, isWholeSentence = false,
+      originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")    
+    val imageReferenceA = ImageReference(referenceA, x = 11, y = 11, width = 466, height = 310)
+    val knowledgeForImageA = KnowledgeForImage(getUUID(), imageReferenceA)       
+    val propositionId1 = getUUID()
+    val sentenceId1 = getUUID()      
+    val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForImages=List(uploadImage(knowledgeForImageA, transversalState)))
+    registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+
+    val paraphraseA = "There are two pets."
+    val referenceParaA = Reference(url = "", surface = "pets", surfaceIndex = 3, isWholeSentence = false,
+      originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
+    val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
+    val knowledgeForImageParaA = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
 
       val json =
         """{
@@ -479,7 +491,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "pets",
           |                                        "surfaceIndex": 3,
           |                                        "isWholeSentence": false,
@@ -527,7 +539,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "pets",
           |                                        "surfaceIndex": 3,
           |                                        "isWholeSentence": false,
@@ -550,7 +562,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |            }
           |        }
           |    }
-          |}""".stripMargin
+          |}""".replaceAll("___###REPLACE_URL###___", knowledgeForImageParaA.imageReference.reference.url).stripMargin.stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
         .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
@@ -676,11 +688,19 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
       val sentenceA = "There are two cats."
       val referenceA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
-      val imageBoxInfoA = ImageBoxInfo(x = 11, y = 11, width = 466, height = 310)
+      val imageReferenceA = ImageReference(referenceA, x = 11, y = 11, width = 466, height = 310)
+      val knowledgeForImageA = KnowledgeForImage(getUUID(), imageReferenceA)             
       val propositionId1 = getUUID()
       val sentenceId1 = getUUID()
-      val knowledge1 = getKnowledge(lang = lang, sentence = sentenceA, reference = referenceA, imageBoxInfo = imageBoxInfoA, transversalState)
+      val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForImages=List(uploadImage(knowledgeForImageA, transversalState)))
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+
+      val paraphraseA = "There are cats."
+      val referenceParaA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
+        originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
+      val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
+      val knowledgeForImageParaA = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
+
 
       val json =
         """{
@@ -700,7 +720,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "premiseLogicRelation": [],
           |                "claimList": [
           |                    {
-          |                        "sentence": "There are two pets.",
+          |                        "sentence": "There are cats.",
           |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
@@ -709,7 +729,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "",
           |                                        "surfaceIndex": -1,
           |                                        "isWholeSentence": true,
@@ -748,7 +768,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "premiseLogicRelation": [],
           |                "claimList": [
           |                    {
-          |                        "sentence": "There are two pets.",
+          |                        "sentence": "There are cats.",
           |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
@@ -757,7 +777,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "",
+          |                                        "url": "___###REPLACE_URL###___",
           |                                        "surface": "",
           |                                        "surfaceIndex": -1,
           |                                        "isWholeSentence": true,
@@ -780,7 +800,308 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |            }
           |        }
           |    }
-          |}""".stripMargin
+          |}""".replaceAll("___###REPLACE_URL###___", knowledgeForImageParaA.imageReference.reference.url).stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("TRIVIAL"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("TRIVIAL"))
+        }
+      })
+
+    }
+  }
+  "The specification6(table-vector-match-trivial)" should {
+    "returns an appropriate response" in {
+
+      val sentenceA = "There is evidence data."
+      val referenceA = Reference(url = "", surface = "data", surfaceIndex = 3, isWholeSentence = false,
+        originalUrlOrReference = "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0")
+      val tableReferenceA = TableReference(referenceA, skipHeaderRows=5, skipRowList=List(),multiHeaderRows=4, sheetNameForExcel= "se0101")
+      val knowledgeForTableA = KnowledgeForTable(getUUID(), tableReferenceA)  
+
+      val propositionId1 = getUUID()
+      val sentenceId1 = getUUID()      
+      val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForTables=List(uploadTable(knowledgeForTableA, transversalState)))
+      registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+
+      val paraphraseA = "There is evidence sample."
+      val referenceParaA = Reference(url = "", surface = "sample", surfaceIndex = 3, isWholeSentence = false,
+        originalUrlOrReference = "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0")  
+      val tableReferenceParaA = TableReference(referenceParaA, skipHeaderRows=5, skipRowList=List(),multiHeaderRows=4, sheetNameForExcel= "se0101")
+      val knowledgeForTableParaA = uploadTable(KnowledgeForTable(getUUID(), tableReferenceParaA), transversalState)
+
+      val paraphraseB = "There is evidence sample."
+      val referenceParaB = Reference(url = "", surface = "sample", surfaceIndex = 3, isWholeSentence = false,
+        originalUrlOrReference = "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0")  
+      val tableReferenceParaB = TableReference(referenceParaB, skipHeaderRows=5, skipRowList=List(),multiHeaderRows=4, sheetNameForExcel= "se0101")
+      val knowledgeForTableParaB = uploadTable(KnowledgeForTable(getUUID(), tableReferenceParaB), transversalState)
+
+
+      val json =
+        """{
+          |    "regulation": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "There is evidence sample.",
+          |                        "lang": "",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [],
+          |                        "knowledgeForTables": [
+          |                           {
+          |                               "id": "___###REPLACE_FEATURE_ID1###___",
+          |                               "tableReference": { 
+          |                                    "reference": {
+          |                                        "url": "___###REPLACE_URL1###___",
+          |                                        "surface": "sample",
+          |                                        "surfaceIndex": 3,
+          |                                        "isWholeSentence": false,
+          |                                        "originalUrlOrReference": "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0",
+          |                                        "metaInformations": []
+          |                                    }
+          |                                 },
+          |                                "skipHeaderRows": 5, 
+          |                                "skipRowList": [],
+          |                                "multiHeaderRows": 4, 
+          |                                "sheetNameForExcel": "se0101"
+          |                           }
+          |                                
+          |                         ],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    },
+          |    "hypothesis": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "There is evidence sample.",
+          |                        "lang": "",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [],
+          |                        "knowledgeForTables": [
+          |                           {
+          |                               "id": "___###REPLACE_FEATURE_ID2###___",
+          |                               "tableReference": { 
+          |                                    "reference": {
+          |                                        "url": "___###REPLACE_URL2###___",
+          |                                        "surface": "sample",
+          |                                        "surfaceIndex": 3,
+          |                                        "isWholeSentence": false,
+          |                                        "originalUrlOrReference": "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0",
+          |                                        "metaInformations": []
+          |                                    }
+          |                                },
+          |                                "skipHeaderRows": 5, 
+          |                                "skipRowList": [],
+          |                                "multiHeaderRows": 4, 
+          |                                "sheetNameForExcel": "se0101"
+          |                           }
+          |                                
+          |                         ],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    }
+          |}""".replaceAll("___###REPLACE_URL1###___", knowledgeForTableParaA.tableReference.reference.url).replace("___###REPLACE_FEATURE_ID1###___", knowledgeForTableParaA.id).replaceAll("___###REPLACE_URL2###___", knowledgeForTableParaB.tableReference.reference.url).replace("___###REPLACE_FEATURE_ID2###___", knowledgeForTableParaB.id).stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.foreach(x => {
+        if (!x.source.status.equals("")) {
+          assert(x.source.status.equals("TRIVIAL"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("TRIVIAL"))
+        }
+      })
+
+    }
+  }
+
+  "The specification7(whole-sentence-table-feature-match-trivial)" should {
+    "returns an appropriate response" in {
+
+      val sentenceA = "There is evidence data."
+      val referenceA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
+        originalUrlOrReference = "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0")
+      val tableReferenceA = TableReference(referenceA, skipHeaderRows=5, skipRowList=List(),multiHeaderRows=4, sheetNameForExcel= "se0101")
+      val knowledgeForTableA = KnowledgeForTable(getUUID(), tableReferenceA)  
+
+      val propositionId1 = getUUID()
+      val sentenceId1 = getUUID()      
+      val knowledge1 = Knowledge(lang=lang, sentence=sentenceA, extentInfoJson = "{}", knowledgeForTables=List(uploadTable(knowledgeForTableA, transversalState)))
+      registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+
+      val paraphraseA = "There is evidence sample."
+      val referenceParaA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
+        originalUrlOrReference = "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0")  
+      val tableReferenceParaA = TableReference(referenceParaA, skipHeaderRows=5, skipRowList=List(),multiHeaderRows=4, sheetNameForExcel= "se0101")
+      val knowledgeForTableParaA = uploadTable(KnowledgeForTable(getUUID(), tableReferenceParaA), transversalState)
+
+      val paraphraseB = "There is evidence sample."
+      val referenceParaB = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
+        originalUrlOrReference = "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0")  
+      val tableReferenceParaB = TableReference(referenceParaB, skipHeaderRows=5, skipRowList=List(),multiHeaderRows=4, sheetNameForExcel= "se0101")
+      val knowledgeForTableParaB = uploadTable(KnowledgeForTable(getUUID(), tableReferenceParaB), transversalState)
+
+
+      val json =
+        """{
+          |    "regulation": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "There is evidence sample.",
+          |                        "lang": "",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [],
+          |                        "knowledgeForTables": [
+          |                           {
+          |                               "id": "___###REPLACE_FEATURE_ID1###___",
+          |                               "tableReference": { 
+          |                                    "reference": {
+          |                                        "url": "___###REPLACE_URL1###___",
+          |                                        "surface": "",
+          |                                        "surfaceIndex": -1,
+          |                                        "isWholeSentence": true,
+          |                                        "originalUrlOrReference": "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0",
+          |                                        "metaInformations": []
+          |                                    }
+          |                                 },
+          |                                "skipHeaderRows": 5, 
+          |                                "skipRowList": [],
+          |                                "multiHeaderRows": 4, 
+          |                                "sheetNameForExcel": "se0101"
+          |                           }
+          |                                
+          |                         ],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    },
+          |    "hypothesis": {
+          |        "knowledgeLeft": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [],
+          |                "claimLogicRelation": []
+          |            }
+          |        },
+          |        "operator": "",
+          |        "knowledgeRight": {
+          |            "leaf": {
+          |                "premiseList": [],
+          |                "premiseLogicRelation": [],
+          |                "claimList": [
+          |                    {
+          |                        "sentence": "There is evidence sample.",
+          |                        "lang": "",
+          |                        "extentInfoJson": "{}",
+          |                        "isNegativeSentence": false,
+          |                        "knowledgeForImages": [],
+          |                        "knowledgeForTables": [
+          |                           {
+          |                               "id": "___###REPLACE_FEATURE_ID2###___",
+          |                               "tableReference": { 
+          |                                    "reference": {
+          |                                        "url": "___###REPLACE_URL2###___",
+          |                                        "surface": "",
+          |                                        "surfaceIndex": -1,
+          |                                        "isWholeSentence": true,
+          |                                        "originalUrlOrReference": "https://www.e-stat.go.jp/stat-search/file-download?statInfId=000001086170&fileKind=0",
+          |                                        "metaInformations": []
+          |                                    }
+          |                                },
+          |                                "skipHeaderRows": 5, 
+          |                                "skipRowList": [],
+          |                                "multiHeaderRows": 4, 
+          |                                "sheetNameForExcel": "se0101"
+          |                           }
+          |                                
+          |                         ],
+          |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+          |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+          |                    }
+          |                ],
+          |                "claimLogicRelation": []
+          |            }
+          |        }
+          |    }
+          |}""".replaceAll("___###REPLACE_URL1###___", knowledgeForTableParaA.tableReference.reference.url).replace("___###REPLACE_FEATURE_ID1###___", knowledgeForTableParaA.id).replaceAll("___###REPLACE_URL2###___", knowledgeForTableParaB.tableReference.reference.url).replace("___###REPLACE_FEATURE_ID2###___", knowledgeForTableParaB.id).stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
         .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)

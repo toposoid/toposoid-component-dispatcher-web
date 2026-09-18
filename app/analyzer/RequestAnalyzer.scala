@@ -17,7 +17,7 @@
 
 package analyzer
 
-import analyzer.ImageUtils.addImageInformation
+import analyzer.FeatureUtils.addFeatureInformation
 import com.ideal.linked.common.DeploymentConverter.conf
 import com.ideal.linked.toposoid.common.{SentenceType, ToposoidUtils, TransversalState}
 import com.ideal.linked.toposoid.knowledgebase.regist.model.{Knowledge, KnowledgeSentenceSet, PropositionRelation}
@@ -136,7 +136,7 @@ class RequestAnalyzer {
         val parseResultJapanese:String = ToposoidUtils.callComponent(japaneseInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_JP_WEB_PORT"), "analyze", transversalState)
         val asos = Json.parse(parseResultJapanese).as[AnalyzedSentenceObjects].analyzedSentenceObjects
         //Add Informations of Images
-        addImageInformation(asos, premiseJapanese:::claimJapanese, transversalState)
+        addFeatureInformation(asos, premiseJapanese:::claimJapanese, transversalState)
     }
 
     val deductionEnglishList:List[AnalyzedSentenceObject] = numOfKnowledgeEnglish match{
@@ -146,7 +146,7 @@ class RequestAnalyzer {
         val parseResultEnglish:String = ToposoidUtils.callComponent(englishInputSentences ,conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_HOST"), conf.getString("TOPOSOID_SENTENCE_PARSER_EN_WEB_PORT"), "analyze", transversalState)
         val asos = Json.parse(parseResultEnglish).as[AnalyzedSentenceObjects].analyzedSentenceObjects
         //Add Informations of Images
-        addImageInformation(asos, premiseEnglish:::claimEnglish, transversalState)
+        addFeatureInformation(asos, premiseEnglish:::claimEnglish, transversalState)
     }
 
     return deductionJapaneseList ::: deductionEnglishList
