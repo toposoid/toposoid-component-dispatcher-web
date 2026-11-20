@@ -690,7 +690,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val sentenceA = "猫が２匹寝てます。"
       val referenceA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
-      val imageReferenceA = ImageReference(referenceA, x = 11, y = 11, width = 466, height = 310)
+      val imageReferenceA = ImageReference(referenceA, x = 0, y = 0, width = 0, height = 0)
       val knowledgeForImageA = KnowledgeForImage(getUUID(), imageReferenceA)             
       val propositionId1 = getUUID()
       val sentenceId1 = getUUID()
@@ -700,7 +700,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val paraphraseA = "ペットが２匹寝てます。"
       val referenceParaA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
-      val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
+      val imageReferenceParaA = ImageReference(referenceParaA, x = 0, y = 0, width = 0, height = 0)
       val knowledgeForImageParaA = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
 
       val json =
@@ -737,10 +737,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
           |                                        "metaInformations": []
           |                                    },
-          |                                    "x": 11,
-          |                                    "y": 11,
-          |                                    "width": 466,
-          |                                    "height": 310
+          |                                    "x": 0,
+          |                                    "y": 0,
+          |                                    "width": 0,
+          |                                    "height": 0
           |                                }
           |                            }
           |                        ],
@@ -785,10 +785,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
           |                                        "metaInformations": []
           |                                    },
-          |                                    "x": 11,
-          |                                    "y": 11,
-          |                                    "width": 466,
-          |                                    "height": 310
+          |                                    "x": 0,
+          |                                    "y": 0,
+          |                                    "width": 0,
+          |                                    "height": 0
           |                                }
           |                            }
           |                        ],
