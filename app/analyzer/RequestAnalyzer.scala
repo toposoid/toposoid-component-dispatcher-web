@@ -29,6 +29,7 @@ import play.api.libs.json.Json
 import scala.util.{Failure, Success, Try}
 import com.ideal.linked.toposoid.common.ActionModeType
 import com.ideal.linked.toposoid.protocol.model.base.DeductionConfiguration
+import com.ideal.linked.toposoid.common.AuthenticityType
 //import io.jvm.uuid.UUID
 
 class RequestAnalyzer {
@@ -44,19 +45,16 @@ class RequestAnalyzer {
   def assignTrivialProposition(analyzedSentenceObjects:List[AnalyzedSentenceObject], sentenceMapForSat:Map[String, SentenceInfo], subFormulaMap:Map[String, String]): (Map[String, String], Map[String, Option[DeductionResult]])  ={
     val hasPremise = analyzedSentenceObjects.filter(x => x.knowledgeBaseSemiGlobalNode.sentenceType == SentenceType.PREMISE.index).size > 0
     //This is a list of PropositionIds that can be found to be true or false as a result of searching GraphDB.
-    val trivialPropositionIds:Map[String,Option[DeductionResult]] =
+    val trivialSentenceIds:Map[String,Option[DeductionResult]] =
       analyzedSentenceObjects.foldLeft(Map.empty[String, Option[DeductionResult]]){
         (acc, x) =>
           acc ++ extractDeductionResult(x)
       }
     //This is converting the positionId to satId
-    val trivialSatIds = trivialPropositionIds.foldLeft(Map.empty[String, Boolean]){
+    val trivialSatIds = trivialSentenceIds.foldLeft(Map.empty[String, Boolean]){
       (acc, x) => x._2 match {
         case Some(_) => {
-          hasPremise match {
-            case true => acc ++ Map(sentenceMapForSat.get(x._1).get.satId -> (x._2.get.status && x._2.get.havePremiseInGivenProposition))
-            case _  => acc ++ Map(sentenceMapForSat.get(x._1).get.satId -> x._2.get.status)
-          }
+          acc ++ Map(sentenceMapForSat.get(x._1).get.satId -> List(AuthenticityType.SUPPORTED.index, AuthenticityType.REFUTED.index).contains(x._2.get.authenticityType))
         }
         case _ => acc
       }
@@ -66,7 +64,7 @@ class RequestAnalyzer {
       (acc, x) =>
         acc ++ Map(x._1 -> assignment(x._2, trivialSatIds))
     }
-    (resultMap, trivialPropositionIds.filterNot(_._2 == None))
+    (resultMap, trivialSentenceIds.filterNot(_._2 == None))
   }
 
   /**
@@ -89,15 +87,16 @@ class RequestAnalyzer {
    */
   private def extractDeductionResult(analyzedSentenceObject:AnalyzedSentenceObject): Map[String, Option[DeductionResult]] ={
     //An analyzedSentenceObject always has one propositionId.
-    val propositionId = analyzedSentenceObject.nodeMap.map(_._2.propositionId).head
+    //val propositionId = analyzedSentenceObject.nodeMap.map(_._2.propositionId).head
+    val sentenceId = analyzedSentenceObject.knowledgeBaseSemiGlobalNode.sentenceId
 
     //An analyzedSentenceObject has GraphDB search results of either Premis or Claim depending on the sentenceType.
     val deductionResult:DeductionResult = analyzedSentenceObject.deductionResult
-    val status:Option[DeductionResult] = deductionResult.status match {
+    val status:Option[DeductionResult] = List(AuthenticityType.SUPPORTED.index, AuthenticityType.REFUTED.index).contains(deductionResult.authenticityType) match {
       case true => Some(deductionResult)
       case _ => None
     }
-    Map(propositionId -> status)
+    Map(sentenceId -> status)
   }
 
   private def preprocess(rawKnowledgeSentenceSet: KnowledgeSentenceSet, transversalState: TransversalState): KnowledgeSentenceSet = {
@@ -119,10 +118,11 @@ class RequestAnalyzer {
   def parseKnowledgeSentence(noLangKnowledgeSentenceSet: KnowledgeSentenceSet, transversalState:TransversalState):List[AnalyzedSentenceObject] = Try{
 
     val knowledgeSentenceSet = preprocess(noLangKnowledgeSentenceSet, transversalState)
-    val premiseJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang == "ja_JP").map(KnowledgeForParser(java.util.UUID.randomUUID().toString, java.util.UUID.randomUUID().toString, _))
-    val claimJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang == "ja_JP").map(KnowledgeForParser(java.util.UUID.randomUUID().toString, java.util.UUID.randomUUID().toString, _))
-    val premiseEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(java.util.UUID.randomUUID().toString, java.util.UUID.randomUUID().toString, _))
-    val claimEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(java.util.UUID.randomUUID().toString, java.util.UUID.randomUUID().toString, _))
+    val propositionId = java.util.UUID.randomUUID().toString()
+    val premiseJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang == "ja_JP").map(KnowledgeForParser(propositionId, java.util.UUID.randomUUID().toString, _))
+    val claimJapanese:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang == "ja_JP").map(KnowledgeForParser(propositionId, java.util.UUID.randomUUID().toString, _))
+    val premiseEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.premiseList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(propositionId, java.util.UUID.randomUUID().toString, _))
+    val claimEnglish:List[KnowledgeForParser] = knowledgeSentenceSet.claimList.filter(_.lang.startsWith("en_")).map(KnowledgeForParser(propositionId, java.util.UUID.randomUUID().toString, _))
     val japaneseInputSentences:String = Json.toJson(InputSentenceForParser(premiseJapanese, claimJapanese, ActionModeType.DEDUCTION_MODE.index)).toString()
     val englishInputSentences:String = Json.toJson(InputSentenceForParser(premiseEnglish, claimEnglish, ActionModeType.DEDUCTION_MODE.index)).toString()
 
@@ -196,7 +196,7 @@ class RequestAnalyzer {
           val newId:Int = acc.size match {
             case 0 => 1
             case _ => acc.values.max + 1
-          }
+          }          
           acc ++ Map(x.sentence -> newId)
         }else {
           acc
@@ -204,6 +204,21 @@ class RequestAnalyzer {
       }
     }
 
+
+    //asoからだと、isNegativeSentenceを取得できないので、Knowledgeとセットにしたい。
+    val premiseSentenceIds = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == SentenceType.PREMISE.index).map(_.knowledgeBaseSemiGlobalNode.sentenceId).distinct
+    val claimSentenceIds = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == SentenceType.CLAIM.index).map(_.knowledgeBaseSemiGlobalNode.sentenceId).distinct
+
+    //順序が変わってないか要チェック
+    val premiseKnowledgeMap:Map[String, Knowledge] = (premiseSentenceIds zip v.premiseList).groupBy(_._1).mapValues(_.map(_._2).head).toMap
+    val claimKnowledgeMap:Map[String, Knowledge] = (claimSentenceIds zip v.claimList).groupBy(_._1).mapValues(_.map(_._2).head).toMap
+
+    val sentenceInfoMap:Map[String, SentenceInfo] = (premiseKnowledgeMap ++ claimKnowledgeMap).foldLeft(Map.empty[String, SentenceInfo]){
+      (acc, x) =>acc ++ Map(x._1 -> SentenceInfo(x._2.sentence, x._2.isNegativeSentence,  sentenceMapForSat.get(x._2.sentence).get.toString))
+    }
+
+
+    /*
     //Extract all the positionIds contained in the leaf while keeping the order.
     val premisePropositionIds:List[String] = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == SentenceType.PREMISE.index).map(_.nodeMap.head._2.propositionId).distinct
     val claimPropositionIds:List[String] = parseResult.filter(_.knowledgeBaseSemiGlobalNode.sentenceType == SentenceType.CLAIM.index).map(_.nodeMap.head._2.propositionId).distinct
@@ -214,16 +229,16 @@ class RequestAnalyzer {
     val sentenceInfoMap:Map[String, SentenceInfo] = (premiseKnowledgeMap ++ claimKnowledgeMap).foldLeft(Map.empty[String, SentenceInfo]){
       (acc, x) =>acc ++ Map(x._1 -> SentenceInfo(x._2.sentence, x._2.isNegativeSentence,  sentenceMapForSat.get(x._2.sentence).get.toString))
     }
-
-    val leafId:String = claimPropositionIds.head
+    */
+    val leafId:String = parseResult.head.knowledgeBaseSemiGlobalNode.propositionId
 
     //This process assigns an ID smaller than the premise to claim. The reason is that some propositions do not have a premise.
-    val claimIds:List[String] = claimPropositionIds.map(z => {
+    val claimIds:List[String] = claimSentenceIds.map(z => {
       val sentence = sentenceInfoMap.get(z).get.sentence
       sentenceMapForSat.get(sentence).get.toString
     })
 
-    val premiseIds:List[String] = premisePropositionIds.map(z => {
+    val premiseIds:List[String] = premiseSentenceIds.map(z => {
       val sentence = sentenceInfoMap.get(z).get.sentence
       sentenceMapForSat.get(sentence).get.toString
     })
@@ -234,9 +249,10 @@ class RequestAnalyzer {
       case _ => "%s %s IMP".format(premiseFormula, claimFormula)
     }
     val subFormulaMap = result.subFormulaMap ++ Map(leafId.toString -> subFormula)
-    val relations = result.relations ++ List((premisePropositionIds, v.premiseLogicRelation, claimPropositionIds, v.claimLogicRelation, List.empty[String], List.empty[PropositionRelation]))
+    val relations = result.relations ++ List((premiseSentenceIds, v.premiseLogicRelation, claimSentenceIds, v.claimLogicRelation, List.empty[String], List.empty[PropositionRelation]))
     val dc = DeductionConfiguration(ActionModeType.DEDUCTION_MODE.index, "", Map.empty[String, String])
     ParsedKnowledgeTree(leafId,  result.formula, subFormulaMap, result.analyzedSentenceObjectsMap ++ Map(leafId -> AnalyzedSentenceObjects(parseResult, dc)), result.sentenceInfoMap ++ sentenceInfoMap, sentenceMapForSat, relations)
+    
   }
 
   /**
@@ -269,6 +285,7 @@ class RequestAnalyzer {
     if(formulas.size == 1) return formulas.head
     formulas.drop(1).foldLeft(formulas.head){
       (acc, x) => acc + " " + x + " AND"
+      //(acc, x) => acc + " " + x
     }.trim
   }
 

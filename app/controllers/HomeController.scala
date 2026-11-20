@@ -42,8 +42,8 @@ case class ParsedKnowledgeTree( leafId:String,
                                 formula:String,
                                 subFormulaMap:Map[String, String],
                                 analyzedSentenceObjectsMap: Map[String, AnalyzedSentenceObjects],
-                                sentenceInfoMap:Map[String,SentenceInfo],
-                                sentenceMapForSat:Map[String,Int],
+                                sentenceInfoMap:Map[String,SentenceInfo],//キーをsentencdIdにするか、SentenceInfoをリスト化するか
+                                sentenceMapForSat:Map[String,Int], //タプル化, sentenceIdを含める → やらない。文章が同じであれば、同じ命題番号にしたいので。
                                 relations:List[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])])
 
 case class SentenceInfo(sentence:String, isNegativeSentence:Boolean, satId:String)
@@ -127,7 +127,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       }
     }
     val (subFormulaMapAfterAssignment, trivialIdMap) = requestAnalyzer.assignTrivialProposition(analyzedSentenceObjectsAfterDeduction, result.sentenceInfoMap, result.subFormulaMap)
-    val formulaSet = FormulaSet(result.formula.trim, subFormulaMapAfterAssignment)
+    val formulaSet = FormulaSet(result.formula.trim, subFormulaMapAfterAssignment)    
     SatInput(result, trivialIdMap, formulaSet)
   }
 
