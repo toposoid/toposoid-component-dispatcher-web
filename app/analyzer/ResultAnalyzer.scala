@@ -26,6 +26,7 @@ import com.ideal.linked.toposoid.protocol.model.sat.{FlattenedKnowledgeTree, For
 import controllers.{SatInput, SentenceInfo}
 import play.api.libs.json.Json
 import com.ideal.linked.toposoid.common.AuthenticityType
+import com.ideal.linked.toposoid.protocol.model.base.KnowledgeBaseSideInfo
 
 class ResultAnalyzer {
 
@@ -118,7 +119,7 @@ class ResultAnalyzer {
         val analyzedEdgesPremise:List[AnalyzedEdge] =  premiseRelations.size match{
           case 0 => premiseSentenceIds.size match{
               //If there is only one premise, care is taken because relation is zero
-              case 1 => List(AnalyzedEdge(analyzedNodeMap.get(premiseSentenceIds.head).get, AnalyzedNode("", false, List.empty[String], "", false), ""))
+              case 1 => List(AnalyzedEdge(analyzedNodeMap.get(premiseSentenceIds.head).get, AnalyzedNode("", AuthenticityType.INSUFFICIENT.index, List.empty[KnowledgeBaseSideInfo], "", false), ""))
               case _ => List.empty[AnalyzedEdge]
             }
           case _ => premiseRelations.map(p1 => AnalyzedEdge(analyzedNodeMap.get(premiseSentenceIds(p1.sourceIndex)).get, analyzedNodeMap.get(premiseSentenceIds(p1.destinationIndex)).get, p1.operator  ) )
@@ -126,7 +127,7 @@ class ResultAnalyzer {
         val analyzedEdgesClaim:List[AnalyzedEdge] =claimRelations.size match {
           case 0 => claimSentenceIds.size match{
               //If there is only one claim, care is taken because relation is zero
-              case 1 => List(AnalyzedEdge(analyzedNodeMap.get(claimSentenceIds.head).get, AnalyzedNode("", false, List.empty[String], "", false), ""))
+              case 1 => List(AnalyzedEdge(analyzedNodeMap.get(claimSentenceIds.head).get, AnalyzedNode("", AuthenticityType.INSUFFICIENT.index, List.empty[KnowledgeBaseSideInfo], "", false), ""))
               case _ => List.empty[AnalyzedEdge]
             }
           case _  => claimRelations.map(c1 => AnalyzedEdge(analyzedNodeMap.get(claimSentenceIds(c1.sourceIndex)).get, analyzedNodeMap.get(claimSentenceIds(c1.destinationIndex)).get, c1.operator  ) )
@@ -178,8 +179,7 @@ class ResultAnalyzer {
   private def makeAnalyzedNode(sentenceId:String, satResult:Boolean, triviaSentenceIds:Map[String, Option[DeductionResult]], sentenceInfoMap:Map[String, SentenceInfo], usedSat:Boolean = true) : AnalyzedNode ={
 
     val sentence:String = sentenceInfoMap.get(sentenceId).get.sentence
-    //TODO:Implementation to assign the value of reasons
-    val reasons:List[String] = List.empty[String]
+    //TODO:Implementation to assign the value of reasons    
     val status:String = usedSat match {
       case true => {
         triviaSentenceIds.keys.filter(_ == sentenceId).size match {
@@ -194,18 +194,23 @@ class ResultAnalyzer {
         }
       }
     }
-    val finalResult:Boolean = status match {
-      case "TRIVIAL" =>  {
-        //TODO　あくまで一旦コンパイルを通すための実装、後で直す。
+    val finalResult:Int = status match {
+      case "TRIVIAL" =>  {        
         val deductionResult = triviaSentenceIds.get(sentenceId).get.get
-        deductionResult.authenticityType match {
-          case  AuthenticityType.SUPPORTED.index => true
-          case  AuthenticityType.REFUTED.index => false
-          case _ => false // <= ここは特にまずい。、、 
-        }
+        deductionResult.authenticityType
       }
-      case _ => satResult
+      case "OPTIMUM FOUND" => {
+        //TODO: NO_EFFECTのケア
+        satResult match {
+          case true => AuthenticityType.OPTIMUM_TRUE.index
+          case _ => AuthenticityType.OPTIMUM_FALSE.index
+        }
+      } 
+      case _ => {
+        AuthenticityType.INSUFFICIENT.index
+      }
     }
+    val reasons = triviaSentenceIds.get(sentenceId).get.get.evidenceKnowledgeList
     AnalyzedNode(sentence, finalResult, reasons, status, sentenceInfoMap.get(sentenceId).get.isNegativeSentence)
   }
 }
