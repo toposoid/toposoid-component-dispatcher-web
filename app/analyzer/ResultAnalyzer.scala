@@ -41,11 +41,11 @@ class ResultAnalyzer {
     isTrivialProposition(regulation.formulaSet, hypothesis.formulaSet) match {
       case true => {        
         val analyzedRegulationNodes:Map[String, AnalyzedNode] = regulation.parsedKnowledgeTree.sentenceInfoMap.keys.foldLeft(Map.empty[String, AnalyzedNode]){
-          (acc, x) => acc ++ Map(x -> makeAnalyzedNode(x, false, regulation.trivialIdMap, regulation.parsedKnowledgeTree.sentenceInfoMap, usedSat=false))
+          (acc, x) => acc ++ Map(x -> makeAnalyzedNode(x, None, regulation.trivialIdMap, regulation.parsedKnowledgeTree.sentenceInfoMap, usedSat=false))
         }
 
         val analyzedHypothesisNodes:Map[String, AnalyzedNode] = hypothesis.parsedKnowledgeTree.sentenceInfoMap.keys.foldLeft(Map.empty[String, AnalyzedNode]){
-          (acc, x) => acc ++ Map(x -> makeAnalyzedNode(x, false, hypothesis.trivialIdMap, hypothesis.parsedKnowledgeTree.sentenceInfoMap, usedSat=false))
+          (acc, x) => acc ++ Map(x -> makeAnalyzedNode(x, None, hypothesis.trivialIdMap, hypothesis.parsedKnowledgeTree.sentenceInfoMap, usedSat=false))
         }
 
         AnalyzedEdges(makeAnalyzedEdges(regulation.parsedKnowledgeTree.relations ::: hypothesis.parsedKnowledgeTree.relations, analyzedRegulationNodes ++ analyzedHypothesisNodes))
@@ -61,7 +61,7 @@ class ResultAnalyzer {
         val trivialIdMapUnion:Map[String, Option[DeductionResult]] = regulation.trivialIdMap ++ hypothesis.trivialIdMap
         val relationUnion:List[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])] = regulation.parsedKnowledgeTree.relations ++ hypothesis.parsedKnowledgeTree.relations
         val analyzedNodes:Map[String, AnalyzedNode] = sentenceInfoMapUnion.foldLeft(Map.empty[String, AnalyzedNode]){
-          (acc, x) => acc ++ Map(x._1 -> makeAnalyzedNode(x._1, satSolverResult.satResultMap.get(x._2.satId).getOrElse(true), trivialIdMapUnion, sentenceInfoMapUnion))
+          (acc, x) => acc ++ Map(x._1 -> makeAnalyzedNode(x._1, satSolverResult.satResultMap.get(x._2.satId), trivialIdMapUnion, sentenceInfoMapUnion))
         }
 
         AnalyzedEdges(makeAnalyzedEdges(relationUnion, analyzedNodes).distinct)
@@ -176,7 +176,7 @@ class ResultAnalyzer {
    * @param usedSat
    * @return
    */
-  private def makeAnalyzedNode(sentenceId:String, satResult:Boolean, triviaSentenceIds:Map[String, Option[DeductionResult]], sentenceInfoMap:Map[String, SentenceInfo], usedSat:Boolean = true) : AnalyzedNode ={
+  private def makeAnalyzedNode(sentenceId:String, satResult:Option[Boolean], triviaSentenceIds:Map[String, Option[DeductionResult]], sentenceInfoMap:Map[String, SentenceInfo], usedSat:Boolean = true) : AnalyzedNode ={
 
     val sentence:String = sentenceInfoMap.get(sentenceId).get.sentence
     //TODO:Implementation to assign the value of reasons    
@@ -202,8 +202,11 @@ class ResultAnalyzer {
       case "OPTIMUM FOUND" => {
         //TODO: NO_EFFECTのケア
         satResult match {
-          case true => AuthenticityType.OPTIMUM_TRUE.index
-          case _ => AuthenticityType.OPTIMUM_FALSE.index
+          case Some(x) => x match {
+            case true => AuthenticityType.OPTIMUM_TRUE.index
+            case false => AuthenticityType.OPTIMUM_FALSE.index
+          }             
+          case _ => AuthenticityType.NO_EFFECT.index
         }
       } 
       case _ => {
