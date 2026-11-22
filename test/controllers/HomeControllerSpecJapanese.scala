@@ -352,6 +352,300 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
     }
   }
 
+  "The specification1(nontrivial2)" should {
+    "returns an appropriate response" in {
+
+      val propositionId1 = java.util.UUID.randomUUID().toString
+      val sentenceId1 = java.util.UUID.randomUUID().toString
+      val sentenceA = "文章を識別させるために、文章を長くしてから、Aは正直者である。"
+      val knowledge1 = Knowledge(sentenceA, "ja_JP", "{}", false)
+      registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+
+
+      val json = """{
+                   |    "regulation": {
+                   |        "operator": "OR",
+                   |        "knowledgeLeft": {
+                   |            "operator": "OR",
+                   |            "knowledgeLeft": {
+                   |                "leaf": {
+                   |                    "premiseList": [],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "文章を識別させるために、文章を長くしてから、Aは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Bは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Cは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": [
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 0,
+                   |                            "destinationIndex": 1
+                   |                        },
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 1,
+                   |                            "destinationIndex": 2
+                   |                        }
+                   |                    ]
+                   |                }
+                   |            },
+                   |            "knowledgeRight": {
+                   |                "leaf": {
+                   |                    "premiseList": [],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "Eは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Fは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Gは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": [
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 0,
+                   |                            "destinationIndex": 1
+                   |                        },
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 1,
+                   |                            "destinationIndex": 2
+                   |                        }
+                   |                    ]
+                   |                }
+                   |            }
+                   |        },
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "文章を識別させるために、文章を長くしてから、Aは正直者である。",
+                   |                        "lang": "",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true,
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Bは正直者である。",
+                   |                        "lang": "",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false,
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Cは正直者である。",
+                   |                        "lang": "",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false,
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": [
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 0,
+                   |                        "destinationIndex": 1
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 1,
+                   |                        "destinationIndex": 2
+                   |                    }
+                   |                ]
+                   |            }
+                   |        }
+                   |    },
+                   |    "hypothesis": {
+                   |        "operator": "AND",
+                   |        "knowledgeLeft": {
+                   |            "operator": "AND",
+                   |            "knowledgeLeft": {
+                   |                "leaf": {
+                   |                    "premiseList": [
+                   |                        {
+                   |                            "sentence": "文章を識別させるために、文章を長くしてから、Aは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "Cは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": []
+                   |                }
+                   |            },
+                   |            "knowledgeRight": {
+                   |                "leaf": {
+                   |                    "premiseList": [
+                   |                        {
+                   |                            "sentence": "Bは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "文章を識別させるために、文章を長くしてから、Aは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": []
+                   |                }
+                   |            }
+                   |        },
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [
+                   |                    {
+                   |                        "sentence": "Cは正直者である。",
+                   |                        "lang": "",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false,
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                    }
+                   |                ],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "Bは正直者である。",
+                   |                        "lang": "",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true,
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": []
+                   |            }
+                   |        }
+                   |    }
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.foreach(x => {
+
+        
+
+        if(!x.source.status.equals("")){
+          assert(x.source.status.equals("OPTIMUM FOUND"))
+        }
+        if (!x.target.status.equals("")) {
+          assert(x.target.status.equals("OPTIMUM FOUND"))
+        }
+      })
+
+    }
+  }
+
   "The specification2(exact-synonym--match-trivial)" should {
     "returns an appropriate response" in {
 
@@ -824,7 +1118,6 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
     }
   }
-
 
   "The specification6(table-vector-match-trivial)" should {
     "returns an appropriate response" in {

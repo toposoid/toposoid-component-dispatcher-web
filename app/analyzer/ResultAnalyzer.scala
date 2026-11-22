@@ -213,7 +213,12 @@ class ResultAnalyzer {
         AuthenticityType.INSUFFICIENT.index
       }
     }
-    val reasons = triviaSentenceIds.get(sentenceId).get.get.evidenceKnowledgeList
+    
+    val reasons = triviaSentenceIds.get(sentenceId) match {
+      case Some(x) => x.get.evidenceKnowledgeList
+      case _ => List.empty[KnowledgeBaseSideInfo]
+    }
+        
     AnalyzedNode(sentence, finalResult, reasons, status, sentenceInfoMap.get(sentenceId).get.isNegativeSentence)
   }
 }
