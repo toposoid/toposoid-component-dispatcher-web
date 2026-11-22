@@ -11,4 +11,5 @@ POST    /analyzeKnowledgeTree       controllers.HomeController.analyzeKnowledgeT
 POST    /changeEndPoints            controllers.HomeController.changeEndPoints()
 + nocsrf
 POST    /getEndPoints               controllers.HomeController.getEndPointsFromInMemoryDB()
-
++ nocsrf
+POST    /getEvidenceSentenceAndNeighborhood controllers.HomeController.getEvidenceSentenceAndNeighborhood()

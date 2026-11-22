@@ -440,6 +440,17 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("Life is so comfortable."))
+        )      
       })
 
     }
@@ -459,10 +470,11 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
     registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
     val paraphraseA = "There are two pets."
-    val referenceParaA = Reference(url = "", surface = "pets", surfaceIndex = 3, isWholeSentence = false,
+    val referenceParaA = Reference(url = "", surface = "cats", surfaceIndex = 2, isWholeSentence = false,
       originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
     val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
-    val knowledgeForImageParaA = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
+    val knowledgeForImageParaA1 = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
+    val knowledgeForImageParaA2 = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
 
       val json =
         """{
@@ -491,7 +503,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "___###REPLACE_URL###___",
+          |                                        "url": "___###REPLACE_URL1###___",
           |                                        "surface": "pets",
           |                                        "surfaceIndex": 3,
           |                                        "isWholeSentence": false,
@@ -539,7 +551,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                                "id": "225a0bc8-fabd-4a90-ad04-1247c32dc672",
           |                                "imageReference": {
           |                                    "reference": {
-          |                                        "url": "___###REPLACE_URL###___",
+          |                                        "url": "___###REPLACE_URL2###___",
           |                                        "surface": "pets",
           |                                        "surfaceIndex": 3,
           |                                        "isWholeSentence": false,
@@ -562,7 +574,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |            }
           |        }
           |    }
-          |}""".replaceAll("___###REPLACE_URL###___", knowledgeForImageParaA.imageReference.reference.url).stripMargin.stripMargin
+          |}""".replaceAll("___###REPLACE_URL1###___", knowledgeForImageParaA1.imageReference.reference.url).replaceAll("___###REPLACE_URL2###___", knowledgeForImageParaA2.imageReference.reference.url).stripMargin.stripMargin
 
       val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
         .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
@@ -581,6 +593,19 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("There are two cats."))
+          assert(x.images.filterNot(_.equals("")).size > 0 )
+        )      
+
       })
 
     }
@@ -591,7 +616,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
 
       val propositionId1 = java.util.UUID.randomUUID().toString
       val sentenceId1 = java.util.UUID.randomUUID().toString
-      val sentenceA = "The culprit is among us."
+      val sentenceA = "Based on my many years of experience, the culprit of this incident is likely among us."
       val knowledge1 = Knowledge(sentenceA, lang, "{}", false)
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
@@ -613,7 +638,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "premiseLogicRelation": [],
           |                "claimList": [
           |                    {
-          |                        "sentence": "the culprit was one of us.",
+          |                        "sentence": "Based on my many years of experience, the perpetrator of this incident is likely among us.",
           |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
@@ -643,7 +668,7 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
           |                "premiseLogicRelation": [],
           |                "claimList": [
           |                    {
-          |                        "sentence": "We confirmed that the culprit was one of us.",
+          |                        "sentence": "Based on my many years of experience, the perpetrator of this incident is likely among us.",
           |                        "lang": "",
           |                        "extentInfoJson": "{}",
           |                        "isNegativeSentence": false,
@@ -676,6 +701,18 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("Based on my many years of experience, the culprit of this incident is likely among us."))          
+        )      
+
       })
 
     }
@@ -819,6 +856,18 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("There are two cats."))
+          assert(x.images.filterNot(_.equals("")).size > 0 )
+        )      
       })
 
     }
@@ -969,6 +1018,19 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("There is evidence data."))
+          assert(x.tables.filterNot(_.equals("")).size > 0 )
+        )      
+
       })
 
     }
@@ -1120,6 +1182,18 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("There is evidence data."))
+          assert(x.tables.filterNot(_.equals("")).size > 0 )
+        )      
       })
 
     }

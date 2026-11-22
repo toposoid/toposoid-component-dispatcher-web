@@ -352,6 +352,302 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
     }
   }
 
+  "The specification1(nontrivial2)" should {
+    "returns an appropriate response" in {
+
+      val propositionId1 = java.util.UUID.randomUUID().toString
+      val sentenceId1 = java.util.UUID.randomUUID().toString
+      val sentenceA = "文章を識別させるために、文章を長くしてから、Aは正直者である。"
+      val knowledge1 = Knowledge(sentenceA, "ja_JP", "{}", false)
+      registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
+
+
+      val json = """{
+                   |    "regulation": {
+                   |        "operator": "OR",
+                   |        "knowledgeLeft": {
+                   |            "operator": "OR",
+                   |            "knowledgeLeft": {
+                   |                "leaf": {
+                   |                    "premiseList": [],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "文章を識別させるために、文章を長くしてから、Aは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Bは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Cは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": [
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 0,
+                   |                            "destinationIndex": 1
+                   |                        },
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 1,
+                   |                            "destinationIndex": 2
+                   |                        }
+                   |                    ]
+                   |                }
+                   |            },
+                   |            "knowledgeRight": {
+                   |                "leaf": {
+                   |                    "premiseList": [],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "Eは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Fは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        },
+                   |                        {
+                   |                            "sentence": "Gは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": [
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 0,
+                   |                            "destinationIndex": 1
+                   |                        },
+                   |                        {
+                   |                            "operator": "AND",
+                   |                            "sourceIndex": 1,
+                   |                            "destinationIndex": 2
+                   |                        }
+                   |                    ]
+                   |                }
+                   |            }
+                   |        },
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "文章を識別させるために、文章を長くしてから、Aは正直者である。",
+                   |                        "lang": "",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true,
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Bは正直者である。",
+                   |                        "lang": "",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false,
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                    },
+                   |                    {
+                   |                        "sentence": "Cは正直者である。",
+                   |                        "lang": "",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false,
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": [
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 0,
+                   |                        "destinationIndex": 1
+                   |                    },
+                   |                    {
+                   |                        "operator": "AND",
+                   |                        "sourceIndex": 1,
+                   |                        "destinationIndex": 2
+                   |                    }
+                   |                ]
+                   |            }
+                   |        }
+                   |    },
+                   |    "hypothesis": {
+                   |        "operator": "AND",
+                   |        "knowledgeLeft": {
+                   |            "operator": "AND",
+                   |            "knowledgeLeft": {
+                   |                "leaf": {
+                   |                    "premiseList": [
+                   |                        {
+                   |                            "sentence": "文章を識別させるために、文章を長くしてから、Aは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "Cは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": true,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": []
+                   |                }
+                   |            },
+                   |            "knowledgeRight": {
+                   |                "leaf": {
+                   |                    "premiseList": [
+                   |                        {
+                   |                            "sentence": "Bは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "premiseLogicRelation": [],
+                   |                    "claimList": [
+                   |                        {
+                   |                            "sentence": "文章を識別させるために、文章を長くしてから、Aは正直者である。",
+                   |                            "lang": "",
+                   |                            "extentInfoJson": "{}",
+                   |                            "isNegativeSentence": false,
+                   |                            "knowledgeForImages":[],
+                   |                            "knowledgeForTables": [],
+                   |                            "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                            "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                        }
+                   |                    ],
+                   |                    "claimLogicRelation": []
+                   |                }
+                   |            }
+                   |        },
+                   |        "knowledgeRight": {
+                   |            "leaf": {
+                   |                "premiseList": [
+                   |                    {
+                   |                        "sentence": "Cは正直者である。",
+                   |                        "lang": "",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": false,
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |                    }
+                   |                ],
+                   |                "premiseLogicRelation": [],
+                   |                "claimList": [
+                   |                    {
+                   |                        "sentence": "Bは正直者である。",
+                   |                        "lang": "",
+                   |                        "extentInfoJson": "{}",
+                   |                        "isNegativeSentence": true,
+                   |                        "knowledgeForImages":[],
+                   |                        "knowledgeForTables": [],
+                   |                        "knowledgeForDocument": {"id":"", "filename":"", "url":"", "titleOfTopPage": ""},
+                   |                        "documentPageReference": {"pageNo":-1, "references":[], "tableOfContents":[], "headlines":[]}
+                   |
+                   |                    }
+                   |                ],
+                   |                "claimLogicRelation": []
+                   |            }
+                   |        }
+                   |    }
+                   |}""".stripMargin
+
+      val fr = FakeRequest(POST, "/analyzeKnowledgeTree")
+        .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+        .withJsonBody(Json.parse(json))
+
+      val result = call(controller.analyzeKnowledgeTree(), fr)
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      val jsonResult = contentAsJson(result).toString()
+      val analyzedEdges: AnalyzedEdges = Json.parse(jsonResult).as[AnalyzedEdges]
+
+      analyzedEdges.analyzedEdges.foreach(x => {
+
+        if(x.source.status.equals("TRIVIAL")){
+            assert(x.source.assignment == 1 || x.source.assignment == 2)
+        }else if(x.source.status.equals("OPTIMUM FOUND")){
+          if(List("Eは正直者である。", "Fは正直者である。", "Gは正直者である。").contains(x.source.sentence)){
+            assert(x.source.assignment == 4)
+          }else {
+            assert(x.source.assignment == 5 || x.source.assignment == 6)
+          }          
+        }else{
+            assert(x.source.assignment == 0 || x.source.assignment == 3)
+        }
+      })
+    }
+  }
+  
   "The specification2(exact-synonym--match-trivial)" should {
     "returns an appropriate response" in {
 
@@ -442,9 +738,24 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("太郎は秀逸な発案をした。"))
+        )      
       })
 
-    }
+
+
+
+    }    
   }
 
   "The specification3(image-vector-match-trivial)" should {
@@ -461,7 +772,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val paraphraseA = "ペットが２匹寝てます。"
-      val referenceParaA = Reference(url = "", surface = "ペットが２", surfaceIndex = 0, isWholeSentence = false,
+      val referenceParaA = Reference(url = "", surface = "ペットが", surfaceIndex = 0, isWholeSentence = false,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
       val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
       val knowledgeForImageParaA = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
@@ -583,6 +894,19 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("猫が２匹寝てます。"))
+          assert(x.images.filterNot(_.equals("")).size > 0 )
+        )      
       })
 
     }
@@ -678,6 +1002,18 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("自然界の法則がすべての慣性系で同じように成り立っている。"))
+        )      
+
       })
 
     }
@@ -690,7 +1026,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val sentenceA = "猫が２匹寝てます。"
       val referenceA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
-      val imageReferenceA = ImageReference(referenceA, x = 11, y = 11, width = 466, height = 310)
+      val imageReferenceA = ImageReference(referenceA, x = 0, y = 0, width = 0, height = 0)
       val knowledgeForImageA = KnowledgeForImage(getUUID(), imageReferenceA)             
       val propositionId1 = getUUID()
       val sentenceId1 = getUUID()
@@ -700,7 +1036,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       val paraphraseA = "ペットが２匹寝てます。"
       val referenceParaA = Reference(url = "", surface = "", surfaceIndex = -1, isWholeSentence = true,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
-      val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
+      val imageReferenceParaA = ImageReference(referenceParaA, x = 0, y = 0, width = 0, height = 0)
       val knowledgeForImageParaA = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
 
       val json =
@@ -737,10 +1073,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
           |                                        "metaInformations": []
           |                                    },
-          |                                    "x": 11,
-          |                                    "y": 11,
-          |                                    "width": 466,
-          |                                    "height": 310
+          |                                    "x": 0,
+          |                                    "y": 0,
+          |                                    "width": 0,
+          |                                    "height": 0
           |                                }
           |                            }
           |                        ],
@@ -785,10 +1121,10 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
           |                                        "originalUrlOrReference": "http://images.cocodataset.org/val2017/000000039769.jpg",
           |                                        "metaInformations": []
           |                                    },
-          |                                    "x": 11,
-          |                                    "y": 11,
-          |                                    "width": 466,
-          |                                    "height": 310
+          |                                    "x": 0,
+          |                                    "y": 0,
+          |                                    "width": 0,
+          |                                    "height": 0
           |                                }
           |                            }
           |                        ],
@@ -820,11 +1156,23 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("猫が２匹寝てます。"))          
+          assert(x.images.filterNot(_.equals("")).size > 0 )
+        )      
+
       })
 
     }
   }
-
 
   "The specification6(table-vector-match-trivial)" should {
     "returns an appropriate response" in {
@@ -972,6 +1320,19 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("証拠データが一つあります。"))          
+          assert(x.tables.filterNot(_.equals("")).size > 0 )          
+        )      
+
       })
 
     }
@@ -1123,6 +1484,18 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("証拠データが一つあります。"))          
+          assert(x.tables.filterNot(_.equals("")).size > 0 )          
+        )      
       })
 
     }

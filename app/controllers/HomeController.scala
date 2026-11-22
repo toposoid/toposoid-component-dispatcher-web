@@ -32,6 +32,10 @@ import javax.inject._
 import play.api._
 import play.api.mvc._
 import play.api.libs.json.{Json, OWrites, Reads, JsValue}
+import com.ideal.linked.toposoid.common.Neo4JUtilsImpl
+import com.ideal.linked.toposoid.protocol.model.base.KnowledgeBaseSideInfo
+import com.ideal.linked.toposoid.protocol.model.neo4j.Neo4jRecords
+import com.ideal.linked.toposoid.common.FeatureType
 
 case class TargetProblem(regulation:KnowledgeTree, hypothesis:KnowledgeTree)
 object TargetProblem {
@@ -42,8 +46,8 @@ case class ParsedKnowledgeTree( leafId:String,
                                 formula:String,
                                 subFormulaMap:Map[String, String],
                                 analyzedSentenceObjectsMap: Map[String, AnalyzedSentenceObjects],
-                                sentenceInfoMap:Map[String,SentenceInfo],
-                                sentenceMapForSat:Map[String,Int],
+                                sentenceInfoMap:Map[String,SentenceInfo],//キーをsentencdIdにするか、SentenceInfoをリスト化するか
+                                sentenceMapForSat:Map[String,Int], //タプル化, sentenceIdを含める → やらない。文章が同じであれば、同じ命題番号にしたいので。
                                 relations:List[(List[String], List[PropositionRelation], List[String], List[PropositionRelation], List[String], List[PropositionRelation])])
 
 case class SentenceInfo(sentence:String, isNegativeSentence:Boolean, satId:String)
@@ -58,6 +62,15 @@ object ReqSelector {
   implicit val jsonWrites:OWrites[ReqSelector] = Json.writes[ReqSelector]
   implicit val jsonReads:Reads[ReqSelector] = Json.reads[ReqSelector]
 }
+
+
+case class Evidence(documentId:String, sentences:List[String], images:List[String]=List.empty[String], tables:List[String]=List.empty[String])
+object Evidence {
+  implicit val jsonWrites:OWrites[Evidence] = Json.writes[Evidence]
+  implicit val jsonReads:Reads[Evidence] = Json.reads[Evidence]
+}
+
+
 /**
  * This controller creates an `Action` to integrates two major microservices.
  * One is a microservice that analyzes the predicate argument structure of sentences,
@@ -127,7 +140,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
       }
     }
     val (subFormulaMapAfterAssignment, trivialIdMap) = requestAnalyzer.assignTrivialProposition(analyzedSentenceObjectsAfterDeduction, result.sentenceInfoMap, result.subFormulaMap)
-    val formulaSet = FormulaSet(result.formula.trim, subFormulaMapAfterAssignment)
+    val formulaSet = FormulaSet(result.formula.trim, subFormulaMapAfterAssignment)    
     SatInput(result, trivialIdMap, formulaSet)
   }
 
@@ -165,6 +178,87 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
     }
   }
 
+  def getEvidenceSentenceAndNeighborhood():Action[JsValue] = Action(parse.json[JsValue])  { request =>
+    val transversalState = Json.parse(request.headers.get(TRANSVERSAL_STATE.str).get).as[TransversalState]
+    try {
+      val json = request.body
+      val knowledgeBaseSideInfoList: List[KnowledgeBaseSideInfo] = Json.parse(json.toString).as[List[KnowledgeBaseSideInfo]]
+      val neo4JUtils = Neo4JUtilsImpl()      
+      val evidences =knowledgeBaseSideInfoList.foldLeft(List.empty[Evidence]){
+        (acc, x) => {
+          val jsonStr = neo4JUtils.getCypherQueryResult("MATCH (n) WHERE n.propositionId='%s' RETURN n".format(x.propositionId) , "", transversalState)     
+          val neo4jRecords: Neo4jRecords = Json.parse(jsonStr).as[Neo4jRecords]   
+          val evidenceInfoList = neo4jRecords.records.foldLeft(List.empty[Evidence]) {
+            (acc2, y) => {   
+              val evidenceInfo = y.map(z => {       
+                val featureInfo:Option[(Int, String)] = z.value.featureNode match {
+                  case Some(a) => {
+                    Option((a.featureType, a.url))
+                  }
+                  case _ => None 
+                }                
+                val(documentId, sentenceId, sentence) = z.value.semiGlobalNode match {
+                  case Some(a) => {
+                    (a.documentId, a.sentenceId, a.sentence)
+                  }
+                  case _ => ("", "", "")
+                }
+                val imageUrl = featureInfo match {
+                  case Some(x) => {
+                    x._1 match {
+                      case FeatureType.IMAGE.index => x._2
+                      case _ => ""
+                    }
+                  }
+                  case _ => ""
+                }
+                val tableUrl = featureInfo match {
+                  case Some(x) => {
+                    x._1 match {
+                      case FeatureType.TABLE.index => x._2
+                      case _ => ""
+                    }
+                  }
+                  case _ => ""
+                }
+                (documentId, sentenceId, sentence, imageUrl, tableUrl)
+              })
 
+              //propositionIdごとにデータは処理されるので、propositionIdが同じ範囲ではuuidで序列が文章の順番になる。
+              val documentInfo = evidenceInfo.filterNot(_._1.equals(""))
+              val documentId = documentInfo.size match {
+                case 0 => ""
+                case _ => documentInfo.head._1
+              }
+                            
+              val sentences = evidenceInfo.filterNot(_._2.equals("")).map(a => (a._2 -> a._3)).sortBy(_._1).toSeq.map(_._2)
+              val imageUrls = evidenceInfo.filterNot(_._4.equals("")).map(_._4)
+              val tableUrls = evidenceInfo.filterNot(_._5.equals("")).map(_._5)              
+              acc2 :+ Evidence(documentId, sentences, imageUrls, tableUrls)
+
+            }
+          } 
+
+          val documentInfo = evidenceInfoList.filterNot(_.documentId.equals(""))
+          val documentId = documentInfo.size match {
+            case 0 => ""
+            case _ => documentInfo.head._1
+          }
+          val aggregatedSentences = evidenceInfoList.filterNot(_.sentences.size == 0).foldLeft(List.empty[String]){(acc, a) => acc ++ a.sentences}.distinct
+          val aggregatedImageUrls = evidenceInfoList.filterNot(_.images.size == 0).foldLeft(List.empty[String]){(acc, a) => acc ++ a.images}.distinct
+          val aggregatedTableUrls = evidenceInfoList.filterNot(_.tables.size == 0).foldLeft(List.empty[String]){(acc, a) => acc ++ a.tables}.distinct
+
+          acc :+  Evidence(documentId, aggregatedSentences, aggregatedImageUrls, aggregatedTableUrls)        
+        }
+      }            
+
+      Ok(Json.toJson(evidences.filterNot(x => x.sentences.size == 0) .distinct)).as(JSON)
+    } catch {
+      case e: Exception => {
+        logger.error(ToposoidUtils.formatMessageForLogger(e.toString, transversalState.userId), e)
+        BadRequest(Json.obj("status" -> "Error", "message" -> e.toString()))
+      }
+    }
+  }
 }
 
