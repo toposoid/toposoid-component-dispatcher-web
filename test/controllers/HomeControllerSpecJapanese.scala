@@ -748,7 +748,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         val jsonResult = contentAsJson(result).toString()
         val evidences =  Json.parse(jsonResult).as[List[Evidence]]
         evidences.foreach(x =>          
-          assert(x.sentenceList.head.equals("太郎は秀逸な発案をした。"))
+          assert(x.sentences.head.equals("太郎は秀逸な発案をした。"))
         )      
       })
 
@@ -772,7 +772,7 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
       registerSingleClaim(KnowledgeForParser(propositionId1, sentenceId1, knowledge1), transversalState)
 
       val paraphraseA = "ペットが２匹寝てます。"
-      val referenceParaA = Reference(url = "", surface = "ペットが２", surfaceIndex = 0, isWholeSentence = false,
+      val referenceParaA = Reference(url = "", surface = "ペットが", surfaceIndex = 0, isWholeSentence = false,
         originalUrlOrReference = "http://images.cocodataset.org/val2017/000000039769.jpg")
       val imageReferenceParaA = ImageReference(referenceParaA, x = 11, y = 11, width = 466, height = 310)
       val knowledgeForImageParaA = uploadImage(KnowledgeForImage(getUUID(), imageReferenceParaA), transversalState)  
