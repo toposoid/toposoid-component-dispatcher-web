@@ -32,6 +32,9 @@ import javax.inject._
 import play.api._
 import play.api.mvc._
 import play.api.libs.json.{Json, OWrites, Reads, JsValue}
+import com.ideal.linked.toposoid.common.Neo4JUtilsImpl
+import com.ideal.linked.toposoid.protocol.model.base.KnowledgeBaseSideInfo
+import com.ideal.linked.toposoid.protocol.model.neo4j.Neo4jRecords
 
 case class TargetProblem(regulation:KnowledgeTree, hypothesis:KnowledgeTree)
 object TargetProblem {
@@ -58,6 +61,15 @@ object ReqSelector {
   implicit val jsonWrites:OWrites[ReqSelector] = Json.writes[ReqSelector]
   implicit val jsonReads:Reads[ReqSelector] = Json.reads[ReqSelector]
 }
+
+
+case class Evidence(documentId:String, sentenceList:List[String], imageList:List[String]=List.empty[String], tableList:List[String]=List.empty[String])
+object Evidence {
+  implicit val jsonWrites:OWrites[Evidence] = Json.writes[Evidence]
+  implicit val jsonReads:Reads[Evidence] = Json.reads[Evidence]
+}
+
+
 /**
  * This controller creates an `Action` to integrates two major microservices.
  * One is a microservice that analyzes the predicate argument structure of sentences,
@@ -165,6 +177,37 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
     }
   }
 
-
+  def getEvidenceSentenceAndNeighborhood():Action[JsValue] = Action(parse.json[JsValue])  { request =>
+    val transversalState = Json.parse(request.headers.get(TRANSVERSAL_STATE.str).get).as[TransversalState]
+    try {
+      val json = request.body
+      val knowledgeBaseSideInfoList: List[KnowledgeBaseSideInfo] = Json.parse(json.toString).as[List[KnowledgeBaseSideInfo]]
+      val neo4JUtils = Neo4JUtilsImpl()      
+      val evidences =knowledgeBaseSideInfoList.foldLeft(List.empty[Evidence]){
+        (acc, x) => {
+          val jsonStr = neo4JUtils.getCypherQueryResult("MATCH (n:SemiGlobalClaimNode) WHERE n.propositionId='%s' RETURN n".format(x.propositionId) , "", transversalState)     
+          val neo4jRecords: Neo4jRecords = Json.parse(jsonStr).as[Neo4jRecords]   
+          acc ++ neo4jRecords.records.foldLeft(List.empty[Evidence]) {
+            (acc2, y) => {                
+              val sentenceInfo = y.map(z => {
+                val documentId = z.value.semiGlobalNode.get.documentId
+                val sentence = z.value.semiGlobalNode.get.sentence
+                (documentId, sentence)
+              })
+              val documentId = sentenceInfo.head._1
+              val sentenceList = sentenceInfo.map(_._2)
+              acc2 :+ Evidence(documentId, sentenceList)
+            }
+          }          
+        }
+      }            
+      Ok(Json.toJson(evidences.distinct)).as(JSON)
+    } catch {
+      case e: Exception => {
+        logger.error(ToposoidUtils.formatMessageForLogger(e.toString, transversalState.userId), e)
+        BadRequest(Json.obj("status" -> "Error", "message" -> e.toString()))
+      }
+    }
+  }
 }
 
