@@ -633,19 +633,21 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
 
       analyzedEdges.analyzedEdges.foreach(x => {
 
-        
-
-        if(!x.source.status.equals("")){
-          assert(x.source.status.equals("OPTIMUM FOUND"))
-        }
-        if (!x.target.status.equals("")) {
-          assert(x.target.status.equals("OPTIMUM FOUND"))
+        if(x.source.status.equals("TRIVIAL")){
+            assert(x.source.assignment == 1 || x.source.assignment == 2)
+        }else if(x.source.status.equals("OPTIMUM FOUND")){
+          if(List("Eは正直者である。", "Fは正直者である。", "Gは正直者である。").contains(x.source.sentence)){
+            assert(x.source.assignment == 4)
+          }else {
+            assert(x.source.assignment == 5 || x.source.assignment == 6)
+          }          
+        }else{
+            assert(x.source.assignment == 0 || x.source.assignment == 3)
         }
       })
-
     }
   }
-
+  
   "The specification2(exact-synonym--match-trivial)" should {
     "returns an appropriate response" in {
 
