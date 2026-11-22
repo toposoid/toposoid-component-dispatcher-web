@@ -31,6 +31,7 @@ jobs:
             docker rmi --force toposoid/data-accessor-neo4j-web:${{ env.PJ_VERSION }} > /dev/null 2>&1 && :
             docker rmi --force toposoid/data-accessor-weaviate-web:${{ env.PJ_VERSION }} > /dev/null 2>&1 && :             
             docker rmi --force toposoid/data-accessor-redis-web:${{ env.PJ_VERSION }} > /dev/null 2>&1 && :
+            docker rmi --force toposoid/toposoid-sat-solver-web:${{ env.PJ_VERSION }} > /dev/null 2>&1 && :
             docker rmi --force $(docker images --format "{{.Repository}}:{{.Tag}}" | grep "deduction")            
             docker images
             docker system prune -f
