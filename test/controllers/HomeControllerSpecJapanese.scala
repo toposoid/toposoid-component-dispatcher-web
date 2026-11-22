@@ -894,6 +894,19 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("猫が２匹寝てます。"))
+          assert(x.images.filterNot(_.equals("")).size > 0 )
+        )      
       })
 
     }
@@ -989,6 +1002,18 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("自然界の法則がすべての慣性系で同じように成り立っている。"))
+        )      
+
       })
 
     }
@@ -1131,6 +1156,19 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("猫が２匹寝てます。"))          
+          assert(x.images.filterNot(_.equals("")).size > 0 )
+        )      
+
       })
 
     }
@@ -1282,6 +1320,19 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("証拠データが一つあります。"))          
+          assert(x.tables.filterNot(_.equals("")).size > 0 )          
+        )      
+
       })
 
     }
@@ -1433,6 +1484,18 @@ class HomeControllerSpecJapanese extends PlaySpec with BeforeAndAfter with Befor
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("証拠データが一つあります。"))          
+          assert(x.tables.filterNot(_.equals("")).size > 0 )          
+        )      
       })
 
     }

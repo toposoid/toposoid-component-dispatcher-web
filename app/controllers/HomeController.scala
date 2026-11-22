@@ -188,7 +188,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
         (acc, x) => {
           val jsonStr = neo4JUtils.getCypherQueryResult("MATCH (n) WHERE n.propositionId='%s' RETURN n".format(x.propositionId) , "", transversalState)     
           val neo4jRecords: Neo4jRecords = Json.parse(jsonStr).as[Neo4jRecords]   
-          acc ++ neo4jRecords.records.foldLeft(List.empty[Evidence]) {
+          val evidenceInfoList = neo4jRecords.records.foldLeft(List.empty[Evidence]) {
             (acc2, y) => {   
               val evidenceInfo = y.map(z => {       
                 val featureInfo:Option[(Int, String)] = z.value.featureNode match {
@@ -237,7 +237,18 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
               acc2 :+ Evidence(documentId, sentences, imageUrls, tableUrls)
 
             }
-          }          
+          } 
+
+          val documentInfo = evidenceInfoList.filterNot(_.documentId.equals(""))
+          val documentId = documentInfo.size match {
+            case 0 => ""
+            case _ => documentInfo.head._1
+          }
+          val aggregatedSentences = evidenceInfoList.filterNot(_.sentences.size == 0).foldLeft(List.empty[String]){(acc, a) => acc ++ a.sentences}.distinct
+          val aggregatedImageUrls = evidenceInfoList.filterNot(_.images.size == 0).foldLeft(List.empty[String]){(acc, a) => acc ++ a.images}.distinct
+          val aggregatedTableUrls = evidenceInfoList.filterNot(_.tables.size == 0).foldLeft(List.empty[String]){(acc, a) => acc ++ a.tables}.distinct
+
+          acc :+  Evidence(documentId, aggregatedSentences, aggregatedImageUrls, aggregatedTableUrls)        
         }
       }            
 

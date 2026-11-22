@@ -440,6 +440,17 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("Life is so comfortable."))
+        )      
       })
 
     }
@@ -582,6 +593,19 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("There are two cats."))
+          assert(x.images.filterNot(_.equals("")).size > 0 )
+        )      
+
       })
 
     }
@@ -677,6 +701,18 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("Based on my many years of experience, the culprit of this incident is likely among us."))          
+        )      
+
       })
 
     }
@@ -820,6 +856,18 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("There are two cats."))
+          assert(x.images.filterNot(_.equals("")).size > 0 )
+        )      
       })
 
     }
@@ -970,6 +1018,19 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("There is evidence data."))
+          assert(x.tables.filterNot(_.equals("")).size > 0 )
+        )      
+
       })
 
     }
@@ -1121,6 +1182,18 @@ class HomeControllerSpecEnglish extends PlaySpec with BeforeAndAfter with Before
         if (!x.target.status.equals("")) {
           assert(x.target.status.equals("TRIVIAL"))
         }
+        val fr2 = FakeRequest(POST, "/getEvidenceSentenceAndNeighborhood")
+          .withHeaders("Content-type" -> "application/json", TRANSVERSAL_STATE.str -> transversalStateJson)
+          .withJsonBody(Json.parse(Json.toJson(x.source.reasons).toString))
+        val result = call(controller.getEvidenceSentenceAndNeighborhood(), fr2)
+        status(result) mustBe OK
+        contentType(result) mustBe Some("application/json")
+        val jsonResult = contentAsJson(result).toString()
+        val evidences =  Json.parse(jsonResult).as[List[Evidence]]
+        evidences.foreach(x =>          
+          assert(x.sentences.head.equals("There is evidence data."))
+          assert(x.tables.filterNot(_.equals("")).size > 0 )
+        )      
       })
 
     }
