@@ -77,6 +77,17 @@ class ResultAnalyzer {
   private def isTrivialProposition(regulationFormulaSet:FormulaSet, hypothesisFormulaSet:FormulaSet) :Boolean = {
     val regulationFormulaElements = regulationFormulaSet.subFormulaMap.head._2.split(" ").toList
     val hypothesisFormulaElements = hypothesisFormulaSet.subFormulaMap.head._2.split(" ").toList
+    if(hypothesisFormulaElements.size == 0) return true
+
+    val nonTrivialElements =  (regulationFormulaSet.subFormulaMap ++ hypothesisFormulaSet.subFormulaMap).foldLeft(List.empty[String]){
+      (acc, x) => {
+        acc ++ x._2.split(" ").filterNot(y => y.equals("AND") || y.equals("OR") || y.equals("IMP") || y.equals("NOT") || y.equals("true") || y.equals("false")).toList
+      }
+    }
+    if(nonTrivialElements.size == 0) return true
+    false
+
+    /*
     if(regulationFormulaElements.size == 0) {
       return true
     }else if(regulationFormulaElements.size == 1) {
@@ -93,11 +104,12 @@ class ResultAnalyzer {
     }
     val nonTrivialElements =  regulationFormulaSet.subFormulaMap.foldLeft(List.empty[String]){
       (acc, x) => {
-        acc ++ x._2.split(" ").filterNot(y => y.equals("AND") || y.equals("OR") || y.equals("IMP") || y.equals("true") || y.equals("false")).toList
+        acc ++ x._2.split(" ").filterNot(y => y.equals("AND") || y.equals("OR") || y.equals("IMP") || y.equals("NOT") || y.equals("true") || y.equals("false")).toList
       }
     }
-    if(nonTrivialElements.size == 0) return true
+    if(nonTrivialElements.size == 0) return true    
     false
+    */
   }
 
   /**
