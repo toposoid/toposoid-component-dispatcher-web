@@ -74,8 +74,11 @@ class ResultAnalyzer {
    * @param formulaSet
    * @return
    */
-  private def isTrivialProposition(regulationFormulaSet:FormulaSet, hypothesisFormulaSet:FormulaSet) :Boolean = {
-    val regulationFormulaElements = regulationFormulaSet.subFormulaMap.head._2.split(" ").toList
+  private def isTrivialProposition(regulationFormulaSet:FormulaSet, hypothesisFormulaSet:FormulaSet) :Boolean = {    
+    val regulationFormulaElements = regulationFormulaSet.subFormulaMap.size match {
+      case  0 => List.empty[String]
+      case _  => regulationFormulaSet.subFormulaMap.head._2.split(" ").toList
+    }
     val hypothesisFormulaElements = hypothesisFormulaSet.subFormulaMap.head._2.split(" ").toList
     if(hypothesisFormulaElements.size == 0) return true
 
